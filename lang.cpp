@@ -40,7 +40,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//out testobj=new lang::parseObj("hoge");//アウト
 		//std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;
         int nest = 0;
-        for(int i=0;i<pars->parsers.size();i++)
+        /*for(int i=0;i<pars->parsers.size();i++)
         {
             if(pars->parsers[i]->pEnum == lang::blockend)nest--;
             if(pars->parsers[i]->pEnum == lang::rightparent)nest--;
@@ -49,8 +49,17 @@ int _tmain(int argc, _TCHAR* argv[])
             std::cout<<pars->parsers[i]->toString()<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
             if(pars->parsers[i]->pEnum == lang::blockstart)nest++;
             if(pars->parsers[i]->pEnum == lang::leftparent)nest++;
-        }
+        }*/
         pars->runner->run();
+        std::cout<<"実行終 変数や定数を削除"<<std::endl;
+        lang::gc->roots.clear();
+        lang::gc->root->variable._variable.clear();
+        lang::gc->start();
+        std::cout<<"定数の削除"<<std::endl;
+        for(int i=0;i<pars->parsers.size();i++)
+        {
+            delete pars->parsers[i]->ptr;
+        }
         //(new lang::scope(pars->parsers))->run();
         //}
         //catch(char* ex)

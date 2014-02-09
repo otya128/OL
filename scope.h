@@ -4,12 +4,14 @@
 #include <map>
 #include <memory>
 #include "variable.h"
+//#include "GC.h"
 //#include "Function.h"
 //#include "Object.h"
+//#define std::shared_ptr<Function> Function
 namespace lang
 {
 class Function;
-typedef std::shared_ptr<Function> langFunction;
+///typedef std::shared_ptr<Function> langFunction;
 /*class RuntimeObject
 {
 public:
@@ -36,8 +38,16 @@ enum scopeType
     _none_,_function,for_,
 };
 }
-
-//std::map<std::string,std::shared_ptr<Object>>
+class Function;
+#define GCENABLE 1
+#ifdef GCENABLE
+typedef Object* langObject;
+typedef Int* langInt;
+typedef String* langString;
+typedef Function* langFunction;
+#define newObject(a) new Object(a)
+#endif
+//std::map<std::string,langObject>
 class scope
 {
 private:
@@ -58,7 +68,7 @@ public:
     ~scope(void);
     int parentSkip(int index);
     int blockSkip(int index,int j=0);
-    std::shared_ptr<Object> eval(std::shared_ptr<Object> object,int& index,int opera = 17,bool isbinaryoperation=false);
+    langObject eval(langObject object,int& index,int opera = 17,bool isbinaryoperation=false);
     langFunction anonymousFunction(int& index);
 };
 langObject BuidInFunction(std::string name,std::vector<langObject> arg);

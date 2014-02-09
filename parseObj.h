@@ -8,7 +8,7 @@ class parseObj
 {
 private:
 public:
-	std::shared_ptr<Object> ptr;
+	langObject ptr;
 	std::string* name;
 	parserEnum pEnum;
 	int getInt();

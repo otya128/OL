@@ -44,7 +44,7 @@ langObject Function::call(std::vector<langObject>* argList)
         sc->variable.add((*this->argList)[i],(*argList)[i]);
     }
     auto buf = sc->run();
-    return std::shared_ptr<Object>( buf);
+    return /*std::shared_ptr<Object>*/( buf);
 }
 langFunction scope::anonymousFunction(int& index)
 {
@@ -55,7 +55,7 @@ langFunction scope::anonymousFunction(int& index)
     int funcRead=2;
     std::vector<std::string>* argList = new std::vector<std::string>();
     
-    langFunction func = std::make_shared<Function>(name,nullptr,this,index+1);
+    langFunction func = /*std::make_shared<Function>*/new Function(name,nullptr,this,index+1);
     for(int i=index+1;i<this->parsers.size();i++)
     {
         auto token = this->parsers[i];
@@ -95,6 +95,6 @@ langFunction scope::anonymousFunction(int& index)
     if(func->argList == nullptr)throw "syntax error";
     this->refinc();
     index = this->blockSkip(func->index);
-    return std::shared_ptr<Function>(func);
+    return /*std::shared_ptr<Function>*/(func);
 }
 }

@@ -6,9 +6,12 @@
 #include <memory>
 #include <vector>
 #include "Function.h"
+#include "GC.h"
+#define newInt(a) new Int(a)
+#define newString(a) new String(a)
 namespace lang
 {
-
+extern がべこれ* gc;
 langObject BuidInFunction(std::string name,std::vector<langObject> arg)
 {
     if(name=="print")
@@ -19,9 +22,14 @@ langObject BuidInFunction(std::string name,std::vector<langObject> arg)
         }
         std::cout<<"\t";
     }
+    if(name=="GC")
+    {
+        std::cout<<"明示的ながべこれ呼び出し"<<std::endl;
+        gc->start();
+    }
     if(name=="sqrt")
     {
-        return std::make_shared<Int>((int)sqrt<int>(Int::toInt(arg[0])));
+        return /*std::make_shared<Int>*/new Int((int)sqrt<int>(Int::toInt(arg[0])));
     }
     return 0;
 }
@@ -58,6 +66,7 @@ scope::scope(std::vector<parseObj*> v)
 }
 scope::scope(std::vector<parseObj*> v,scope* parent)
 {
+    gc->roots[this] = 0;
     refcount = 0;
     this->variable.parentVariable = &parent->variable;//this->variable = new lang::variable(parent->variable);
     this->parsers = v;
@@ -70,6 +79,7 @@ scope::scope(std::vector<parseObj*> v,scope* parent)
 
 scope::~scope(void)
 {
+    gc->roots.erase(this);
     std::cout<<"変数スコープを廃棄"<<this<<std::endl;
 }
     int scope::parentSkip(int index)
@@ -140,7 +150,7 @@ scope::~scope(void)
                         index++;
                         auto buf = eval(NULLOBJECT,index);
                         
-                        return std::shared_ptr<Object>(buf);
+                        return /*langObject*/(buf);
                     }
                     else
                     status = en::iden;
@@ -158,7 +168,7 @@ scope::~scope(void)
                         this->status = sc->status;
                         sc->del();
                         //delete sc;
-                        return std::shared_ptr<Object>(buf);
+                        return /*langObject*/(buf);
                     }
                     //delete sc;
                         sc->del();
@@ -355,7 +365,7 @@ scope::~scope(void)
             }
         }
 #endif
-std::shared_ptr<Object> scope::eval(std::shared_ptr<Object> object,int& index,int opera,bool isbinaryoperation)
+langObject scope::eval(langObject object,int& index,int opera,bool isbinaryoperation)
 {
     //int index = object->index;
     int binaryoperation = index + 1;
@@ -416,7 +426,7 @@ std::shared_ptr<Object> scope::eval(std::shared_ptr<Object> object,int& index,in
     }
     if(this->parsers.size()>binaryoperation)
     {
-        std::shared_ptr<Object> buf;
+        langObject buf;
         int i=index+2;
         int thisop = Operator(this->parsers[binaryoperation]->pEnum);
         switch (this->parsers[binaryoperation]->pEnum)
@@ -439,7 +449,7 @@ std::shared_ptr<Object> scope::eval(std::shared_ptr<Object> object,int& index,in
                 }*/
                 if(object!=nullptr && object->type->TypeEnum == _Function)
                 {
-                    object = langObject(static_cast<Function*>(object.get())->call(&arg));
+                    object = langObject(static_cast<Function*>(object/*.get()*/)->call(&arg));
                 }
                 else 
                 object = BuidInFunction(*this->parsers[binaryoperation - 1]->name,arg);
@@ -514,7 +524,7 @@ std::shared_ptr<Object> scope::eval(std::shared_ptr<Object> object,int& index,in
         break;
         case parserEnum::plusplus:
             if (opera < thisop) break;
-            buf = std::make_shared<Int>(1);
+            buf = newInt(1);
             object = Object::plus(object,buf);
             this->variable.set(*this->parsers[index]->name,object);
             index = i;
@@ -522,6 +532,6 @@ std::shared_ptr<Object> scope::eval(std::shared_ptr<Object> object,int& index,in
         break;
     }
     }
-    return std::shared_ptr<Object>(object);
+    return langObject(object);
 }
 }

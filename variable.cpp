@@ -5,7 +5,7 @@
 namespace lang{
 variable::variable(variable* s)
 {
-    this->_variable = std::map<std::string,std::shared_ptr<Object>>();
+    this->_variable = std::map<std::string,langObject>();
     this->childVariable = nullptr;
     this->parentVariable = s;
     s->childVariable = this;
@@ -14,7 +14,7 @@ variable::variable(variable* s)
 
 variable::variable(void)
 {
-    //this->_variable = std::map<std::string,std::shared_ptr<Object>>();
+    //this->_variable = std::map<std::string,langObject>();
     this->childVariable = nullptr;
     this->parentVariable = nullptr;
 }
@@ -24,7 +24,7 @@ variable::~variable(void)
     this->childVariable->parentVariable = nullptr;
 }
 
-    std::shared_ptr<Object> variable::search(std::string name)
+    langObject variable::search(std::string name)
     {
         if(this->_variable.find(name) != this->_variable.end())
             return this->_variable[name];
@@ -35,14 +35,14 @@ variable::~variable(void)
             return this->parentVariable->search(name);
         }
     }
-    std::shared_ptr<Object> variable::operator[](std::string name)
+    langObject variable::operator[](std::string name)
     {
         if(this->_variable.find(name) != this->_variable.end())
             return this->_variable[name];
         else if(this->parentVariable != nullptr)return this->parentVariable->search(name);
         return lang::NULLOBJECT;
     }
-    std::shared_ptr<Object> variable::set(std::string name,std::shared_ptr<Object> object)
+    langObject variable::set(std::string name,langObject object)
     {
         if(this->_variable.find(name) != this->_variable.end()){
             this->_variable[name] = object;return this->_variable[name];}
@@ -53,7 +53,7 @@ variable::~variable(void)
             return this->parentVariable->set(name,object);
         }
     }
-    void variable::add(std::string name,std::shared_ptr<class Object> object)
+    void variable::add(std::string name,langObject object)
     {
         this->_variable[name] = object;
     }

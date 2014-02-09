@@ -23,5 +23,5 @@ public:
     langObject call(std::vector<langObject>* argList);
 };
 
-typedef std::shared_ptr<Function> langFunction;
+//typedef std::shared_ptr<Function> langFunction;
 }

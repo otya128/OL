@@ -3,11 +3,14 @@
 #include "parseObj.h"
 //#include "parserEnum.h"
 //#include "Object.h"
+
+#define newInt(a) new Int(a)
+#define newString(a) new String(a)
 namespace lang
 {
 parseObj::parseObj(int obj)
 {
-	this->ptr=std::make_shared<Int>(obj);
+	this->ptr=newInt(obj);
 	this->pEnum=parserEnum::num;
 }
 parseObj::parseObj(std::string obj)
@@ -16,7 +19,7 @@ parseObj::parseObj(std::string obj)
 	this->ptr=(void*)(str->c_str());
 	str=nullptr;*/
 	//this->ptr=(void*)(obj.copy().data());
-	this->ptr=std::make_shared<String>(&obj);
+	this->ptr=newString(&obj);
 	this->pEnum=parserEnum::str;
 }
 
@@ -49,7 +52,7 @@ int parseObj::getInt(void)
 	if(this->pEnum==parserEnum::num)
 	{
         if(this->ptr->type->TypeEnum==PreType::_Int)
-        return (static_cast<Int*>(this->ptr.get()))->getInt();
+        return (static_cast<Int*>(this->ptr/*.get()*/))->getInt();
             //return (static_cast<std::shared_ptr<Int>>(this->ptr))->getInt();
 	}
 	throw std::exception::exception("型intにキャスト不可");
@@ -59,7 +62,7 @@ std::string parseObj::getString(void)
 	if(this->pEnum==parserEnum::str)
 	{
         if(this->ptr->type->TypeEnum==PreType::_String)
-        return *((static_cast<String*>(this->ptr.get()))->getString());
+        return *((static_cast<String*>(this->ptr/*.get()*/))->getString());
             //return *((static_cast<std::shared_ptr<String>>(this->ptr))->getString());
 		//return (char*)ptr;//(std::string)(((char*)ptr)+4);
 	}

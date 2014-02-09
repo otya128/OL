@@ -1,3 +1,6 @@
-print((function(int i){return function(int j){return i+j;};}(1))(2),"hmm?");
+print((function(int i){return function(int j){return i+j;};}(1))(2),"hmm"+"?");
+var GCtest="GCGCGC"+"?";
+GC();
+print(GCtest);
 print((add(1))(),(((function(){print("hoge");return function(){print("hoge");return "jphe";};})()))());var a = function(){print("hoge");return;};a();
 void add(int i){return function(){return i+1;};}

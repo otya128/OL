@@ -3,7 +3,9 @@
 #include "parser.h"
 #include <stack>
 #include "Function.h"
+#include "GC.h"
 //#include "parserEnum.h"
+#define newFunction(a,a1,a2,a3) new Function(a,a1,a2,a3)
 namespace lang
 {
 enum parserStatus
@@ -26,6 +28,7 @@ bool isNum(char c)
 void parser::function()
 {
     this->runner = new scope(this->parsers);
+    lang::gc = new ‚ª‚×‚±‚ê(this->runner);
     int funcRead = 0;
     std::string* funcName = nullptr;
     std::vector<std::string>* argList = new std::vector<std::string>();
@@ -97,7 +100,7 @@ void parser::function()
             funcRead = 0;
             if(func == 0)
             {
-                this->runner->variable.add(*funcName,std::make_shared<Function>(funcName, argList, this->runner,i));
+                this->runner->variable.add(*funcName,newFunction(funcName, argList, this->runner,i));
             }
             std::vector<std::string>* argList = new std::vector<std::string>();
             func++;

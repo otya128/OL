@@ -2,8 +2,10 @@
 #include <vector>
 #include "parseObj.h"
 #include "scope.h"
+#include "GC.h"
 namespace lang
 {
+extern ‚ª‚×‚±‚ê* gc;
 class parser
 {
 public:

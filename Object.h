@@ -4,10 +4,25 @@
 #include <memory>
 #include <map>
 #include <vector>
+//#include "GC.h"
 //#include "scope.h"
 
 namespace lang
 {
+//#define newObject(a) std::make_shared<Object>(a)
+
+class GC;
+class Object;
+class Int;
+class String;
+class Function;
+#define GCENABLE 1
+#ifdef GCENABLE
+typedef Object* langObject;
+typedef Int* langInt;
+typedef String* langString;
+#define newObject(a) new Object(a)
+#endif
 enum PreType
 {
     _Object,_Int,_String,_Char,_Double,_Array,_Class,_Function
@@ -50,18 +65,17 @@ public:
 	Object(void* ptr);
     Object(void);
 	~Object(void);
-    static std::shared_ptr<Object> plus(std::shared_ptr<Object> obj1,std::shared_ptr<Object> obj2);
-    static std::shared_ptr<Object> multiply(std::shared_ptr<Object> obj1,std::shared_ptr<Object> obj2);
-    static std::shared_ptr<Object> greater(std::shared_ptr<Object> obj1,std::shared_ptr<Object> obj2);
-    static std::shared_ptr<Object> less(std::shared_ptr<Object> obj1,std::shared_ptr<Object> obj2);
-    static std::shared_ptr<Object> greaterEqual(std::shared_ptr<Object> obj1,std::shared_ptr<Object> obj2);
-    static std::shared_ptr<Object> lessEqual(std::shared_ptr<Object> obj1,std::shared_ptr<Object> obj2);
-    static std::shared_ptr<Object> modulo(std::shared_ptr<Object> obj1,std::shared_ptr<Object> obj2);
-    static std::shared_ptr<Object> equal(std::shared_ptr<Object> obj1,std::shared_ptr<Object> obj2);
+    static langObject plus(langObject obj1,langObject obj2);
+    static langObject multiply(langObject obj1,langObject obj2);
+    static langObject greater(langObject obj1,langObject obj2);
+    static langObject less(langObject obj1,langObject obj2);
+    static langObject greaterEqual(langObject obj1,langObject obj2);
+    static langObject lessEqual(langObject obj1,langObject obj2);
+    static langObject modulo(langObject obj1,langObject obj2);
+    static langObject equal(langObject obj1,langObject obj2);
 };
 
-typedef std::shared_ptr<Object> langObject;
-#define newObject(a) std::make_shared<Object>(a)
+//typedef langObject langObject;
 class Int : public Object
 {
 public:
@@ -69,10 +83,10 @@ public:
 	void setInt(int i);
 	Int(int ptr);
 	~Int(void);
-    static int toInt(std::shared_ptr<Object> obj);
+    static int toInt(langObject obj);
     virtual std::string toString();
 };
-typedef std::shared_ptr<Int> langInt;
+//typedef std::shared_ptr<Int> langInt;
 class String : public Object
 {
 public:
@@ -83,7 +97,8 @@ public:
     virtual std::string toString();
 };
 
-typedef std::shared_ptr<String> langString;
+//typedef std::shared_ptr<String> langString;
+
 
         langObject const NULLOBJECT = newObject();//std::make_shared<Object>();
 
