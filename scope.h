@@ -4,9 +4,13 @@
 #include <map>
 #include <memory>
 #include "variable.h"
+//#include "Function.h"
+//#include "Object.h"
 namespace lang
 {
-class RuntimeObject
+class Function;
+typedef std::shared_ptr<Function> langFunction;
+/*class RuntimeObject
 {
 public:
     Object* object;
@@ -16,42 +20,46 @@ public:
         this->object = obj;
         this->index = i;
     }
-};
-#pragma once
+};*/
 namespace en
 {
 enum scopeStatus
 {
     none,iden,var,_for,_if,
 };
+enum returnStatus
+{
+    none_,_return,_break
+};
+enum scopeType
+{
+    _none_,_function,for_,
+};
 }
 
-struct comparer
-{
-    public:
-    bool operator()(const std::string x, const std::string y)
-    {
-         return x.compare(y)>0;
-    }
-};
-        langObject const NULLOBJECT = newObject();//std::make_shared<Object>();
 //std::map<std::string,std::shared_ptr<Object>>
 class scope
 {
 private:
+    int refcount;
+public:
+    void refinc();
+    void refdec();
+    void del();
     std::vector<parseObj*> parsers;
     int startIndex;
     int index;
-public:
+    en::scopeType type;
+    en::returnStatus status;
     variable variable;
     scope(std::vector<parseObj*> v);
     scope(std::vector<parseObj*> v,scope* parent);
-    void run(void);
+    langObject run(void);
     ~scope(void);
     int parentSkip(int index);
-    int blockSkip(int index);
+    int blockSkip(int index,int j=0);
     std::shared_ptr<Object> eval(std::shared_ptr<Object> object,int& index,int opera = 17,bool isbinaryoperation=false);
+    langFunction anonymousFunction(int& index);
 };
-#pragma once
 langObject BuidInFunction(std::string name,std::vector<langObject> arg);
 }

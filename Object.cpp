@@ -4,10 +4,9 @@
 //#include "parserEnum.h"
 #include <sstream>
 #include <memory>
-#define langObject std::shared_ptr<Object>
+/*#define langObject std::shared_ptr<Object>
 #define langInt std::shared_ptr<Int>
-#define langString std::shared_ptr<String>
-
+#define langString std::shared_ptr<String>*/
 namespace lang
 {
 Object::Object(void* ptr)
@@ -17,6 +16,7 @@ Object::Object(void* ptr)
 }
 Object::Object(void)
 {
+    this->type = new Type(PreType::_Object);
 }
 
 std::string _toString(Object* arg)
@@ -34,14 +34,14 @@ std::string _toString(Object* arg)
         return *(static_cast<String*>(arg))->getString();
         }
 }
-#define GABEKORE 1
+#define GABEKORE 0
 Object::~Object(void)
 {
 #if GABEKORE
-    std::cout<<"Ç™Ç◊Ç±ÇÍíÜ..."<<this<<"\t"<<this->type->name<<"\t"<<_toString(this)<<std::endl;
+    std::cout<<"Ç™Ç◊Ç±ÇÍíÜ..."<<this<<"\t"<<this->type->name<<"\t"<<_toString(this);//<<std::endl;
 #endif
-    delete this->type;
-	delete this->ptr;
+    //delete this->type;
+	//delete this->ptr;
 }
 void* Object::getPointer(void)
 {
@@ -108,6 +108,7 @@ std::string String::toString(void)
 {
     return *((std::string*)(this->ptr));
 }
+
     int Int::toInt(std::shared_ptr<Object> obj)
     {
         if(obj->type->TypeEnum==PreType::_Int)
@@ -194,4 +195,5 @@ std::string String::toString(void)
         }
         throw "èoóàÇ»Ç¢";
     }
+    
 }

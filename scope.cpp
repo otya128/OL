@@ -1,9 +1,11 @@
+#pragma once
 #include "stdafx.h"
 #include "scope.h"
-#include "variable.h"
+//#include "variable.h"
 #include <map>
 #include <memory>
 #include <vector>
+#include "Function.h"
 namespace lang
 {
 
@@ -17,25 +19,58 @@ langObject BuidInFunction(std::string name,std::vector<langObject> arg)
         }
         std::cout<<"\t";
     }
+    if(name=="sqrt")
+    {
+        return std::make_shared<Int>((int)sqrt<int>(Int::toInt(arg[0])));
+    }
     return 0;
 }
+    void scope::refinc()
+    {
+        this->refcount++;
+    }
+    void scope::refdec()
+    {
+        this->refcount--;
+        if(this->refcount<=0) 
+        {
+            if(this->variable.parentVariable != nullptr)
+            this->~scope();
+        }
+    }
+    void scope::del()
+    {
+        if(this->refcount<=0) 
+        {
+            if(this->variable.parentVariable != nullptr)
+            this->~scope();
+        }
+    }
 scope::scope(std::vector<parseObj*> v)
 {
+    refcount = 0;
+    //this->variable = lang::variable();
     this->parsers = v;
     this->index = 0;
     this->startIndex = 0;
+    this->status = en::returnStatus::none_;
+    this->type = en::scopeType::_none_;
 }
 scope::scope(std::vector<parseObj*> v,scope* parent)
 {
+    refcount = 0;
     this->variable.parentVariable = &parent->variable;//this->variable = new lang::variable(parent->variable);
     this->parsers = v;
     this->index = 0;
     this->startIndex = 0;
+    this->status = en::returnStatus::none_;
+    this->type = en::scopeType::_none_;
 }
 
 
 scope::~scope(void)
 {
+    std::cout<<"変数スコープを廃棄"<<this<<std::endl;
 }
     int scope::parentSkip(int index)
     {
@@ -57,9 +92,8 @@ scope::~scope(void)
         }
         return index;
     }
-    int scope::blockSkip(int index)
+    int scope::blockSkip(int index,int j)
     {
-    int j=0;
         while(this->parsers.size()>index)
         {
             index++;
@@ -77,11 +111,11 @@ scope::~scope(void)
         }
         return index;
     }
-void scope::run(void)
+    langObject scope::run(void)
 {
     this->index = this->startIndex;
     auto status = en::scopeStatus::none;
-    scope* forscope;
+    /*std::shared_ptr<scope>*/scope* forscope;
     int forindex[3],findex = -1;
     forindex[0]=-1;forindex[1]=-1;forindex[2]=-1;
     for(this->index = this->startIndex;index < parsers.size();index++)
@@ -99,18 +133,35 @@ void scope::run(void)
                     }else if(*j->name == "if")
                     {
                         status = en::_if;
-                    }else
+                    }
+                    else if(*j->name == "return")
+                    {
+                        this->status = en::returnStatus::_return;
+                        index++;
+                        auto buf = eval(NULLOBJECT,index);
+                        
+                        return std::shared_ptr<Object>(buf);
+                    }
+                    else
                     status = en::iden;
                 break;
             case parserEnum::blockend:
                 
-                return;
+                return NULLOBJECT;
             case parserEnum::blockstart:
-                    auto sc = new scope(this->parsers,this);
+                    auto sc = /*std::make_shared<scope>*/new scope(this->parsers,this);
                     sc->startIndex = this->index + 1;
-                    sc->run();
+                    auto buf = sc->run();
                     this->index = sc->index;
-                    delete sc;
+                    if(sc->status==en::returnStatus::_return)
+                    {
+                        this->status = sc->status;
+                        sc->del();
+                        //delete sc;
+                        return std::shared_ptr<Object>(buf);
+                    }
+                    //delete sc;
+                        sc->del();
                 break;
             }
             break;
@@ -151,7 +202,7 @@ void scope::run(void)
                         case parserEnum::blockstart:
                         if(findex == 3)
                         {
-                            forscope = new scope(this->parsers,this);
+                            forscope = /*std::make_shared<scope>*/new scope(this->parsers,this);
                             forscope->startIndex = this->index + 1;
                             forscope->index = forindex[0];
                             forscope->eval(NULLOBJECT,forscope->index);
@@ -159,7 +210,14 @@ void scope::run(void)
                         forscope->index = forindex[1];
                         if(Int::toInt(forscope->eval(NULLOBJECT,forscope->index)))
                         {
-                            forscope->run();
+                            auto buf = forscope->run();
+                            if(forscope->status == en::returnStatus::_return)
+                            {
+                                this->status = forscope->status;
+                                //delete forscope;
+                                forscope->del();
+                                return buf;
+                            }
                             this->index--;//this->index = forscope->index;
                             findex = 4;
                             forscope->index = forindex[2];
@@ -169,7 +227,8 @@ void scope::run(void)
                         {
                             this->index = this->blockSkip(this->index);
                             status = en::none;
-                            delete forscope;
+                            forscope->del();
+                            //delete forscope;
                         }
                         break;
                     }
@@ -217,6 +276,7 @@ void scope::run(void)
         break;
         }
     }
+        return NULLOBJECT;
     //auto buf = eval(this->parsers[0]->ptr,this->index);
     //if(buf!=nullptr)std::cout<<"result:"<<(buf)->toString()<<std::endl;
     //delete buf;
@@ -244,6 +304,7 @@ void scope::run(void)
             {
                 case parserEnum::dot:
                     return 1;
+                case parserEnum::leftparent:
                 case parserEnum::leftbracket:
                     return ArrayPrece;
                 case parserEnum::plusplus:
@@ -298,14 +359,15 @@ std::shared_ptr<Object> scope::eval(std::shared_ptr<Object> object,int& index,in
 {
     //int index = object->index;
     int binaryoperation = index + 1;
+        int i,j;
     if(!isbinaryoperation)
     {
-        int i;
         switch (this->parsers[index]->pEnum)
         {
             case parserEnum::identifier:
-                if(this->parsers.size()>binaryoperation&&this->parsers[binaryoperation]->pEnum==leftparent)
+                /*if(this->parsers.size()>binaryoperation&&this->parsers[binaryoperation]->pEnum==leftparent)
                 {
+                    j=index;
                     i = this->parentSkip(binaryoperation);
                     std::vector<langObject> arg;
                     index = index + 2;
@@ -315,11 +377,22 @@ std::shared_ptr<Object> scope::eval(std::shared_ptr<Object> object,int& index,in
                         index++;
                         if(this->parsers[index]->pEnum==parserEnum::comma)index++;
                     }
-                    BuidInFunction(*this->parsers[binaryoperation - 1]->name,arg);
+                    if(this->variable[*this->parsers[j]->name]!=nullptr && this->variable[*this->parsers[j]->name]->type->TypeEnum == PreType::_Function)
+                    {
+                        object = static_cast<Function*>(this->variable[*this->parsers[j]->name].get())->call(&arg);
+                    }
+                    else 
+                    object = BuidInFunction(*this->parsers[binaryoperation - 1]->name,arg);
                     //object = 
                     index = i;
                     binaryoperation = index + 1;
 
+                }
+                else*/
+                if(*this->parsers[index]->name == "function")
+                {
+                    object = /*std::make_shared<Function>*/(/**/anonymousFunction(index));
+                    binaryoperation = index + 1;
                 }
                 else
                 object = this->variable[*this->parsers[index]->name];
@@ -346,8 +419,36 @@ std::shared_ptr<Object> scope::eval(std::shared_ptr<Object> object,int& index,in
         std::shared_ptr<Object> buf;
         int i=index+2;
         int thisop = Operator(this->parsers[binaryoperation]->pEnum);
-    switch (this->parsers[binaryoperation]->pEnum)
-    {
+        switch (this->parsers[binaryoperation]->pEnum)
+        {
+            case leftparent:
+            {
+                j=index;
+                i = this->parentSkip(binaryoperation);
+                std::vector<langObject> arg;
+                index = index + 2;
+                while (index<i)
+                {
+                    arg.push_back(eval(NULLOBJECT,index,17));
+                    index++;
+                    if(this->parsers[index]->pEnum==parserEnum::comma)index++;
+                }
+                /*if(this->variable[*this->parsers[j]->name]!=nullptr && this->variable[*this->parsers[j]->name]->type->TypeEnum == PreType::_Function)
+                {
+                    object = static_cast<Function*>(this->variable[*this->parsers[j]->name].get())->call(&arg);
+                }*/
+                if(object!=nullptr && object->type->TypeEnum == _Function)
+                {
+                    object = langObject(static_cast<Function*>(object.get())->call(&arg));
+                }
+                else 
+                object = BuidInFunction(*this->parsers[binaryoperation - 1]->name,arg);
+                //object = 
+                index = i;
+                binaryoperation = index + 1;
+            }
+            if(this->parsers.size()>index+1&&/*Operator(this->parsers[index+1]->pEnum) > thisop*/this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,true);
+            break;
         case parserEnum::plus:
             if (opera < thisop) break;
             buf = eval(object,i,thisop);
@@ -421,6 +522,6 @@ std::shared_ptr<Object> scope::eval(std::shared_ptr<Object> object,int& index,in
         break;
     }
     }
-    return object;
+    return std::shared_ptr<Object>(object);
 }
 }

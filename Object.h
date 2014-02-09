@@ -1,16 +1,24 @@
+
 #pragma once
+#ifndef newObject
 #include <memory>
+#include <map>
+#include <vector>
+//#include "scope.h"
 
 namespace lang
 {
-
 enum PreType
 {
-    _Object,_Int,_String,_Char,_Double,_Array,_Class
+    _Object,_Int,_String,_Char,_Double,_Array,_Class,_Function
 };
+#pragma once
+static const char* PreTypeName[] = {"Object","Int","String","Char","Double","Array","Class","Function"};
+
 class Type
 {
 public:
+    static std::map<PreType,Type*> TypePool;
     const char* name;
     PreType TypeEnum;
     Type(char* name)
@@ -20,32 +28,10 @@ public:
     Type(PreType enu)
     {
         this->TypeEnum = enu;
-        switch (enu)
-        {
-        case _Object:
-            this->name = "Object";
-            break;
-        case _Int:
-            this->name = "Int";
-            break;
-        case _String:
-            this->name = "String";
-            break;
-        case _Char:
-            this->name = "Char";
-            break;
-        case _Double:
-            this->name = "Double";
-            break;
-        case _Array:
-            this->name = "Array";
-            break;
-        case _Class:
-            this->name = "Class";
-            break;
-        default:
-            break;
-        }
+        this->name = PreTypeName[enu];
+        //case _Class:
+        //    this->name = "Class";
+        //    break;
     }
     ~Type(void)
     {
@@ -99,4 +85,7 @@ public:
 
 typedef std::shared_ptr<String> langString;
 
+        langObject const NULLOBJECT = newObject();//std::make_shared<Object>();
+
 }
+#endif

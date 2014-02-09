@@ -1,6 +1,6 @@
 #pragma once
-#include"parserEnum.h"
-#include"Object.h"
+#include "parserEnum.h"
+#include "Object.h"
 #include <memory>
 namespace lang
 {

@@ -5,6 +5,10 @@
 #include "parser.h"
 #include "scope.h"
 #include <memory>
+#include <fstream>
+#include <string>
+#include <iostream>
+#include <sstream>
 //#include "parseObj.h"
 //#include "parserEnum.h"
 
@@ -15,24 +19,39 @@
     {
         return enumtable[i];
     }
-    #define out auto
+    //#define out auto
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	std::cout<<"???";
-	while (true)
+	while (std::getchar())
 	{
 		std::string input;
-		std::getline(std::cin,input);
-		//try
+        std::stringstream ss;
+		//std::getline(std::cin,input);
+		std::ifstream ifs( "test.txt" );
+        while(ifs && getline(ifs, input)) {
+            ss << input;
+        }
+        input = ss.str();
+        //try
         //{
-        out pars=std::make_shared< lang::parser>(*new std::string(input));//アウト
+        auto pars=std::make_shared< lang::parser>(*new std::string(input));//アウト
 		//out testobj=new lang::parseObj("hoge");//アウト
 		//std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;
+        int nest = 0;
         for(int i=0;i<pars->parsers.size();i++)
         {
-            std::cout<<i<<"\t"<<pars->parsers[i]->toString()<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
+            if(pars->parsers[i]->pEnum == lang::blockend)nest--;
+            if(pars->parsers[i]->pEnum == lang::rightparent)nest--;
+            std::cout<<i<<"\t";
+            for(int j=0;j<nest;j++)std::cout<<" ";
+            std::cout<<pars->parsers[i]->toString()<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
+            if(pars->parsers[i]->pEnum == lang::blockstart)nest++;
+            if(pars->parsers[i]->pEnum == lang::leftparent)nest++;
         }
-        (new lang::scope(pars->parsers))->run();
+        pars->runner->run();
+        //(new lang::scope(pars->parsers))->run();
         //}
         //catch(char* ex)
         //{
