@@ -58,6 +58,9 @@ enum parserEnum
         xorequal,//^=
         chr,//single str
         none,
+        _class,
+        _new,
+        _this,
 };
 }
 #endif

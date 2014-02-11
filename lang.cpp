@@ -9,21 +9,41 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include "langException.h"
+#include <cassert>
+#include <thread>
 //#include "parseObj.h"
 //#include "parserEnum.h"
-
 #pragma once
-    char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightparent","comma","plus","minus","multiply","equal","equalequal","semicolon","blockstart","blockend","plusplus","minusminus","greater","less","greaterequal","lessequal","modulo","plusequal","minusequal","dot","division","leftbracket","rightbracket","debbug_stop","multiplyequal","divisionequal","moduloequal","or","oror","and","andand","xor","notequal","not","notnot","leftshift","rightshift","leftshiftequal","rightshiftequal","andequal","orequal","xorequal","chr","none"};
+    char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightparent","comma","plus","minus","multiply","equal","equalequal","semicolon","blockstart","blockend","plusplus","minusminus","greater","less","greaterequal","lessequal","modulo","plusequal","minusequal","dot","division","leftbracket","rightbracket","debbug_stop","multiplyequal","divisionequal","moduloequal","or","oror","and","andand","xor","notequal","not","notnot","leftshift","rightshift","leftshiftequal","rightshiftequal","andequal","orequal","xorequal","chr","none"
+    ,"_class"
+    ,"_new",
+    "_this",};
     
     char* parserEnumToString(lang::parserEnum i)
     {
         return enumtable[i];
     }
     //#define out auto
-
+    vÅiÅfÉ÷ÅfÅjv
+    vÅiÅfÉ÷ÅfÅjv
+    vÅiÅfÉ÷ÅfÅjv
+std::string ÇƒÇ©ÇkÇhÇmÇdÇ‚Ç¡ÇƒÇÈÅH(std::string input,int index)
+{
+    int i, j;
+    for(i = index;i>0;i--)
+    {
+        if(input[i] == '\n') break;
+    }
+    for(j = index;j<input.size();j++)
+    {
+        if(input[j] == '\n') break;
+    }
+    return input.substr(i + 1,j-i - 1);
+}
 int _tmain(int argc, _TCHAR* argv[])
 {
-	std::cout<<"???";
+	std::cout<<"???"<<ÇƒÇ©ÇkÇhÇmÇdÇ‚Ç¡ÇƒÇÈÅH("a\nbc\n",3);
 	while (std::getchar())
 	{
 		std::string input;
@@ -31,14 +51,21 @@ int _tmain(int argc, _TCHAR* argv[])
 		//std::getline(std::cin,input);
 		std::ifstream ifs( "test.txt" );
         while(ifs && getline(ifs, input)) {
-            ss << input;
+            ss << input << '\n';
         }
         input = ss.str();
-        //try
-        //{
-        auto pars=std::make_shared< lang::parser>(*new std::string(input));//ÉAÉEÉg
-		//out testobj=new lang::parseObj("hoge");//ÉAÉEÉg
-		//std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;
+        std::shared_ptr<lang::parser> pars;
+        try
+        {
+          pars=std::make_shared< lang::parser>(*new std::string(input));//ÉAÉEÉg
+		}
+        catch(lang::langParseException ex)
+        {
+            std::cout<<std::endl<<"lang::langParseException - lang::parser"<<std::endl<<ex.what();
+            continue;
+        }
+        //out testobj=new lang::parseObj("hoge");//ÉAÉEÉg
+		//std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
         int nest = 0;
         /*for(int i=0;i<pars->parsers.size();i++)
         {
@@ -46,12 +73,48 @@ int _tmain(int argc, _TCHAR* argv[])
             if(pars->parsers[i]->pEnum == lang::rightparent)nest--;
             std::cout<<i<<"\t";
             for(int j=0;j<nest;j++)std::cout<<" ";
-            std::cout<<pars->parsers[i]->toString()<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
+            std::cout<<input.substr(pars->parsers[i]->sourcestartindex, pars->parsers[i]->sourceendindex - pars->parsers[i]->sourcestartindex + 1)<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
             if(pars->parsers[i]->pEnum == lang::blockstart)nest++;
             if(pars->parsers[i]->pEnum == lang::leftparent)nest++;
         }*/
-        pars->runner->run();
-        std::cout<<"é¿çsèI ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
+        try
+        {
+    vÅiÅfÉ÷ÅfÅjv
+    vÅiÅfÉ÷ÅfÅjv
+    vÅiÅfÉ÷ÅfÅjv
+        #if AHO_GC //ÉXÉåÉbÉhÇ≈ìÆÇ´ë±ÇØÇÈÉAÉzÇ»GC
+            std::thread thd([]{ while (true) lang::gc->start();});
+        #endif
+            pars->runner->run();
+
+            std::cout<<"é¿çsèI ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
+        }
+        catch(lang::langRuntimeException ex)
+        {
+            std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "èÍèä?:" << std::endl;
+            for(auto i : ex.stacktrace)
+            {
+                std::cout << ÇƒÇ©ÇkÇhÇmÇdÇ‚Ç¡ÇƒÇÈÅH(input,ex.tokens[i.first]->sourcestartindex);
+                                //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
+                break;
+            }
+            std::cout << "StackTrace" << std::endl;
+            for(auto i : ex.funcstacktrace)
+            {
+                std::cout << i << std::endl;
+            }
+            std::cout<<"àŸèÌèIóπ ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
+        }
+        catch(std::exception ex)
+        {
+            std::cout<<"BUG!!!"<<ex.what()<<std::endl;
+            std::cout<<"àŸèÌèIóπ ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
+        }
+        catch(...)
+        {
+            std::cout<<"BUG!!!!!!!!!!!!!!!!!!"<<std::endl;
+            std::cout<<"àŸèÌèIóπ ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
+        }
         lang::gc->roots.clear();
         lang::gc->root->variable._variable.clear();
         lang::gc->start();
@@ -59,6 +122,7 @@ int _tmain(int argc, _TCHAR* argv[])
         for(int i=0;i<pars->parsers.size();i++)
         {
             delete pars->parsers[i]->ptr;
+            delete pars->parsers[i];
         }
         //(new lang::scope(pars->parsers))->run();
         //}

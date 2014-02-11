@@ -7,11 +7,11 @@
 #include <vector>
 #include "Function.h"
 #include "GC.h"
-#define newInt(a) new Int(a)
-#define newString(a) new String(a)
+#include "langException.h"
+#include "lang.h"
+#include "Class.h"
 namespace lang
 {
-extern がべこれ* gc;
 langObject BuidInFunction(std::string name,std::vector<langObject> arg)
 {
     if(name=="print")
@@ -54,8 +54,9 @@ langObject BuidInFunction(std::string name,std::vector<langObject> arg)
             this->~scope();
         }
     }
-scope::scope(std::vector<parseObj*> v)
+scope::scope(std::vector<parseObj*>& v)
 {
+    this->isClass() = nullptr;
     refcount = 0;
     //this->variable = lang::variable();
     this->parsers = v;
@@ -64,9 +65,10 @@ scope::scope(std::vector<parseObj*> v)
     this->status = en::returnStatus::none_;
     this->type = en::scopeType::_none_;
 }
-scope::scope(std::vector<parseObj*> v,scope* parent)
+scope::scope(std::vector<parseObj*>& v,scope* parent,langClassObject _this)
 {
-    gc->roots[this] = 0;
+    this->isClass() = isClass();
+    gc->addRoot(this);//gc->roots[this] = 0;
     refcount = 0;
     this->variable.parentVariable = &parent->variable;//this->variable = new lang::variable(parent->variable);
     this->parsers = v;
@@ -79,13 +81,13 @@ scope::scope(std::vector<parseObj*> v,scope* parent)
 
 scope::~scope(void)
 {
-    gc->roots.erase(this);
+    gc->removeRoot(this);//gc->roots.erase(this);
     std::cout<<"変数スコープを廃棄"<<this<<std::endl;
 }
     int scope::parentSkip(int index)
     {
     int j=0;
-        while(this->parsers.size()>index)
+        while(this->parsers.size()-1>index)
         {
             index++;
             switch (this->parsers[index]->pEnum)
@@ -104,7 +106,7 @@ scope::~scope(void)
     }
     int scope::blockSkip(int index,int j)
     {
-        while(this->parsers.size()>index)
+        while(this->parsers.size()-1>index)
         {
             index++;
             switch (this->parsers[index]->pEnum)
@@ -128,6 +130,8 @@ scope::~scope(void)
     /*std::shared_ptr<scope>*/scope* forscope;
     int forindex[3],findex = -1;
     forindex[0]=-1;forindex[1]=-1;forindex[2]=-1;
+    try
+    {
     for(this->index = this->startIndex;index < parsers.size();index++)
     {
         auto j = this->parsers[index];
@@ -136,6 +140,9 @@ scope::~scope(void)
         case en::none:
             switch (j->pEnum)
             {
+                case _class:
+                    index = this->blockSkip(index,-1);
+                break;
                 case parserEnum::identifier:
                     if(*j->name == "for")
                     {
@@ -159,7 +166,7 @@ scope::~scope(void)
                 
                 return NULLOBJECT;
             case parserEnum::blockstart:
-                    auto sc = /*std::make_shared<scope>*/new scope(this->parsers,this);
+                    auto sc = /*std::make_shared<scope>*/new scope(this->parsers,this,this->_this);
                     sc->startIndex = this->index + 1;
                     auto buf = sc->run();
                     this->index = sc->index;
@@ -193,11 +200,22 @@ scope::~scope(void)
             switch (j->pEnum)
             {
                 case parserEnum::equal:
+                {
                     int i=index-1;
                     this->variable.add(*this->parsers[this->index-1]->name,NULLOBJECT);
                     //this->variable[*this->parsers[this->index-1]->name]=
                     eval(this->parsers[this->index-1]->ptr,i);
                     status = en::none;
+                }
+
+                break;
+                default:
+                {
+                    int i=index-2;
+                    langObject buf = eval(this->parsers[i]->ptr,i);
+                    index=i;status = en::none;
+                    //if(buf!=nullptr)std::cout<<"result:"<<(buf)->toString()<<std::endl;
+                }
                 break;
                 }
         break;
@@ -212,7 +230,7 @@ scope::~scope(void)
                         case parserEnum::blockstart:
                         if(findex == 3)
                         {
-                            forscope = /*std::make_shared<scope>*/new scope(this->parsers,this);
+                            forscope = /*std::make_shared<scope>*/new scope(this->parsers,this,this->_this);
                             forscope->startIndex = this->index + 1;
                             forscope->index = forindex[0];
                             forscope->eval(NULLOBJECT,forscope->index);
@@ -285,6 +303,11 @@ scope::~scope(void)
             }
         break;
         }
+    }
+    }
+    catch(langRuntimeException ex)
+    {
+        throw langRuntimeException(ex.what(),startIndex,index,this->parsers,ex.stacktrace,ex.funcstacktrace);
     }
         return NULLOBJECT;
     //auto buf = eval(this->parsers[0]->ptr,this->index);
@@ -413,6 +436,32 @@ langObject scope::eval(langObject object,int& index,int opera,bool isbinaryopera
                 index = i;
                 binaryoperation = index + 1;
             break;
+            case _new:
+                object = eval(NULLOBJECT,binaryoperation,17);
+                index = binaryoperation;
+                binaryoperation = index + 1;
+                
+                if(object->type->TypeEnum == PreType::_Class )
+                {
+                    auto buf = (Class*)object;
+                    object = newClassObject(buf);
+                }
+                else
+                {
+                    throw lang::langRuntimeException("new はClass型でのみ有効です。");
+                }
+            break;
+            case parserEnum::_this:
+                object = _this;
+                if(this->isClass())
+                {
+                    
+                }
+                else
+                    throw lang::langRuntimeException("thisは使えません。");
+            index = index + 0;
+                //throw lang::langRuntimeException("new はClass型でのみ有効です。");
+            break;
             case parserEnum::num:
             case parserEnum::str:
             case parserEnum::chr:
@@ -449,7 +498,14 @@ langObject scope::eval(langObject object,int& index,int opera,bool isbinaryopera
                 }*/
                 if(object!=nullptr && object->type->TypeEnum == _Function)
                 {
-                    object = langObject(static_cast<Function*>(object/*.get()*/)->call(&arg));
+                    try
+                    {
+                        object = langObject(static_cast<Function*>(object/*.get()*/)->call(&arg));
+                    }
+                    catch(langRuntimeException ex)
+                    {
+                        throw langRuntimeException(ex.what(),ex.tokens,ex.funcstacktrace,static_cast<Function*>(object)->name->c_str(),ex.stacktrace);
+                    }
                 }
                 else 
                 object = BuidInFunction(*this->parsers[binaryoperation - 1]->name,arg);
@@ -457,7 +513,7 @@ langObject scope::eval(langObject object,int& index,int opera,bool isbinaryopera
                 index = i;
                 binaryoperation = index + 1;
             }
-            if(this->parsers.size()>index+1&&/*Operator(this->parsers[index+1]->pEnum) > thisop*/this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,true);
+            if(this->parsers.size()>index+1&&/*Operator(this->parsers[index+1]->pEnum) > thisop*/this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,true),index = i;
             break;
         case parserEnum::plus:
             if (opera < thisop) break;
@@ -471,56 +527,56 @@ langObject scope::eval(langObject object,int& index,int opera,bool isbinaryopera
             buf = eval(object,i,thisop);
             object = (Object::multiply(object,buf));
             index = i;
-            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true);
+            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
         break;
         case parserEnum::modulo:
             if (opera < thisop) break;
             buf = eval(object,i,thisop);
             object = (Object::modulo(object,buf));
             index = i;
-            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true);
+            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
         break;
         case parserEnum::greater:
             if (opera < thisop) break;
             buf = eval(object,i,thisop);
             object = (Object::greater(object,buf));
             index = i;
-            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true);
+            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
         break;
         case parserEnum::less:
             if (opera < thisop) break;
             buf = eval(object,i,thisop);
             object = (Object::less(object,buf));
             index = i;
-            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true);
+            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
         break;
         case parserEnum::greaterequal:
             if (opera < thisop) break;
             buf = eval(object,i,thisop);
             object = (Object::greaterEqual(object,buf));
             index = i;
-            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true);
+            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
         break;
         case parserEnum::lessequal:
             if (opera < thisop) break;
             buf = eval(object,i,thisop);
             object = (Object::lessEqual(object,buf));
             index = i;
-            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true);
+            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
         break;
         case parserEnum::equalequal:
             if (opera < thisop) break;
             buf = eval(object,i,thisop);
             object = (Object::equal(object,buf));
             index = i;
-            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true);
+            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
         break;
         case parserEnum::equal:
             if (opera < thisop) break;
             object = eval(object,i,thisop);
             this->variable.set(*this->parsers[index]->name,object);//this->variable[*this->parsers[index]->name] = object;
             index = i;
-            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true);
+            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
         break;
         case parserEnum::plusplus:
             if (opera < thisop) break;
@@ -528,7 +584,43 @@ langObject scope::eval(langObject object,int& index,int opera,bool isbinaryopera
             object = Object::plus(object,buf);
             this->variable.set(*this->parsers[index]->name,object);
             index = i;
-            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true);
+            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
+        break;
+        case parserEnum::dot:
+            if (opera < thisop) break;
+            if(object->type->TypeEnum == PreType::_ClassObject )
+            {
+                auto buf = (ClassObject*)object;
+                if(this->parsers.size()>binaryoperation +1)
+                {
+                    auto bufbuf = this->parsers[binaryoperation + 1];
+                    if(bufbuf->pEnum == identifier)
+                    {
+                        object = buf->thisscope->variable[*bufbuf->name];
+                        index++;
+                        binaryoperation++;
+                        if(this->parsers.size()>binaryoperation + 1)
+                        {
+                            if(this->parsers[binaryoperation + 1]->pEnum == equal)
+                            {
+                                //binaryoperation++;
+                                buf->thisscope->variable.set(*bufbuf->name,eval(NULLOBJECT,binaryoperation));
+                                //object = buf->thisscope->variable[*bufbuf->name];
+                                index++;
+                                binaryoperation++;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                throw lang::langRuntimeException(".はClass型でのみ有効です。");
+            }
+            index++;
+            binaryoperation++;
+            i = index + 0;
+            if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop) object = eval(object,i,17,true),index = i;
         break;
     }
     }

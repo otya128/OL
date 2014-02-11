@@ -8,13 +8,17 @@
 #define newString(a) new String(a)
 namespace lang
 {
-parseObj::parseObj(int obj)
+parseObj::parseObj(int obj,int i,int j)
 {
+    this->sourceendindex = j;
+    this->sourcestartindex = i;
 	this->ptr=newInt(obj);
 	this->pEnum=parserEnum::num;
 }
-parseObj::parseObj(std::string obj)
+parseObj::parseObj(std::string obj,int i,int j)
 {
+    this->sourceendindex = j;
+    this->sourcestartindex = i;
 	/*auto str=new std::string(obj);
 	this->ptr=(void*)(str->c_str());
 	str=nullptr;*/
@@ -23,20 +27,26 @@ parseObj::parseObj(std::string obj)
 	this->pEnum=parserEnum::str;
 }
 
-parseObj::parseObj(double obj)
+parseObj::parseObj(double obj,int i,int j)
 {
+    this->sourceendindex = j;
+    this->sourcestartindex = i;
 	//this->ptr=new double(obj);
 	//this->pEnum=parserEnum::num;
 }
 
-parseObj::parseObj(char obj)
+parseObj::parseObj(char obj,int i,int j)
 {
+    this->sourceendindex = j;
+    this->sourcestartindex = i;
 	//this->ptr=new char(obj);
 	//this->pEnum=parserEnum::chr;
 }
 
-parseObj::parseObj(parserEnum p,std::string* n)
+parseObj::parseObj(parserEnum p,std::string* n,int i,int j)
 {
+    this->sourceendindex = j;
+    this->sourcestartindex = i;
 	this->pEnum = p;
 	this->name  = n;
 }

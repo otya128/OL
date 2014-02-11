@@ -38,15 +38,7 @@ enum scopeType
     _none_,_function,for_,
 };
 }
-class Function;
-#define GCENABLE 1
-#ifdef GCENABLE
-typedef Object* langObject;
-typedef Int* langInt;
-typedef String* langString;
-typedef Function* langFunction;
-#define newObject(a) new Object(a)
-#endif
+#define isClass() _this
 //std::map<std::string,langObject>
 class scope
 {
@@ -62,14 +54,15 @@ public:
     en::scopeType type;
     en::returnStatus status;
     variable variable;
-    scope(std::vector<parseObj*> v);
-    scope(std::vector<parseObj*> v,scope* parent);
+    scope(std::vector<parseObj*>& v);
+    scope(std::vector<parseObj*>& v,scope* parent,langClassObject _this);
     langObject run(void);
     ~scope(void);
     int parentSkip(int index);
     int blockSkip(int index,int j=0);
     langObject eval(langObject object,int& index,int opera = 17,bool isbinaryoperation=false);
     langFunction anonymousFunction(int& index);
+    langClassObject _this;
 };
 langObject BuidInFunction(std::string name,std::vector<langObject> arg);
 }

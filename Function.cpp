@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Function.h"
 #include <sstream>
+#include "langException.h"
 namespace lang
 {
 
@@ -14,7 +15,7 @@ Function::Function(std::string* name,std::vector<std::string>* argList,lang::sco
 }
 Function::Function(Function* f,lang::scope* this_scope)
 {
-    this->type = f->type;
+    this->type = new Type(f->type->TypeEnum,(char*)f->type->name);
     this->name = f->name;
     this->argList = f->argList;
     this->scope = f->scope;
@@ -35,10 +36,11 @@ std::string Function::toString(void)
 }
 langObject Function::call(std::vector<langObject>* argList)
 {
-    auto sc =new lang::scope(this->scope->parsers,this->scope/*.get()*/);
+    auto sc =new lang::scope(this->scope->parsers,this->scope/*.get()*/,this->scope->_this);
     sc->type = en::scopeType::_function;
     sc->startIndex = this->index;
-    if(this->argList->size()!=argList->size()) throw "ˆø”‚Ì”‚ªˆá‚¤";
+    if(this->argList->size()!=argList->size())
+     throw langRuntimeException("ˆø”‚Ì”‚ªˆá‚¤");
     for(int i=0;i<this->argList->size();i++)
     {
         sc->variable.add((*this->argList)[i],(*argList)[i]);

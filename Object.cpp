@@ -6,6 +6,7 @@
 #include <memory>
 #include "GC.h"
 #include "Function.h"
+#include "langException.h"
 #define newInt(a) new Int(a)
 #define newString(a) new String(a)
 /*#define langObject langObject
@@ -144,7 +145,7 @@ std::string String::toString(void)
             case _String:
                 return newString(&(obj1->toString() + obj2->toString()));
         }
-        throw "o—ˆ‚È‚¢";
+        throw langRuntimeException("+o—ˆ‚È‚¢");
         //•ÏŠ·•s‰Â
     }
     langObject Object::multiply(langObject obj1,langObject obj2)

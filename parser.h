@@ -5,7 +5,7 @@
 #include "GC.h"
 namespace lang
 {
-extern ‚ª‚×‚±‚ê* gc;
+//extern ‚ª‚×‚±‚ê* gc;
 class parser
 {
 public:

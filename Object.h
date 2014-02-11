@@ -1,34 +1,21 @@
 
 #pragma once
-#ifndef newObject
 #include <memory>
 #include <map>
 #include <vector>
 //#include "GC.h"
 //#include "scope.h"
-
+#include "lang.h"
 namespace lang
 {
 //#define newObject(a) std::make_shared<Object>(a)
 
-class GC;
-class Object;
-class Int;
-class String;
-class Function;
-#define GCENABLE 1
-#ifdef GCENABLE
-typedef Object* langObject;
-typedef Int* langInt;
-typedef String* langString;
-#define newObject(a) new Object(a)
-#endif
 enum PreType
 {
-    _Object,_Int,_String,_Char,_Double,_Array,_Class,_Function
+    _Object,_Int,_String,_Char,_Double,_Array,_Class,_Function,_ClassObject
 };
 #pragma once
-static const char* PreTypeName[] = {"Object","Int","String","Char","Double","Array","Class","Function"};
+static const char* PreTypeName[] = {"Object","Int","String","Char","Double","Array","Class","Function","ClassObject"};
 
 class Type
 {
@@ -47,6 +34,11 @@ public:
         //case _Class:
         //    this->name = "Class";
         //    break;
+    }
+    Type(PreType enu,char *name)
+    {
+        this->TypeEnum = enu;
+        this->name = name;
     }
     ~Type(void)
     {
@@ -103,4 +95,3 @@ public:
         langObject const NULLOBJECT = newObject();//std::make_shared<Object>();
 
 }
-#endif

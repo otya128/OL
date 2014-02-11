@@ -1,6 +1,17 @@
-print((function(int i){return function(int j){return i+j;};}(1))(2),"hmm"+"?");
-var GCtest="GCGCGC"+"?";
+var a = new hoge;
+a.huge = "hage";
+print(a.huge);
+
+print(a.func_test(),a.huga());
+a.huga = null;
 GC();
-print(GCtest);
-print((add(1))(),(((function(){print("hoge");return function(){print("hoge");return "jphe";};})()))());var a = function(){print("hoge");return;};a();
-void add(int i){return function(){return i+1;};}
+class hoge
+{
+	var huge;
+	var func_test()
+	{
+		this.huga = function(){return huge;}
+		return this.huge;
+	}
+	int huga;
+}

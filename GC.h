@@ -2,7 +2,6 @@
 #include "Object.h"
 #include <vector>
 //#include "scope.h"
-#define GCENABLE 1
 namespace lang
 {
 class scope;
@@ -12,12 +11,17 @@ class GC
     int count;
     std::vector<Object*> erased;
 public:
+    void addRoot(scope* root);
+    void removeRoot(scope* root);
+    bool NowGabekore;
     scope* root;
     std::map<Object*,int> object;
     std::map<scope*,int> roots;
     void addObject(Object* obj);
     void start(void);
     void search(scope* root);
+    void GC::search(langObject object);
+    void GC::search(langClassObject object);
     GC(scope* root);
     ~GC(void);
 };
