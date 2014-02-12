@@ -92,6 +92,6 @@ public:
 //typedef std::shared_ptr<String> langString;
 
 
-        langObject const NULLOBJECT = newObject();//std::make_shared<Object>();
+         extern langObject NULLOBJECT;// = newObject(nullptr);//std::make_shared<Object>();
 
 }

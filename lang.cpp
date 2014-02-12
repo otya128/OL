@@ -14,6 +14,10 @@
 #include <thread>
 //#include "parseObj.h"
 //#include "parserEnum.h"
+namespace lang
+{
+langObject NULLOBJECT = newObject(nullptr);
+}
 #pragma once
     char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightparent","comma","plus","minus","multiply","equal","equalequal","semicolon","blockstart","blockend","plusplus","minusminus","greater","less","greaterequal","lessequal","modulo","plusequal","minusequal","dot","division","leftbracket","rightbracket","debbug_stop","multiplyequal","divisionequal","moduloequal","or","oror","and","andand","xor","notequal","not","notnot","leftshift","rightshift","leftshiftequal","rightshiftequal","andequal","orequal","xorequal","chr","none"
     ,"_class"
@@ -24,6 +28,8 @@
     {
         return enumtable[i];
     }
+bool lang::gc_view  = false;
+extern int lang::error_level;
     //#define out auto
     vifƒÖfjv
     vifƒÖfjv
@@ -41,9 +47,50 @@ std::string ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(std::string input,int index)
     }
     return input.substr(i + 1,j-i - 1);
 }
+enum class option
+{
+    none,errorlevel,
+};
 int _tmain(int argc, _TCHAR* argv[])
 {
-	std::cout<<"???"<<‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH("a\nbc\n",3);
+    option o = option::none;
+    lang::error_level = 0;
+    bool ahogc = false,parserresult = false;
+    for(int i = 1;i < argc;i++)
+    {
+        switch (o)
+        {
+        case option::none:
+        if(!_tcscmp(argv[i],L"-ahogc"))
+        {
+            ahogc = true;
+        }
+        else
+        if(!_tcscmp(argv[i],L"-parserresult"))
+        {
+            parserresult = true;
+        }
+        else
+        if(!_tcscmp(argv[i],L"-gcview"))
+        {
+            lang::gc_view = true;
+        }
+        else
+        if(!_tcscmp(argv[i], L"-errorlevel"))
+        {
+            o = option::errorlevel;
+        }
+            break;
+        case option::errorlevel:
+            lang::error_level = _ttoi(argv[i]);
+            o = option::none;
+            break;
+        default:
+            break;
+        }
+    }
+	std::cout<<"???"<<‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH("a\nbc\n",3);lang::NULLOBJECT = new lang::Object();
+    lang::NULLOBJECT->type->name = "null";
 	while (std::getchar())
 	{
 		std::string input;
@@ -67,7 +114,8 @@ int _tmain(int argc, _TCHAR* argv[])
         //out testobj=new lang::parseObj("hoge");//ƒAƒEƒg
 		//std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
         int nest = 0;
-        /*for(int i=0;i<pars->parsers.size();i++)
+        if(parserresult)
+        for(int i=0;i<pars->parsers.size();i++)
         {
             if(pars->parsers[i]->pEnum == lang::blockend)nest--;
             if(pars->parsers[i]->pEnum == lang::rightparent)nest--;
@@ -76,15 +124,16 @@ int _tmain(int argc, _TCHAR* argv[])
             std::cout<<input.substr(pars->parsers[i]->sourcestartindex, pars->parsers[i]->sourceendindex - pars->parsers[i]->sourcestartindex + 1)<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
             if(pars->parsers[i]->pEnum == lang::blockstart)nest++;
             if(pars->parsers[i]->pEnum == lang::leftparent)nest++;
-        }*/
+        }
         try
         {
     vifƒÖfjv
     vifƒÖfjv
     vifƒÖfjv
-        #if AHO_GC //ƒXƒŒƒbƒh‚Å“®‚«‘±‚¯‚éƒAƒz‚ÈGC
-            std::thread thd([]{ while (true) lang::gc->start();});
-        #endif
+        //#if AHO_GC //ƒXƒŒƒbƒh‚Å“®‚«‘±‚¯‚éƒAƒz‚ÈGC
+            if(ahogc)std::thread thd([]{ while (true) lang::gc->start();});
+        //#endif
+           // lang::NULLOBJECT = new lang::Object();
             pars->runner->run();
 
             std::cout<<"ÀsI •Ï”‚â’è”‚ğíœ"<<std::endl;

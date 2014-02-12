@@ -57,7 +57,9 @@ std::string _toString(Object* arg)
 Object::~Object(void)
 {
 #if GABEKORE
-    std::cout<<"‚ª‚×‚±‚ê’†..."<<this<<"‚ª–Å–S‚µ‚Ü‚µ‚½...\t"<<this->type->name<<"\t"<<_toString(this)<<std::endl;//<<std::endl;
+#if _DEBUG
+    if(gc_view) std::cout<<"‚ª‚×‚±‚ê’†..."<<this<<"‚ª–Å–S‚µ‚Ü‚µ‚½...\t"<<this->type->name<<"\t"<<_toString(this)<<std::endl;//<<std::endl;
+#endif
 #endif
     delete this->type;
 	delete this->ptr;

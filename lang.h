@@ -2,6 +2,8 @@
 #pragma once
 namespace lang
 {
+extern bool gc_view;
+extern int error_level;
 #define vifƒÖfjv //‚½‚µ‚©‚É~~~~~
 #define var_ auto
 #define in_ :

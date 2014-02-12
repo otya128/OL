@@ -22,6 +22,7 @@ public:
     void search(scope* root);
     void GC::search(langObject object);
     void GC::search(langClassObject object);
+    void GC::free(langObject object);
     GC(scope* root);
     ~GC(void);
 };

@@ -11,25 +11,45 @@
 std::string ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(std::string input,int index);
 namespace lang
 {
-enum parserStatus
+#define ERROR(a) WARNING(a,0)//langObject NULLOBJECT = newObject(nullptr);
+enum class parserStatus
 {
 	None,
 	ReadIden,
 	ReadNum,
 	ReadStr,
+    ReadComment,
+    ReadBlockComment,
 };
+ int error_level;
 
-bool isIden(char c)
+bool isIden(unsigned char c)
 {
     return (c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='0'&&c<='9')||(c=='_');
+}
+bool isIdenShiftJIS(unsigned char c)
+{
+    return c>=0x80 && c<=0xFF;
+}
+//1byte–Ú‚ª‘SŠp•¶Žš‚©‚Ç‚¤‚©
+bool isIdenShiftJIS1(unsigned char c)
+{
+    return (c>=0x80 && c<=0x9F) || (c>=0xE0 && c<=0xFF);
 }
 bool isNum(char c)
 {
     return c>='0'&&c<='9';
 }
-void WARNING(const char* param)
+void WARNING(const char* param, int level = 0)
 {
-    std::cout<<"[WARNING]"<<param<<std::endl;
+    if(level<=error_level)
+    {
+        std::cout<<"[ERROR]"<<param<<std::endl;
+    }
+    else
+    {
+        std::cout<<"[WARNING]"<<param<<std::endl;
+    }
 }
 void parser::function()
 {
@@ -81,22 +101,22 @@ void parser::function()
             if(token->pEnum == _class)
             {
                 if(funcRead != 0)
-                    WARNING((‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex) + "ŠÖ”‰ðÍ’†‚ÌƒNƒ‰ƒX").c_str());// WARNING("ŠÖ”‰ðÍ’†‚ÌƒNƒ‰ƒX");
+                    ERROR((‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex) + "ŠÖ”‰ðÍ’†‚ÌƒNƒ‰ƒX").c_str());// WARNING("ŠÖ”‰ðÍ’†‚ÌƒNƒ‰ƒX");
                 if(funcStack.size() !=0 && funcStack.top()=="")
-                    WARNING((‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex) + "ƒlƒXƒg‚³‚ê‚½ƒNƒ‰ƒX").c_str());
+                    ERROR((‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex) + "ƒlƒXƒg‚³‚ê‚½ƒNƒ‰ƒX").c_str());
                 classRead++;
             }
             break;
             case 1:
                 if(token->pEnum != identifier)
-                    WARNING(("ƒNƒ‰ƒX‚Ì–¼‘O‚ªŽ¯•ÊŽq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ"+‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex)).c_str());
+                    ERROR(("ƒNƒ‰ƒX‚Ì–¼‘O‚ªŽ¯•ÊŽq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ"+‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex)).c_str());
                 className = token->name;
                 if(member == nullptr)member = new membertype_();else delete member;
                 classRead++;
             break;
             case 2:
                 if(token->pEnum != blockstart)
-                    WARNING(("class " + *className + "{‚ÅéŒ¾‚·‚é•K—v‚ª‚ ‚è‚Ü‚·B"+‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex)).c_str());
+                    ERROR(("class " + *className + "{‚ÅéŒ¾‚·‚é•K—v‚ª‚ ‚è‚Ü‚·B"+‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex)).c_str());
                 classRead++;
                 class_read_stack_index = funcStack.size();
             break;
@@ -212,16 +232,21 @@ parser::parser(std::string input)
 	std::cout << "Now Parsing...";
 	auto sts = parserStatus::None;
     auto iden = new std::string();
+    bool shiftJis = true, ASCII = false;
     int startindex = 0;
+    int blockComment = 0;
 	for(int i=0;i<=input.size();i++)
 	{
         bool islast=i>=input.size()-1;
+        bool isfast = i==0;
 		auto chr = input[i];
 		    char nextchr;
+		    char prevchr;
             if(!islast)nextchr = input[i+1];
+            if(!isfast)prevchr = input[i-1];
         switch (sts)
         {
-        case None:None:
+        case parserStatus::None:None:
             if(isNum(chr))
             {
                 startindex = i;
@@ -230,6 +255,12 @@ parser::parser(std::string input)
             }
             else
             if(isIden(chr))
+            {
+                startindex = i;
+                sts = parserStatus::ReadIden;
+                goto ReadIden;
+            }
+            else if(shiftJis && isIdenShiftJIS(chr))
             {
                 startindex = i;
                 sts = parserStatus::ReadIden;
@@ -292,6 +323,21 @@ parser::parser(std::string input)
                 startindex = i;
                 sts = parserStatus::ReadStr;
             break;
+            case '/':
+                if(nextchr == '/')
+                {
+                    sts = parserStatus::ReadComment;i++;
+                }
+                else 
+                if(nextchr == '*')
+                {
+                    sts = parserStatus::ReadBlockComment;i++;blockComment++;
+                }
+                else
+                if(nextchr == '=')
+                    this->parsers.push_back(new parseObj(parserEnum::divisionequal,new std::string("/="), i, i + 1)),i++;
+                else this->parsers.push_back(new parseObj(parserEnum::division,new std::string("/"), i, i));
+            break;
             case '\r':case '\n':case '\t':
             case ' ':break;
             default:
@@ -299,11 +345,13 @@ parser::parser(std::string input)
                 break;
             }
             break;
-        case ReadIden:
+        case parserStatus::ReadIden:
         ReadIden:
             if(!isIden(chr))
             {
-                
+                if(!(shiftJis && isIdenShiftJIS(chr)))
+                if(!shiftJis || !isIdenShiftJIS1(prevchr))
+                {
                 if(*iden == "new")this->parsers.push_back(new parseObj(parserEnum::_new,iden, startindex, i - 1));
                 else if(*iden == "class")this->parsers.push_back(new parseObj(parserEnum::_class,iden, startindex, i - 1));
                 else
@@ -313,11 +361,12 @@ parser::parser(std::string input)
                 iden = new std::string();//!!!!ƒRƒs[‚³‚ê‚È‚¢‚Ì‚Ånew ‚·‚é!!!!
                 sts = parserStatus::None;
                 goto None;
+                }
             }
             //std::string chrs(chr);
             iden->append(input.substr(i,1));
             break;
-        case ReadNum:ReadNum:
+        case parserStatus::ReadNum:ReadNum:
             if(!isNum(chr))
             {
                 this->parsers.push_back(new parseObj(std::atoi(iden->c_str()), startindex, i - 1));
@@ -328,7 +377,7 @@ parser::parser(std::string input)
             //std::string chrs(chr);
             iden->append(input.substr(i,1));
             break;
-        case ReadStr:ReadStr:
+        case parserStatus::ReadStr:ReadStr:
             if(chr=='"')
             {
                 this->parsers.push_back(new parseObj(iden->c_str(), startindex, i));
@@ -338,10 +387,20 @@ parser::parser(std::string input)
             else
             {
                 if(chr=='\n'||chr=='\0')
-                    throw langParseException("•Â‚¶‚ç‚ê‚Ä‚¢‚È‚¢string");
+                {
+                    WARNING("•Â‚¶‚ç‚ê‚Ä‚¢‚È‚¢string");//throw langParseException("•Â‚¶‚ç‚ê‚Ä‚¢‚È‚¢string");
+                }
                 iden->append(input.substr(i,1));
             }
             break;
+        case parserStatus::ReadComment:
+            if(chr=='\n'||chr=='\0') sts = parserStatus::None;
+        break;
+        case parserStatus::ReadBlockComment:
+            if(chr == '*' && nextchr == '/') {blockComment--;i++;}
+            if(chr == '/' && nextchr == '*') {blockComment++;i++;}
+            if(!blockComment) sts = parserStatus::None;
+        break;
         default:
             break;
         }

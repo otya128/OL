@@ -19,12 +19,19 @@ void GC::start(void)
 {
     if(NowGabekore)
     {
+        #if _DEBUG
+            if(gc_view)
         std::cout<<"がべこれがブロックされました。"<<std::endl;
+        #endif
         return;
     }
     NowGabekore = true;
     count++;
+    this->object[NULLOBJECT] = count;//定数がGCに回収される
+    #if _DEBUG
+            if(gc_view)
     std::cout<<"がべこれ開始"<<std::endl;
+    #endif
    // this->search(this->root);
     for(auto root : this->roots)
     {
@@ -44,7 +51,10 @@ void GC::start(void)
         delete obj;
     }
     erased.clear();
+    #if _DEBUG
+            if(gc_view)
     std::cout<<"がべこれ終了"<<std::endl;
+    #endif
     NowGabekore = false;
 }
 void GC::search(scope* root)
@@ -57,19 +67,42 @@ void GC::search(scope* root)
         }
         if(this->object.find(obj.second) != this->object.end())
         {
-            /*switch (obj.second->type->TypeEnum)
+            switch (obj.second->type->TypeEnum)
             {
-            case lang::_ClassObject:
-                this->search((langClassObject)obj.second);
+            case lang::_Class://削除しない
+            //再帰する必要が
+                foreach_(var_ i in_ *((langClass)obj.second)->member)
+                {
+                    if(this->object[i.second] != count)
+                    {
+                        this->search(i.second);//
+                    }
+                }
                 break;
-            }*/
+            }
             this->object[obj.second] = count;//++;//this->object[obj] = 0;4
         }
     }
 }
 void GC::search(langObject object)
 {
-    
+    switch (object->type->TypeEnum)
+    {
+    case lang::_Object:
+    case lang::_Int:
+    case lang::_String:
+    case lang::_Char:
+    case lang::_Double:
+    case lang::_Array:
+    case lang::_Class:
+    case lang::_Function:
+    default:
+        this->object[object] = count;
+        break;
+    case lang::_ClassObject:
+        this->object[object] = count;
+        break;
+    }
 }
 void GC::search(langClassObject object)
 {
@@ -82,6 +115,11 @@ void GC::search(langClassObject object)
             this->search(i.second);
         }
     }
+}
+void GC::free(langObject object)
+{
+    if(this->object.find(object) != this->object.end())this->object.erase(object);
+    delete object;
 }
 GC::~GC(void)
 {

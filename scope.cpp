@@ -24,12 +24,21 @@ langObject BuidInFunction(std::string name,std::vector<langObject> arg)
     }
     if(name=="GC")
     {
-        std::cout<<"明示的ながべこれ呼び出し"<<std::endl;
+        #if _DEBUG
+            if(gc_view)std::cout<<"明示的ながべこれ呼び出し"<<std::endl;
+        #endif
         gc->start();
+    }
+    if(name=="free")
+    {
+        foreach_(var_ i in_ arg)
+        {
+            gc->free(i);
+        }
     }
     if(name=="sqrt")
     {
-        return /*std::make_shared<Int>*/new Int((int)sqrt<int>(Int::toInt(arg[0])));
+        return /*std::make_shared<Int>*/newInt((int)sqrt<int>(Int::toInt(arg[0])));
     }
     return 0;
 }
@@ -82,7 +91,10 @@ scope::scope(std::vector<parseObj*>& v,scope* parent,langClassObject _this)
 scope::~scope(void)
 {
     gc->removeRoot(this);//gc->roots.erase(this);
+#if _DEBUG
+    if(gc_view) 
     std::cout<<"変数スコープを廃棄"<<this<<std::endl;
+#endif
 }
     int scope::parentSkip(int index)
     {

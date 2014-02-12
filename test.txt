@@ -1,17 +1,26 @@
-var a = new hoge;
+var a = new ｱｱｱｳｱｱ;あいうえお表示
 a.huge = "hage";
 print(a.huge);
-
 print(a.func_test(),a.huga());
 a.huga = null;
-GC();
-class hoge
+free(ｱｱｱｳｱｱ);//classを無理矢理削除してみる->new ｱｱｱｳｱｱするとC0000005
+GC();//これをすると二回目以降の実行がおかしくなる->一応解決
+class ｱｱｱｳｱｱ//comment
 {
+/*
+	testetst
+	/*
+		ネスト可能
+		/*/*/**/*/*/
+	*/
+*/
 	var huge;
+	int huga;
 	var func_test()
 	{
+	//関数を上書きすることが可能
+	//ただしclassの中で書き換えないとthisなどは参照不可
 		this.huga = function(){return huge;}
 		return this.huge;
 	}
-	int huga;
 }
