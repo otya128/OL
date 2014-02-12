@@ -45,6 +45,7 @@ public:
         //delete this->name;
     }
 };
+extern Type* ObjectType;
 class Object
 {
 protected:
@@ -56,7 +57,7 @@ public:
     virtual std::string toString();
 	Object(void* ptr);
     Object(void);
-	~Object(void);
+	virtual ~Object(void);
     static langObject plus(langObject obj1,langObject obj2);
     static langObject multiply(langObject obj1,langObject obj2);
     static langObject greater(langObject obj1,langObject obj2);

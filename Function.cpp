@@ -5,11 +5,12 @@
 namespace lang
 {
 
-Function::Function(std::string* name,std::vector<std::string>* argList,lang::scope* scope,int index)
+Function::Function(std::string name,std::vector<std::string>* argList,lang::scope* scope,int index)
 {
     this->type = new Type(PreType::_Function);
     this->name = name;
     this->argList = argList;
+    this->thisscope = nullptr;
     this->scope = scope;//std::make_shared<lang::scope>(*scope);
     this->index = index;
 }
@@ -17,7 +18,7 @@ Function::Function(Function* f,lang::scope* this_scope)
 {
     this->type = new Type(f->type->TypeEnum,(char*)f->type->name);
     this->name = f->name;
-    this->argList = f->argList;
+    this->argList = new std::vector<std::string>(*f->argList);
     this->scope = f->scope;
     this->index = f->index;
     this->thisscope = this_scope;
@@ -26,13 +27,21 @@ Function::Function(Function* f,lang::scope* this_scope)
 Function::~Function(void)
 {
     this->scope->refdec();
-    this->scope = nullptr;
-    this->ptr = new int(1);
-    std::cout<<"‚ª‚×‚±‚ê’†..."<< *name <<std::endl;
+    if(this->thisscope != nullptr)this->thisscope->refdec();
+    //this->scope = nullptr;
+    //this->ptr = new int(1);
+    
+    delete this->argList;
+    //if(name != nullptr)
+    {
+        std::cout<<"‚ª‚×‚±‚ê’†..."<< name <<std::endl;
+        //delete this->name;
+    }
+   // else std::cout<<"‚ª‚×‚±‚ê’†...null"<<this<<std::endl;
 }
 std::string Function::toString(void)
 {
-    return "function:" + *name;
+    return "function:" + name;
 }
 langObject Function::call(std::vector<langObject>* argList)
 {
@@ -53,7 +62,7 @@ langFunction scope::anonymousFunction(int& index)
     std::stringstream str;
     str<<"anonymousFunction"<<index;
     //str=;
-    std::string* name = new std::string(str.str());
+    std::string name = str.str();
     int funcRead=2;
     std::vector<std::string>* argList = new std::vector<std::string>();
     

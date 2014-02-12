@@ -11,8 +11,9 @@ class GC
     int count;
     std::vector<Object*> erased;
 public:
+    int GCtimig;
     void addRoot(scope* root);
-    void removeRoot(scope* root);
+    bool removeRoot(scope* root);
     bool NowGabekore;
     scope* root;
     std::map<Object*,int> object;
@@ -22,7 +23,8 @@ public:
     void search(scope* root);
     void GC::search(langObject object);
     void GC::search(langClassObject object);
-    void GC::free(langObject object);
+    void GC::free_(langObject object);
+    void GC::uncontroll(langObject object);
     GC(scope* root);
     ~GC(void);
 };

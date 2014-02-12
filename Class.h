@@ -5,16 +5,16 @@
 namespace lang
 {
 class scope;
-typedef std::vector<std::pair<std::string*,langObject>> membertype_;
+typedef std::vector<std::pair<std::string,langObject>> membertype_;
 typedef membertype_* membertype;
 class Class : public Object
 {
 public:
     membertype member;
-    Class(std::string* name,int index,membertype member,scope* scope);
-    ~Class(void);
+    Class(std::string name,int index,membertype member,scope* scope);
+    virtual ~Class(void);
     //–¼‘O
-    std::string* name;
+    std::string name;
     lang::scope* scope;
     int index;
     virtual std::string toString();

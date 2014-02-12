@@ -10,6 +10,7 @@ namespace lang
 {
 parseObj::parseObj(int obj,int i,int j)
 {
+    this->name = nullptr;
     this->sourceendindex = j;
     this->sourcestartindex = i;
 	this->ptr=newInt(obj);
@@ -17,6 +18,7 @@ parseObj::parseObj(int obj,int i,int j)
 }
 parseObj::parseObj(std::string obj,int i,int j)
 {
+    this->name = nullptr;
     this->sourceendindex = j;
     this->sourcestartindex = i;
 	/*auto str=new std::string(obj);
@@ -49,12 +51,13 @@ parseObj::parseObj(parserEnum p,std::string* n,int i,int j)
     this->sourcestartindex = i;
 	this->pEnum = p;
 	this->name  = n;
+    this->ptr = nullptr;
 }
 
 parseObj::~parseObj(void)
 {
-	//delete this->ptr;
-    delete this->name;
+	if(this->ptr != nullptr)delete this->ptr;
+    if(this->name != nullptr)delete this->name;
 }
 
 int parseObj::getInt(void)

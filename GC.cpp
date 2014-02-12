@@ -6,6 +6,7 @@ namespace lang
 {
 GC::GC(scope* root)
 {
+    GCtimig = 128;
     this->NowGabekore = false;
     count = 0;
     this->root = root;
@@ -47,8 +48,11 @@ void GC::start(void)
     }
     for(auto obj : erased)
     {
-        if(this->object.find(obj) != this->object.end())object.erase(obj);
-        delete obj;
+        if(this->object.find(obj) != this->object.end())
+        {
+            object.erase(obj);
+            delete obj;
+        }
     }
     erased.clear();
     #if _DEBUG
@@ -116,10 +120,16 @@ void GC::search(langClassObject object)
         }
     }
 }
-void GC::free(langObject object)
+void GC::free_(langObject object)
 {
     if(this->object.find(object) != this->object.end())this->object.erase(object);
     delete object;
+}
+//GC‚©‚çíœ
+//Ó”C
+void GC::uncontroll(langObject object)
+{
+    if(this->object.find(object) != this->object.end()) this->object.erase(object);
 }
 GC::~GC(void)
 {
@@ -128,11 +138,13 @@ GC::~GC(void)
     {
         this->roots[root] = 0;
     }
-    void GC::removeRoot(scope* root)
+    bool GC::removeRoot(scope* root)
     {
         if(this->roots.find(root) != this->roots.end())
         {
             this->roots.erase(root);
+            return true;
         }
+        return false;
     }
 }

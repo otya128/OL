@@ -12,6 +12,10 @@
 //add
 #include <iostream>
 #include <string>
-
+#if _DEBUG
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
 
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください。

@@ -33,7 +33,14 @@ langObject BuidInFunction(std::string name,std::vector<langObject> arg)
     {
         foreach_(var_ i in_ arg)
         {
-            gc->free(i);
+            gc->free_(i);
+        }
+    }
+    if(name=="uncontrollGC")
+    {
+        foreach_(var_ i in_ arg)
+        {
+            gc->uncontroll(i);
         }
     }
     if(name=="sqrt")
@@ -51,16 +58,16 @@ langObject BuidInFunction(std::string name,std::vector<langObject> arg)
         this->refcount--;
         if(this->refcount<=0) 
         {
-            if(this->variable.parentVariable != nullptr)
-            this->~scope();
+            if(this->variable.parentVariable != nullptr && gc->removeRoot(this))
+            delete this;
         }
     }
     void scope::del()
     {
         if(this->refcount<=0) 
         {
-            if(this->variable.parentVariable != nullptr)
-            this->~scope();
+            if(this->variable.parentVariable != nullptr && gc->removeRoot(this))
+            delete this;
         }
     }
 scope::scope(std::vector<parseObj*>& v)
@@ -73,6 +80,10 @@ scope::scope(std::vector<parseObj*>& v)
     this->startIndex = 0;
     this->status = en::returnStatus::none_;
     this->type = en::scopeType::_none_;
+#if _DEBUG
+    if(gc_view) 
+    std::cout<<"変数スコープを作成"<<this<<std::endl;
+#endif
 }
 scope::scope(std::vector<parseObj*>& v,scope* parent,langClassObject _this)
 {
@@ -85,6 +96,10 @@ scope::scope(std::vector<parseObj*>& v,scope* parent,langClassObject _this)
     this->startIndex = 0;
     this->status = en::returnStatus::none_;
     this->type = en::scopeType::_none_;
+#if _DEBUG
+    if(gc_view) 
+    std::cout<<"変数スコープを作成"<<this<<std::endl;
+#endif
 }
 
 
@@ -516,7 +531,7 @@ langObject scope::eval(langObject object,int& index,int opera,bool isbinaryopera
                     }
                     catch(langRuntimeException ex)
                     {
-                        throw langRuntimeException(ex.what(),ex.tokens,ex.funcstacktrace,static_cast<Function*>(object)->name->c_str(),ex.stacktrace);
+                        throw langRuntimeException(ex.what(),ex.tokens,ex.funcstacktrace,static_cast<Function*>(object)->name.c_str(),ex.stacktrace);
                     }
                 }
                 else 

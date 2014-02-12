@@ -56,7 +56,7 @@ void parser::function()
     this->runner = new scope(this->parsers);
     lang::gc = new Ç™Ç◊Ç±ÇÍ(this->runner);
     int funcRead = 0, classRead = 0;
-    std::string* funcName = nullptr;std::string* className = nullptr;
+    std::string funcName;std::string className;
     std::vector<std::string>* argList = new std::vector<std::string>();
     std::stack<std::string> funcStack;
     int func = 0,parent = 0,bracket = 0;
@@ -110,13 +110,13 @@ void parser::function()
             case 1:
                 if(token->pEnum != identifier)
                     ERROR(("ÉNÉâÉXÇÃñºëOÇ™éØï éqÇ≈ÇÕÇ†ÇËÇ‹ÇπÇÒ"+ÇƒÇ©ÇkÇhÇmÇdÇ‚Ç¡ÇƒÇÈÅH(this->program,token->sourcestartindex)).c_str());
-                className = token->name;
+                className = *token->name;
                 if(member == nullptr)member = new membertype_();else delete member;
                 classRead++;
             break;
             case 2:
                 if(token->pEnum != blockstart)
-                    ERROR(("class " + *className + "{Ç≈êÈåæÇ∑ÇÈïKóvÇ™Ç†ÇËÇ‹Ç∑ÅB"+ÇƒÇ©ÇkÇhÇmÇdÇ‚Ç¡ÇƒÇÈÅH(this->program,token->sourcestartindex)).c_str());
+                    ERROR(("class " + className + "{Ç≈êÈåæÇ∑ÇÈïKóvÇ™Ç†ÇËÇ‹Ç∑ÅB"+ÇƒÇ©ÇkÇhÇmÇdÇ‚Ç¡ÇƒÇÈÅH(this->program,token->sourcestartindex)).c_str());
                 classRead++;
                 class_read_stack_index = funcStack.size();
             break;
@@ -135,7 +135,7 @@ void parser::function()
                 if(class_read_stack_index > funcStack.size())
                 if(token->pEnum == blockend)
                 {
-                    this->runner->variable.add(*className,newClass(className,0,member,this->runner));
+                    this->runner->variable.add(className,newClass(className,0,member,this->runner));
                     member = nullptr;
                 }
             break;
@@ -144,7 +144,7 @@ void parser::function()
                 {
                     if(i+1<this->parsers.size()&& this->parsers[i+1]->pEnum == semicolon)
                     {
-                        member->push_back(std::pair<std::string*,langObject>(token->name, NULLOBJECT));
+                        member->push_back(std::pair<std::string,langObject>(*token->name, NULLOBJECT));
                         classRead = 3;
                     }
                     if(i+1<this->parsers.size()&& this->parsers[i+1]->pEnum == leftparent)
@@ -170,7 +170,7 @@ void parser::function()
             if(token->pEnum == parserEnum::identifier)
             {
                 funcRead++;
-                funcName = token->name;
+                funcName = *token->name;
             }else funcRead = 0;
             break;
         case 2://(
@@ -183,6 +183,7 @@ void parser::function()
         case 4://name
             if(token->pEnum == parserEnum::identifier)
             {
+                if(argList == nullptr)argList = new std::vector<std::string>();
                 argList->push_back(*token->name);
                 funcRead++;
             }
@@ -194,23 +195,23 @@ void parser::function()
             else funcRead = 0;
             break;
         case 6://{
-            funcStack.push(*funcName);
+            funcStack.push(funcName);
             std::cout<<std::endl;
             for(int j=0;j<funcStack.size();j++)
             {
                 std::cout<<" ";
             }
-            std::cout<<*funcName;
+            std::cout<<funcName;
             funcRead = 0;
             if(classRead == 3)
             {
-                member->push_back(std::pair<std::string*,langObject>(funcName, newFunction(funcName, argList, this->runner,i)));
+                member->push_back(std::pair<std::string,langObject>(funcName, newFunction(funcName, argList, this->runner,i)));
             }
             else if(func == 0)
             {
-                this->runner->variable.add(*funcName,newFunction(funcName, argList, this->runner,i));
+                this->runner->variable.add(funcName,newFunction(funcName, argList, this->runner,i));
             }
-            argList = new std::vector<std::string>();
+            argList = nullptr;//new std::vector<std::string>();
             func++;
             //this->runner->variable.add(*funcName,std::make_shared<langFunction>(*funcName,argList,this->runner));
             break;
@@ -228,7 +229,8 @@ void parser::function()
 }
 parser::parser(std::string input)
 {
-	this->program = *(new std::string(input));
+    lang::gc = nullptr;
+	this->program = (input);
 	std::cout << "Now Parsing...";
 	auto sts = parserStatus::None;
     auto iden = new std::string();
@@ -380,7 +382,7 @@ parser::parser(std::string input)
         case parserStatus::ReadStr:ReadStr:
             if(chr=='"')
             {
-                this->parsers.push_back(new parseObj(iden->c_str(), startindex, i));
+                this->parsers.push_back(new parseObj(*iden, startindex, i));
                 iden->clear();//!!!!ÉRÉsÅ[Ç≥ÇÍÇÈÇÃÇ≈clear Ç∑ÇÈ!!!!
                 sts = parserStatus::None;
             }
@@ -406,6 +408,7 @@ parser::parser(std::string input)
         }
 		std::cout << chr;
 	}
+    if(iden->empty())delete iden;//égÇÌÇÍÇƒÇ»Ç¢Ç©ÇÁdelete
     this->function();
 	std::cout << "Done" << std::endl;
 }
@@ -415,7 +418,9 @@ parser::~parser(void)
 {
     try
     {
-        delete this->runner;
+        delete lang::gc;
+        
+        //delete this->runner;
 	//delete(&this->program);
 	//delete &this->parsers;
     }

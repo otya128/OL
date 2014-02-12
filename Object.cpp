@@ -6,6 +6,7 @@
 #include <memory>
 #include "GC.h"
 #include "Function.h"
+#include "Class.h"
 #include "langException.h"
 #define newInt(a) new Int(a)
 #define newString(a) new String(a)
@@ -26,18 +27,21 @@ Object::Object(void* ptr)
 }
 Object::Object(void)
 {
+    #if _DEBUG
+        if(gc_view) std::cout<<"add"<<this<<std::endl;//<<std::endl;
+    #endif
     if(lang::gc != nullptr)
     {
         gc->addObject(this);
     }
-    this->type = new Type(PreType::_Object);
+    this->type = (Type*)ObjectType;//new Type(PreType::_Object);
 }
 
 std::string _toString(Object* arg)
 {
    // return arg->toString();for(i=0;i<10;i++){print(i);}
    if(arg==nullptr)return "null";
-        if(arg->type->TypeEnum==PreType::_Int)
+        /*if(arg->type->TypeEnum==PreType::_Int)
         {
             std::stringstream ss;
             ss<<(static_cast<Int*>(arg))->getInt();
@@ -50,7 +54,7 @@ std::string _toString(Object* arg)
         if(arg->type->TypeEnum==PreType::_Function)
         {
         return *(static_cast<Function*>(arg))->name;
-        }
+        }*/
         return "";
 }
 #define GABEKORE 1
@@ -61,8 +65,8 @@ Object::~Object(void)
     if(gc_view) std::cout<<"‚ª‚×‚±‚ê’†..."<<this<<"‚ª–Å–S‚µ‚Ü‚µ‚½...\t"<<this->type->name<<"\t"<<_toString(this)<<std::endl;//<<std::endl;
 #endif
 #endif
-    delete this->type;
-	delete this->ptr;
+    if(type != (Type*)ObjectType)delete this->type;
+	//delete this->ptr;
 }
 void* Object::getPointer(void)
 {
@@ -85,7 +89,7 @@ Int::Int(int i)
 Int::~Int(void)
 {
     //delete this->type;
-	//delete this->ptr;
+	delete (int*)this->ptr;
 }
 int Int::getInt(void)
 {
@@ -113,7 +117,7 @@ String::String(std::string* i)
 String::~String(void)
 {
     //delete this->type;
-	//delete this->ptr;
+	delete (std::string*)this->ptr;
 }
 std::string* String::getString(void)
 {
