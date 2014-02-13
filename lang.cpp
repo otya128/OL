@@ -13,30 +13,35 @@
 #include <cassert>
 #include <thread>
 #include <windows.h>
+#include "Function.h"
+#define END goto theend
+#define FAILEND result = 1;goto theend
 //#include "parseObj.h"
 //#include "parserEnum.h"
 namespace lang
 {
- Type* ObjectType = new Type(PreType::_Object);
-langObject NULLOBJECT = nullptr;//ewObject(nullptr);
+    Type* ObjectType = new Type(PreType::_Object);
+    langObject NULLOBJECT = nullptr;//ewObject(nullptr);
+    bool ahogc = false,parserresult = false, leakcheck = false, pause = false;
 }
+using namespace lang;
 #pragma once
-    char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightparent","comma","plus","minus","multiply","equal","equalequal","semicolon","blockstart","blockend","plusplus","minusminus","greater","less","greaterequal","lessequal","modulo","plusequal","minusequal","dot","division","leftbracket","rightbracket","debbug_stop","multiplyequal","divisionequal","moduloequal","or","oror","and","andand","xor","notequal","not","notnot","leftshift","rightshift","leftshiftequal","rightshiftequal","andequal","orequal","xorequal","chr","none"
+char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightparent","comma","plus","minus","multiply","equal","equalequal","semicolon","blockstart","blockend","plusplus","minusminus","greater","less","greaterequal","lessequal","modulo","plusequal","minusequal","dot","division","leftbracket","rightbracket","debbug_stop","multiplyequal","divisionequal","moduloequal","or","oror","and","andand","xor","notequal","not","notnot","leftshift","rightshift","leftshiftequal","rightshiftequal","andequal","orequal","xorequal","chr","none"
     ,"_class"
     ,"_new",
     "_this",};
-    
-    char* parserEnumToString(lang::parserEnum i)
-    {
-        return enumtable[i];
-    }
+
+char* parserEnumToString(lang::parserEnum i)
+{
+    return enumtable[i];
+}
 bool lang::gc_view  = false;
 extern int lang::error_level;
-    //#define out auto
+//#define out auto
+vifƒÖfjv
     vifƒÖfjv
     vifƒÖfjv
-    vifƒÖfjv
-std::string ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(std::string input,int index)
+    std::string ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(std::string input,int index)
 {
     int i, j;
     for(i = index;i>0;i--)
@@ -60,45 +65,57 @@ int hook(int a1, char *a2, int *a3)
 }
 int _tmain(int argc, _TCHAR* argv[])
 {
-//_CrtSetReportMode( 1, _CRTDBG_MODE_WNDW );
+    //_CrtSetReportMode( 1, _CRTDBG_MODE_WNDW );
+    _CrtSetBreakAlloc(223);_CrtSetBreakAlloc(221);
+#if _DEBUG
+    std::cout<<"language DEBUG build"<<std::endl;
+#elif
+    std::cout<<"language"<<std::endl;
+#endif
     option o = option::none;
     lang::error_level = 0;
-    bool ahogc = false,parserresult = false, leakcheck = false, pause = false;
+
+    int result = 0;
+    _TCHAR*filename = L"";
     for(int i = 1;i < argc;i++)
     {
         switch (o)
         {
         case option::none:
-        if(!_tcscmp(argv[i],L"-ahogc"))
-        {
-            ahogc = true;
-        }
-        else
-        if(!_tcscmp(argv[i],L"-parserresult"))
-        {
-            parserresult = true;
-        }
-        else
-        if(!_tcscmp(argv[i],L"-gcview"))
-        {
-            lang::gc_view = true;
-        }
-        else
-        if(!_tcscmp(argv[i],L"-leakcheck"))
-        {
-            leakcheck = true;
-        }
-        else
-        if(!_tcscmp(argv[i],L"-pause"))
-        {
-            pause = true;
-        }
-        else
-        if(!_tcscmp(argv[i], L"-errorlevel"))
-        {
-            o = option::errorlevel;
-        }
-            break;
+            if(!_tcscmp(argv[i],L"-ahogc"))
+            {
+                ahogc = true;
+            }
+            else
+                if(!_tcscmp(argv[i],L"-parserresult"))
+                {
+                    parserresult = true;
+                }
+                else
+                    if(!_tcscmp(argv[i],L"-gcview"))
+                    {
+                        lang::gc_view = true;
+                    }
+                    else
+                        if(!_tcscmp(argv[i],L"-leakcheck"))
+                        {
+                            leakcheck = true;
+                        }
+                        else
+                            if(!_tcscmp(argv[i],L"-pause"))
+                            {
+                                pause = true;
+                            }
+                            else
+                                if(!_tcscmp(argv[i], L"-errorlevel"))
+                                {
+                                    o = option::errorlevel;
+                                }
+                                else
+                                {
+                                    filename = argv[i];
+                                }
+                                break;
         case option::errorlevel:
             lang::error_level = _ttoi(argv[i]);
             o = option::none;
@@ -107,15 +124,21 @@ int _tmain(int argc, _TCHAR* argv[])
             break;
         }
     }
+
     if(leakcheck) _CrtSetReportHook((_CRT_REPORT_HOOK)hook);
-	std::cout<<"???"<<‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH("a\nbc\n",3);lang::NULLOBJECT = new lang::Object();
+    lang::NULLOBJECT = new lang::Object();
     lang::NULLOBJECT->type->name = "null";
-	while (true)//std::getchar())
-	{
-		std::string input;
+    while (true)//std::getchar())
+    {
+        std::string input;
         std::stringstream ss;
-		//std::getline(std::cin,input);
-		std::ifstream ifs( "test.txt" );
+        //std::getline(std::cin,input);
+        std::ifstream ifs( filename);
+        if(ifs.fail())
+        {
+            _tcprintf(L"file:%s‚ðŠJ‚¯‚Ü‚¹‚ñ\n",filename);//std::cout<<"file:"<<filename<<"‚ðŠJ‚¯‚Ü‚¹‚ñ"<<std::endl;
+            vifƒÖfjv ;vifƒÖfjv ;FAILEND;vifƒÖfjv vifƒÖfjv 
+        }
         while(ifs && getline(ifs, input)) {
             ss << input << '\n';
         }
@@ -123,110 +146,111 @@ int _tmain(int argc, _TCHAR* argv[])
         lang::parser* pars;
         try
         {
-          pars=new lang::parser(input);//ƒAƒEƒg
-		}
+            pars = new lang::parser(input);//ƒAƒEƒg
+        }
         catch(lang::langParseException ex)
         {
             std::cout<<std::endl<<"lang::langParseException - lang::parser"<<std::endl<<ex.what();
             continue;
         }
         //out testobj=new lang::parseObj("hoge");//ƒAƒEƒg
-		//std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
+        //std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
         int nest = 0;
         if(parserresult)
-        for(int i=0;i<pars->parsers.size();i++)
-        {
-            if(pars->parsers[i]->pEnum == lang::blockend)nest--;
-            if(pars->parsers[i]->pEnum == lang::rightparent)nest--;
-            std::cout<<i<<"\t";
-            for(int j=0;j<nest;j++)std::cout<<" ";
-            std::cout<<input.substr(pars->parsers[i]->sourcestartindex, pars->parsers[i]->sourceendindex - pars->parsers[i]->sourcestartindex + 1)<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
-            if(pars->parsers[i]->pEnum == lang::blockstart)nest++;
-            if(pars->parsers[i]->pEnum == lang::leftparent)nest++;
-        }
-        try
-        {
-    vifƒÖfjv
-    vifƒÖfjv
-    vifƒÖfjv
-        //#if AHO_GC //ƒXƒŒƒbƒh‚Å“®‚«‘±‚¯‚éƒAƒz‚ÈGC
-            if(ahogc)std::thread thd([]{ while (true) lang::gc->start();});
-        //#endif
-           // lang::NULLOBJECT = new lang::Object();
-           __try
-           {
-            pars->runner->run();
-           }
-           __except(EXCEPTION_EXECUTE_HANDLER){
-                _EXCEPTION_POINTERS *info = GetExceptionInformation();
-           }
-            std::cout<<"ŽÀsI •Ï”‚â’è”‚ðíœ"<<std::endl;
-        }
-        catch(lang::langRuntimeException ex)
-        {
-            std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "êŠ?:" << std::endl;
-            for(auto i : ex.stacktrace)
+            for(int i=0;i<pars->parsers.size();i++)
             {
-                std::cout << ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(input,ex.tokens[i.first]->sourcestartindex);
-                                //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
-                break;
+                if(pars->parsers[i]->pEnum == lang::blockend)nest--;
+                if(pars->parsers[i]->pEnum == lang::rightparent)nest--;
+                std::cout<<i<<"\t";
+                for(int j=0;j<nest;j++)std::cout<<" ";
+                std::cout<<input.substr(pars->parsers[i]->sourcestartindex, pars->parsers[i]->sourceendindex - pars->parsers[i]->sourcestartindex + 1)<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
+                if(pars->parsers[i]->pEnum == lang::blockstart)nest++;
+                if(pars->parsers[i]->pEnum == lang::leftparent)nest++;
             }
-            std::cout << "StackTrace" << std::endl;
-            for(auto i : ex.funcstacktrace)
+            try
             {
-                std::cout << i << std::endl;
+                vifƒÖfjv
+                    vifƒÖfjv
+                    vifƒÖfjv
+                    //#if AHO_GC //ƒXƒŒƒbƒh‚Å“®‚«‘±‚¯‚éƒAƒz‚ÈGC
+                    if(ahogc)std::thread thd([]{ while (true) lang::gc->start();});
+                //#endif
+                // lang::NULLOBJECT = new lang::Object();
+                pars->runner->run();
+                std::cout<<"ŽÀsI •Ï”‚â’è”‚ðíœ"<<std::endl;
             }
-            std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
-        }
-        catch(std::exception ex)
-        {
-            std::cout<<"BUG!!!"<<ex.what()<<std::endl;
-            std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
-        }
-        catch(...)
-        {
-            std::cout<<"BUG!!!!!!!!!!!!!!!!!!"<<std::endl;
-            std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
-        }
-        std::vector<lang::scope*> del;
-        for(auto i : lang::gc->roots)
-        {
-            del.push_back(i.first);
-        }
-        lang::gc->roots.clear();
-        //lang::gc->root->variable._variable.clear();
-        lang::gc->start();
-        for(int i=0;i<del.size();i++)
-        {
-            delete del[i];
-        }
-        std::cout<<"’è”‚Ìíœ"<<std::endl;
-        for(int i=0;i<pars->parsers.size();i++)
-        {
-           // delete pars->parsers[i]->ptr;
-            delete pars->parsers[i];
-        }
-        delete pars;
-        //(new lang::scope(pars->parsers))->run();
-        //}
-        //catch(char* ex)
-        //{
-        //    std::cout<< ex<<std::endl;3333
-        //}
-		//delete pars;
-        break;
-	}
+            catch(lang::langRuntimeException ex)
+            {
+                std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "êŠ?:" << std::endl;
+                for(auto i : ex.stacktrace)
+                {
+                    std::cout << ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(input,ex.tokens[i.first]->sourcestartindex);
+                    //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
+                    break;
+                }
+                std::cout << "StackTrace" << std::endl;
+                for(auto i : ex.funcstacktrace)
+                {
+                    std::cout << i << std::endl;
+                }
+                std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
+            }
+            catch(std::exception ex)
+            {
+                std::cout<<"BUG!!!"<<ex.what()<<std::endl;
+                std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
+            }
+            catch(...)
+            {
+                std::cout<<"BUG!!!!!!!!!!!!!!!!!!"<<std::endl;
+                std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
+            }
+            std::vector<lang::scope*> del;
+            for(auto i : lang::gc->roots)
+            {
+                del.push_back(i.first);
+            }
+            lang::gc->roots.clear();
+            //lang::gc->root->variable._variable.clear();
+            lang::gc->start();
+            for(int i=0;i<del.size();i++)
+            {
+                delete del[i];
+            }
+            std::cout<<"’è”‚Ìíœ"<<std::endl;
+            for(int i=0;i<pars->parsers.size();i++)
+            {
+                // delete pars->parsers[i]->ptr;
+                delete pars->parsers[i];
+            }
+            delete pars;
+            //(new lang::scope(pars->parsers))->run();
+            //}
+            //catch(char* ex)
+            //{
+            //    std::cout<< ex<<std::endl;3333
+            //}
+            //delete pars;
+            break;
+    }
+theend:
     delete lang::NULLOBJECT;
     delete lang::ObjectType;
-        if(leakcheck) 
-        {
-            _CrtDumpMemoryLeaks();
-        }
-        if(pause)
-        #if defined(_WIN32)
-            system("PAUSE");//WINDOWS‚È‚ç‚±‚Á‚¿‚Ì•û‚ªeØ‚¾‚©‚çŽg‚¤
-        #elif
-            std::getchar();
-        #endif
-	return 0;
+    delete lang::object_tostr;
+    if(leakcheck) 
+    {
+        _CrtDumpMemoryLeaks();
+    }
+    if(pause)
+#if defined(_WIN32)
+#if _DEBUG
+        std::getchar();
+#endif
+#if !defined(_DEBUG)
+    system("PAUSE");//WINDOWS‚È‚ç‚±‚Á‚¿‚Ì•û‚ªeØ‚¾‚©‚çŽg‚¤
+#endif
+#elif
+        std::getchar();
+#endif
+    return result;
 }

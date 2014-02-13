@@ -3,26 +3,26 @@
 #include "variable.h"
 //#include "Object.h"
 namespace lang{
-variable::variable(variable* s)
-{
-    this->_variable = std::map<std::string,langObject>();
-    this->childVariable = nullptr;
-    this->parentVariable = s;
-    s->childVariable = this;
-}
+    variable::variable(variable* s)
+    {
+        this->_variable = std::map<std::string,langObject>();
+        this->childVariable = nullptr;
+        this->parentVariable = s;
+        s->childVariable = this;
+    }
 
 
-variable::variable(void)
-{
-    //this->_variable = std::map<std::string,langObject>();
-    this->childVariable = nullptr;
-    this->parentVariable = nullptr;
-}
-variable::~variable(void)
-{
-    if(this->childVariable != nullptr)
-    this->childVariable->parentVariable = nullptr;
-}
+    variable::variable(void)
+    {
+        //this->_variable = std::map<std::string,langObject>();
+        this->childVariable = nullptr;
+        this->parentVariable = nullptr;
+    }
+    variable::~variable(void)
+    {
+        if(this->childVariable != nullptr)
+            this->childVariable->parentVariable = nullptr;
+    }
 
     langObject variable::search(std::string name)
     {
@@ -30,7 +30,7 @@ variable::~variable(void)
             return this->_variable[name];
         else
         {
-                                               //lang::NULLOBJECT
+            //lang::NULLOBJECT
             if(this->parentVariable == nullptr) return lang::NULLOBJECT;
             return this->parentVariable->search(name);
         }
@@ -48,7 +48,7 @@ variable::~variable(void)
             this->_variable[name] = object;return this->_variable[name];}
         else
         {
-                                               //lang::NULLOBJECT
+            //lang::NULLOBJECT
             if(this->parentVariable == nullptr) return nullptr;
             return this->parentVariable->set(name,object);
         }

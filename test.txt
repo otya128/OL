@@ -2,11 +2,12 @@ var a = new 北背北;偁偄偆偊偍昞帵
 a.huge = "hage";
 print(a.huge);
 print(a.func_test(),a.huga());
+print(a.huge.tostr());
 a.huga = null;
 //free(北背北);//class傪柍棟栴棟嶍彍偟偰傒傞->new 北背北偡傞偲C0000005
 //GC();//偙傟傪偡傞偲擇夞栚埲崀偺幚峴偑偍偐偟偔側傞->堦墳夝寛
-uncontrollGC("memory"+"leak"+"suru");
-uncontrollGC("memoryleaksinai");
+//uncontrollGC("memory"+"leak"+"suru");
+//uncontrollGC("memoryleaksinai");
 class 北背北//comment
 {
 /*

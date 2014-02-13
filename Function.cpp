@@ -5,107 +5,124 @@
 namespace lang
 {
 
-Function::Function(std::string name,std::vector<std::string>* argList,lang::scope* scope,int index)
-{
-    this->type = new Type(PreType::_Function);
-    this->name = name;
-    this->argList = argList;
-    this->thisscope = nullptr;
-    this->scope = scope;//std::make_shared<lang::scope>(*scope);
-    this->index = index;
-}
-Function::Function(Function* f,lang::scope* this_scope)
-{
-    this->type = new Type(f->type->TypeEnum,(char*)f->type->name);
-    this->name = f->name;
-    this->argList = new std::vector<std::string>(*f->argList);
-    this->scope = f->scope;
-    this->index = f->index;
-    this->thisscope = this_scope;
-    this->ptr = nullptr;
-}
-Function::~Function(void)
-{
-    this->scope->refdec();
-    if(this->thisscope != nullptr)this->thisscope->refdec();
-    //this->scope = nullptr;
-    //this->ptr = new int(1);
-    
-    delete this->argList;
-    //if(name != nullptr)
+    Function::Function(std::string name,std::vector<std::string>* argList,lang::scope* scope,int index)
     {
-        std::cout<<"Ç™Ç◊Ç±ÇÍíÜ..."<< name <<std::endl;
-        //delete this->name;
+        this->type = new Type(PreType::_Function);
+        this->name = name;
+        this->argList = argList;
+        this->thisscope = nullptr;
+        this->scope = scope;//std::make_shared<lang::scope>(*scope);
+        this->index = index;
     }
-   // else std::cout<<"Ç™Ç◊Ç±ÇÍíÜ...null"<<this<<std::endl;
-}
-std::string Function::toString(void)
-{
-    return "function:" + name;
-}
-langObject Function::call(std::vector<langObject>* argList)
-{
-    auto sc =new lang::scope(this->scope->parsers,this->scope/*.get()*/,this->scope->_this);
-    sc->type = en::scopeType::_function;
-    sc->startIndex = this->index;
-    if(this->argList->size()!=argList->size())
-     throw langRuntimeException("à¯êîÇÃêîÇ™à·Ç§");
-    for(int i=0;i<this->argList->size();i++)
+    Function::Function(Function* f,lang::scope* this_scope)
     {
-        sc->variable.add((*this->argList)[i],(*argList)[i]);
+        //if(f is _Function){}
+        this->type = new Type(f->type->TypeEnum,(char*)f->type->name);
+        this->name = f->name;
+        this->argList = new std::vector<std::string>(*f->argList);
+        this->scope = f->scope;
+        this->index = f->index;
+        this->thisscope = this_scope;
+        this->ptr = nullptr;
     }
-    auto buf = sc->run();
-    return /*std::shared_ptr<Object>*/( buf);
-}
-langFunction scope::anonymousFunction(int& index)
-{
-    std::stringstream str;
-    str<<"anonymousFunction"<<index;
-    //str=;
-    std::string name = str.str();
-    int funcRead=2;
-    std::vector<std::string>* argList = new std::vector<std::string>();
-    
-    langFunction func = /*std::make_shared<Function>*/new Function(name,nullptr,this,index+1);
-    for(int i=index+1;i<this->parsers.size();i++)
+    Function::~Function(void)
     {
-        auto token = this->parsers[i];
-        if(!funcRead)break;
-        switch (funcRead)
+        if(this->scope != nullptr)this->scope->refdec();
+        if(this->thisscope != nullptr)this->thisscope->refdec();
+        //this->scope = nullptr;
+        //this->ptr = new int(1);
+
+        delete this->argList;
+        //if(name != nullptr)
         {
-        case 2://(
-            if(token->pEnum == parserEnum::leftparent)funcRead++;else funcRead = 0;
-            if(token->pEnum == parserEnum::rightparent)funcRead = 6;
-            break;
-        case 3://type 
-            if(token->pEnum == parserEnum::identifier)funcRead++;else funcRead = 0;
-            if(token->pEnum == parserEnum::rightparent)funcRead = 6;
-            break;
-        case 4://name
-            if(token->pEnum == parserEnum::identifier)
-            {
-                argList->push_back(*token->name);
-                funcRead++;
-            }
-            else funcRead = 0;
-            break;
-        case 5://, or )
-            if(token->pEnum == parserEnum::comma)funcRead-=2;
-            else if(token->pEnum == parserEnum::rightparent)funcRead++; 
-            else funcRead = 0;
-            break;
-        case 6://{
-            funcRead = 0;
-            func->argList = argList;
-            func->index = i;
-                //func = new Function(name, argList, this,i);
-            //this->runner->variable.add(*funcName,std::make_shared<langFunction>(*funcName,argList,this->runner));
-            break;
+            std::cout<<"Ç™Ç◊Ç±ÇÍíÜ..."<< name <<std::endl;
+            //delete this->name;
         }
+        // else std::cout<<"Ç™Ç◊Ç±ÇÍíÜ...null"<<this<<std::endl;
     }
-    if(func->argList == nullptr)throw "syntax error";
-    this->refinc();
-    index = this->blockSkip(func->index);
-    return /*std::shared_ptr<Function>*/(func);
-}
+    std::string Function::toString(void)
+    {
+        return "function:" + name;
+    }
+    langObject Function::call(std::vector<langObject>* argList)
+    {
+        auto sc =new lang::scope(this->scope->parsers,this->scope/*.get()*/,this->scope->_this);
+        sc->type = en::scopeType::_function;
+        sc->startIndex = this->index;
+        if(this->argList->size()!=argList->size())
+            throw langRuntimeException("à¯êîÇÃêîÇ™à·Ç§");
+        for(int i=0;i<this->argList->size();i++)
+        {
+            sc->variable.add((*this->argList)[i],(*argList)[i]);
+        }
+        auto buf = sc->run();
+        return /*std::shared_ptr<Object>*/( buf);
+    }
+    langFunction scope::anonymousFunction(int& index)
+    {
+        std::stringstream str;
+        str<<"anonymousFunction"<<index;
+        //str=;
+        std::string name = str.str();
+        int funcRead=2;
+        std::vector<std::string>* argList = new std::vector<std::string>();
+
+        langFunction func = /*std::make_shared<Function>*/new Function(name,nullptr,this,index+1);
+        for(int i=index+1;i<this->parsers.size();i++)
+        {
+            auto token = this->parsers[i];
+            if(!funcRead)break;
+            switch (funcRead)
+            {
+            case 2://(
+                if(token->pEnum == parserEnum::leftparent)funcRead++;else funcRead = 0;
+                if(token->pEnum == parserEnum::rightparent)funcRead = 6;
+                break;
+            case 3://type 
+                if(token->pEnum == parserEnum::identifier)funcRead++;else funcRead = 0;
+                if(token->pEnum == parserEnum::rightparent)funcRead = 6;
+                break;
+            case 4://name
+                if(token->pEnum == parserEnum::identifier)
+                {
+                    argList->push_back(*token->name);
+                    funcRead++;
+                }
+                else funcRead = 0;
+                break;
+            case 5://, or )
+                if(token->pEnum == parserEnum::comma)funcRead-=2;
+                else if(token->pEnum == parserEnum::rightparent)funcRead++; 
+                else funcRead = 0;
+                break;
+            case 6://{
+                funcRead = 0;
+                func->argList = argList;
+                func->index = i;
+                //func = new Function(name, argList, this,i);
+                //this->runner->variable.add(*funcName,std::make_shared<langFunction>(*funcName,argList,this->runner));
+                break;
+            }
+        }
+        if(func->argList == nullptr)throw "syntax error";
+        this->refinc();
+        index = this->blockSkip(func->index);
+        return /*std::shared_ptr<Function>*/(func);
+    }
+    langObject Object_ToString(langObject obj, std::vector<langObject> argList)
+    {
+        return newString(&obj->toString());
+    }
+    langObject Int_ToString(langObject obj, std::vector<langObject> argList)
+    {
+        return newString(&obj->toString());
+    }
+    langObject (*FuncTable[])(langObject, std::vector<langObject>) =
+    {
+        &Object_ToString,
+        &Int_ToString,
+    };
+    SpecialFunction::~SpecialFunction(void)
+    {
+    }
 }
