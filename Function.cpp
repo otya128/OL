@@ -34,10 +34,13 @@ namespace lang
 
         delete this->argList;
         //if(name != nullptr)
+        #if _DEBUG
+        if(gc_view)
         {
             std::cout<<"Ç™Ç◊Ç±ÇÍíÜ..."<< name <<std::endl;
             //delete this->name;
         }
+        #endif
         // else std::cout<<"Ç™Ç◊Ç±ÇÍíÜ...null"<<this<<std::endl;
     }
     std::string Function::toString(void)
@@ -113,14 +116,25 @@ namespace lang
     {
         return newString(&obj->toString());
     }
-    langObject Int_ToString(langObject obj, std::vector<langObject> argList)
+    langObject String_Substring(langObject obj, std::vector<langObject> argList)
     {
-        return newString(&obj->toString());
+        if(argList.size() == 1 && obj is _String)
+        {
+            auto bug = (langString)obj;
+            return newString(&bug->getString()->substr(Int::toInt(argList[0])));
+        }
+        else
+        if(argList.size() == 2 && obj is _String)
+        {
+            auto bug = (langString)obj;
+            return newString(&bug->getString()->substr(Int::toInt(argList[0]), Int::toInt(argList[1])));
+        }
+        throw lang::langRuntimeException("à¯êîÇÃêîÇ™àÍívÇµÇ‹ÇπÇÒ[String.Substring(,)]");
     }
     langObject (*FuncTable[])(langObject, std::vector<langObject>) =
     {
         &Object_ToString,
-        &Int_ToString,
+        &String_Substring,
     };
     SpecialFunction::~SpecialFunction(void)
     {

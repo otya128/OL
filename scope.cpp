@@ -20,7 +20,6 @@ namespace lang
             {
                 if(var != nullptr)std::cout<<var->toString(); else std::cout<< "null";
             }
-            std::cout<<"\t";
         }
         if(name=="GC")
         {
@@ -42,6 +41,21 @@ namespace lang
             {
                 gc->uncontroll(i);
             }
+        }
+        if(name=="VarPtr")
+        {
+            return newInt((int)arg[0]->getPointer());
+        }
+        if(name=="WriteMemory")
+        {
+            auto ptr = (int*)Int::toInt(arg[0]);
+            *ptr = Int::toInt(arg[1]);
+            return 0;
+        }
+        if(name == "ReadMemoryInt")
+        {
+            auto ptr = (int*)Int::toInt(arg[0]);
+            return newInt(*ptr);
         }
         if(name=="sqrt")
         {
@@ -154,7 +168,7 @@ namespace lang
     {
         this->index = this->startIndex;
         auto status = en::scopeStatus::none;
-        /*std::shared_ptr<scope>*/scope* forscope;
+        /*std::shared_ptr<scope>*/scope* forscope = 0;
         int forindex[3],findex = -1;
         forindex[0]=-1;forindex[1]=-1;forindex[2]=-1;
         try
@@ -415,6 +429,8 @@ namespace lang
         }
     }
 #endif
+#define OP if (opera <= thisop) break
+#define OP2 if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
     langObject scope::eval(langObject object,int& index,int opera,bool isbinaryoperation)
     {
         //int index = object->index;
@@ -540,81 +556,82 @@ namespace lang
                     index = i;
                     binaryoperation = index + 1;
                 }
-                if(this->parsers.size()>index+1&&/*Operator(this->parsers[index+1]->pEnum) > thisop*/this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,true),index = i;
+                if(this->parsers.size()>index+1&& Operator(this->parsers[index+1]->pEnum) > thisop ||this->parsers[index+1]->pEnum==leftparent)
+                 object = eval(object,i,17,true),index = i;
                 break;
             case parserEnum::plus:
-                if (opera < thisop) break;
+                OP;
                 buf = eval(object,i,thisop);
                 object = (Object::plus(object,buf));
                 index  = i;
                 //delete buf;
                 break;
             case parserEnum::multiply:
-                if (opera < thisop) break;
+                OP;
                 buf = eval(object,i,thisop);
                 object = (Object::multiply(object,buf));
                 index = i;
-                if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
+                OP2
                 break;
             case parserEnum::modulo:
-                if (opera < thisop) break;
+                OP;
                 buf = eval(object,i,thisop);
                 object = (Object::modulo(object,buf));
                 index = i;
-                if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
+                OP2
                 break;
             case parserEnum::greater:
-                if (opera < thisop) break;
+                OP;
                 buf = eval(object,i,thisop);
                 object = (Object::greater(object,buf));
                 index = i;
-                if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
+                OP2
                 break;
             case parserEnum::less:
-                if (opera < thisop) break;
+                OP;
                 buf = eval(object,i,thisop);
                 object = (Object::less(object,buf));
                 index = i;
-                if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
+                OP2
                 break;
             case parserEnum::greaterequal:
-                if (opera < thisop) break;
+                OP;
                 buf = eval(object,i,thisop);
                 object = (Object::greaterEqual(object,buf));
                 index = i;
-                if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
+                OP2
                 break;
             case parserEnum::lessequal:
-                if (opera < thisop) break;
+                OP;
                 buf = eval(object,i,thisop);
                 object = (Object::lessEqual(object,buf));
                 index = i;
-                if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
+                if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop) object = eval(object,i,17,true),index = i;
                 break;
             case parserEnum::equalequal:
-                if (opera < thisop) break;
+                OP;
                 buf = eval(object,i,thisop);
                 object = (Object::equal(object,buf));
                 index = i;
-                if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
+                OP2
                 break;
             case parserEnum::equal:
-                if (opera < thisop) break;
+                OP;
                 object = eval(object,i,thisop);
                 this->variable.set(*this->parsers[index]->name,object);//this->variable[*this->parsers[index]->name] = object;
                 index = i;
-                if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
+                OP2
                 break;
             case parserEnum::plusplus:
-                if (opera < thisop) break;
+                OP;
                 buf = newInt(1);
                 object = Object::plus(object,buf);
                 this->variable.set(*this->parsers[index]->name,object);
                 index = i;
-                if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) > thisop) object = eval(object,i,17,true),index = i;
+                OP2
                 break;
             case parserEnum::dot:
-                if (opera < thisop) break;
+                OP;
                 if(object->type->TypeEnum == PreType::_ClassObject )
                 {
                     auto buf = (ClassObject*)object;
@@ -639,6 +656,8 @@ namespace lang
                             }
                         }
                     }
+                    index++;
+                    binaryoperation++;
                 }
                 else
                 {
@@ -657,6 +676,8 @@ namespace lang
                                 auto bufbuf = this->parsers[binaryoperation + 1];
                                 if(bufbuf->pEnum == leftparent)
                                 {
+                                    index++;
+                                    binaryoperation++;
                                     j = index;
                                     i = this->parentSkip(binaryoperation);
                                     std::vector<langObject> arg;
@@ -683,8 +704,6 @@ namespace lang
                     }
                     //throw lang::langRuntimeException(".‚ÍClassŒ^‚Å‚Ì‚Ý—LŒø‚Å‚·B");
                 }
-                index++;
-                binaryoperation++;
                 i = index;
                 if(this->parsers.size() > index + 1 && Operator(this->parsers[index + 1]->pEnum) >= thisop) object = eval(object, i, 17, true), index = i;
                 break;

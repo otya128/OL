@@ -27,6 +27,7 @@ namespace lang
     }
     Object::Object(void)
     {
+        this->ptr = this;
 #if _DEBUG
         if(gc_view) std::cout<<"add"<<this<<std::endl;//<<std::endl;
 #endif
@@ -69,6 +70,7 @@ namespace lang
         //delete this->ptr;
     }
     SpecialFunction* object_tostr = new SpecialFunction(0);
+    SpecialFunction* string_substr = new SpecialFunction(1);
     langObject Object::getMember(std::string& name)
     {
         return object_tostr;
@@ -138,6 +140,13 @@ namespace lang
     {
         return *((std::string*)(this->ptr));
     }
+    langObject String::getMember(std::string& name)
+    {
+        if(name == "ToString")
+        return object_tostr;
+        else if(name == "Substring")
+        return string_substr;
+    }
 
     int Int::toInt(langObject obj)
     {
@@ -147,6 +156,26 @@ namespace lang
         //return (static_cast<Int*>(obj))->getInt();
         return 0;//変換不可
     }
+    #define OPERA2ARG(name) auto clas = (langClassObject)obj1;\
+            auto func = (langFunction)clas->thisscope->variable[name];\
+            if(func != nullptr && func is _Function)\
+            {\
+                auto vec = new std::vector<langObject>();\
+                vec->push_back(obj2);\
+                try\
+                {\
+                    auto ret = func->call(vec);\
+                    delete vec;\
+                    return ret;\
+                }\
+                catch(...)\
+                {\
+                    delete vec;\
+                    throw;\
+                }\
+            }\
+            else\
+                throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());
     langObject Object::plus(langObject obj1,langObject obj2)
     {
         switch (obj1->type->TypeEnum)
@@ -155,6 +184,9 @@ namespace lang
             return newInt(Int::toInt(obj1) + Int::toInt(obj2));
         case _String:
             return newString(&(obj1->toString() + obj2->toString()));
+        case PreType::_ClassObject:
+            OPERA2ARG("plus")
+            //break;
         }
         throw langRuntimeException("+出来ない");
         //変換不可
@@ -165,6 +197,8 @@ namespace lang
         {
         case PreType::_Int:
             return newInt(Int::toInt(obj1) * Int::toInt(obj2));
+        case PreType::_ClassObject:
+            OPERA2ARG("multiply")
         }
         throw "出来ない";
         //変換不可
@@ -175,6 +209,8 @@ namespace lang
         {
         case PreType::_Int:
             return newInt(Int::toInt(obj1) > Int::toInt(obj2));
+        case PreType::_ClassObject:
+            OPERA2ARG("greater")
         }
         throw "出来ない";
         //変換不可
@@ -185,6 +221,8 @@ namespace lang
         {
         case PreType::_Int:
             return newInt(Int::toInt(obj1) < Int::toInt(obj2));
+        case PreType::_ClassObject:
+            OPERA2ARG("less")
         }
         throw "出来ない";
         //変換不可
@@ -195,6 +233,8 @@ namespace lang
         {
         case PreType::_Int:
             return newInt(Int::toInt(obj1) >= Int::toInt(obj2));
+        case PreType::_ClassObject:
+            OPERA2ARG("greaterEqual")
         }
         throw "出来ない";
     }
@@ -204,6 +244,8 @@ namespace lang
         {
         case PreType::_Int:
             return newInt(Int::toInt(obj1) <= Int::toInt(obj2));
+        case PreType::_ClassObject:
+            OPERA2ARG("lessEqual")
         }
         throw "出来ない";
     }
@@ -213,6 +255,32 @@ namespace lang
         {
         case PreType::_Int:
             return newInt(Int::toInt(obj1) == Int::toInt(obj2));
+        case PreType::_ClassObject:
+        {
+            auto clas = (langClassObject)obj1;
+            auto func = (langFunction)clas->thisscope->variable["equal"];
+            if(func != nullptr && func is _Function)
+            {
+                auto vec = new std::vector<langObject>();
+                vec->push_back(obj2);
+                try
+                {
+                    auto ret = func->call(vec);
+                    delete vec;
+                    return ret;
+                }
+                catch(...)
+                {
+                    delete vec;
+                    throw;
+                }
+            }
+            else
+                return newInt(obj1 == obj2);
+        }
+        default:
+            return newInt(obj1 == obj2);
+        break;
         }
         throw "出来ない";
     }
@@ -222,6 +290,8 @@ namespace lang
         {
         case PreType::_Int:
             return newInt(Int::toInt(obj1) % Int::toInt(obj2));
+        case PreType::_ClassObject:
+            OPERA2ARG("modulo")
         }
         throw "出来ない";
     }

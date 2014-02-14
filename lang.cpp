@@ -69,7 +69,7 @@ int _tmain(int argc, _TCHAR* argv[])
     _CrtSetBreakAlloc(223);_CrtSetBreakAlloc(221);
 #if _DEBUG
     std::cout<<"language DEBUG build"<<std::endl;
-#elif
+#else
     std::cout<<"language"<<std::endl;
 #endif
     option o = option::none;
@@ -195,6 +195,7 @@ int _tmain(int argc, _TCHAR* argv[])
                 }
                 std::cout<<"異常終了 変数や定数を削除"<<std::endl;
             }
+            #if !defined(_DEBUG)//デバッグならデバッガの機能を利用する
             catch(std::exception ex)
             {
                 std::cout<<"BUG!!!"<<ex.what()<<std::endl;
@@ -205,6 +206,7 @@ int _tmain(int argc, _TCHAR* argv[])
                 std::cout<<"BUG!!!!!!!!!!!!!!!!!!"<<std::endl;
                 std::cout<<"異常終了 変数や定数を削除"<<std::endl;
             }
+            #endif
             std::vector<lang::scope*> del;
             for(auto i : lang::gc->roots)
             {
@@ -237,6 +239,7 @@ theend:
     delete lang::NULLOBJECT;
     delete lang::ObjectType;
     delete lang::object_tostr;
+    delete lang::string_substr;
     if(leakcheck) 
     {
         _CrtDumpMemoryLeaks();

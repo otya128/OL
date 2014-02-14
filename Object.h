@@ -69,6 +69,7 @@ namespace lang
         static langObject equal(langObject obj1,langObject obj2);
     };
     extern SpecialFunction* object_tostr;
+    extern SpecialFunction* string_substr;
     //typedef langObject langObject;
     class Int : public Object
     {
@@ -84,6 +85,7 @@ namespace lang
     class String : public Object
     {
     public:
+        virtual langObject getMember(std::string& name);
         std::string* getString();
         void setString(std::string* i);
         String(std::string* ptr);

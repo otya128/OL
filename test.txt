@@ -1,13 +1,38 @@
+string ptrstr = "hogehoge";
+WriteMemory((VarPtr(ptrstr)+4),65);
+WriteMemory((VarPtr(ptrstr)+5),66);
+WriteMemory((VarPtr(ptrstr)+6),67);
+WriteMemory((VarPtr(ptrstr)+7),68);
+print("ポインタを取得",ptrstr,VarPtr(ptrstr),"ToString",VarPtr(ptrstr.ToString()),"Substring",VarPtr(ptrstr.Substring(1)));
 var a = new ｱｱｱｳｱｱ;あいうえお表示
 a.huge = "hage";
 print(a.huge);
 print(a.func_test(),a.huga());
-print(a.huge.tostr());
-a.huga = null;
+print(a.huga.ToString().Substring(1));
+//print("演算子の定義",a+"hoge");
+var cout = new costream;
+cout <= "std::cout" <= "のような物" <= 1 <= "+" <= 1 <= "=" <= 1 + 1 <= endl <= 
+"演算順位てすと" <= 2 * 2 + 2 <= (2 * (2 + 2)) <= endl <=
+endl
+;
+//a.huga = null;
 //free(ｱｱｱｳｱｱ);//classを無理矢理削除してみる->new ｱｱｱｳｱｱするとC0000005
 //GC();//これをすると二回目以降の実行がおかしくなる->一応解決
 //uncontrollGC("memory"+"leak"+"suru");
 //uncontrollGC("memoryleaksinai");
+/**
+free(Object...)
+	GCの管理外にしてメモリを開放
+uncontrollGC(Object...)
+	GCの管理外にするがメモリは開放しない
+	freeする必要がある
+print(Object...)
+	引数の内容をtab区切りにして表示
+Object.ToString()
+	文字列化
+String.Substring(Int[,Int])
+	文字切り出し
+*/
 class ｱｱｱｳｱｱ//comment
 {
 /*
@@ -25,5 +50,35 @@ class ｱｱｱｳｱｱ//comment
 	//ただしclassの中で書き換えないとthisなどは参照不可
 		this.huga = function(){return huge;}
 		return this.huge;
+	}
+}
+//STD????? LIB
+class endl
+{
+	//empty class
+}
+class tab
+{
+	//empty class
+}
+/**
+	Console Output Stream
+*/
+class costream
+{
+	var lessEqual(var arg)
+	{
+		if(arg == endl)
+		{
+			print("\n");
+			return this;
+		}
+		if(arg == tab)
+		{
+			print("\t");
+			return this;
+		}
+		print(arg);
+		return this;
 	}
 }

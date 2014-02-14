@@ -23,6 +23,7 @@ namespace lang
         ReadStr,
         ReadComment,
         ReadBlockComment,
+        ReadEscapeString,
     };
     int error_level;
     //文字列から単純なhashを作成
@@ -151,21 +152,23 @@ namespace lang
                     {
                         this->runner->variable.add(className,newClass(className,0,member,this->runner));
                         member = nullptr;
+                        classRead = 0;
                     }
                     break;
             case 4:
                 if(token->pEnum == identifier)
                 {
-                    if(i+1<this->parsers.size()&& this->parsers[i+1]->pEnum == semicolon)
+                    if(i + 1 < this->parsers.size() && this->parsers[i + 1]->pEnum == semicolon)
                     {
                         member->push_back(std::pair<std::string,langObject>(*token->name, NULLOBJECT));
                         classRead = 3;
                     }
-                    if(i+1<this->parsers.size()&& this->parsers[i+1]->pEnum == leftparent)
+                    if(i + 1 < this->parsers.size() && this->parsers[i + 1]->pEnum == leftparent)
                     {
                         classRead = 3;
                     }
                 }
+                        classRead = 3;
                 break;
             }
             switch (funcRead)
@@ -220,11 +223,11 @@ namespace lang
                 funcRead = 0;
                 if(classRead == 3)
                 {
-                    member->push_back(std::pair<std::string,langObject>(funcName, newFunction(funcName, argList, this->runner,i)));
+                    member->push_back(std::pair<std::string,langObject>(funcName, newFunction(funcName, argList, this->runner, i)));
                 }
                 else if(func == 0)
                 {
-                    this->runner->variable.add(funcName,newFunction(funcName, argList, this->runner,i));
+                    this->runner->variable.add(funcName, newFunction(funcName, argList, this->runner, i));
                 }
                 argList = nullptr;//new std::vector<std::string>();
                 func++;
@@ -256,13 +259,13 @@ namespace lang
         int blockComment = 0;
         for(int i=0;i<=input.size();i++)
         {
-            bool islast=i>=input.size()-1;
-            bool isfast = i==0;
+            bool islast = i >= input.size() - 1;
+            bool isfast = i == 0;
             auto chr = input[i];
             char nextchr;
             char prevchr;
-            if(!islast)nextchr = input[i+1];
-            if(!isfast)prevchr = input[i-1];
+            if(!islast)nextchr = input[i + 1];
+            if(!isfast)prevchr = input[i - 1];
             switch (sts)
             {
             case parserStatus::None:None:
@@ -415,10 +418,14 @@ ReadIden:
                 }
                 else
                 {
+                    if(chr == '\\' && !(shiftJis && isIdenShiftJIS1(prevchr)))
+                    {
+                        sts = parserStatus::ReadEscapeString;
+                    }else
                     if(chr=='\n'||chr=='\0')
                     {
                         WARNING("閉じられていないstring");//throw langParseException("閉じられていないstring");
-                    }
+                    }else
                     iden->append(input.substr(i,1));
                 }
                 break;
@@ -430,7 +437,23 @@ ReadIden:
                 if(chr == '/' && nextchr == '*') {blockComment++;i++;}
                 if(!blockComment) sts = parserStatus::None;
                 break;
+            case parserStatus::ReadEscapeString:
+                switch (chr)
+                {
+                case 'n':
+                    *iden += '\n';
+                break;
+                case 't':
+                    *iden +='\t';
+                break;
+                default:
+                    WARNING((std::string("認識できないエスケープシーケンス") + chr).c_str(),1);
+                    break;
+                }
+                sts = parserStatus::ReadStr;
+            break;
             default:
+                throw langParseException("WHAT???");
                 break;
             }
 #if _DEBUG
