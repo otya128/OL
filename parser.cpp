@@ -296,6 +296,12 @@ namespace lang
                     case ')':
                         this->parsers.push_back(new parseObj(parserEnum::rightparent,new std::string(")"), i, i));
                         break;
+                    case '[':
+                        this->parsers.push_back(new parseObj(parserEnum::leftbracket,new std::string("["), i, i));
+                        break;
+                    case ']':
+                        this->parsers.push_back(new parseObj(parserEnum::rightbracket,new std::string("]"), i, i));
+                        break;
                     case '+':
                         if(nextchr == '+')
                             this->parsers.push_back(new parseObj(parserEnum::plusplus,new std::string("++"), i, i + 1)),i++;
@@ -327,11 +333,15 @@ namespace lang
                     case '<':
                         if(nextchr == '=')
                             this->parsers.push_back(new parseObj(parserEnum::lessequal,new std::string("<="), i, i + 1)),i++;
+                        else if(nextchr == '<')
+                            this->parsers.push_back(new parseObj(parserEnum::leftshift,new std::string("<<"), i, i + 1)),i++;
                         else this->parsers.push_back(new parseObj(parserEnum::less,new std::string("<"), i, i));
                         break;
                     case '>':
                         if(nextchr == '=')
                             this->parsers.push_back(new parseObj(parserEnum::greaterequal,new std::string(">="), i, i + 1)),i++;
+                        else if(nextchr == '>')
+                            this->parsers.push_back(new parseObj(parserEnum::rightshift,new std::string(">>"), i, i + 1)),i++;
                         else 
                             this->parsers.push_back(new parseObj(parserEnum::greater,new std::string(">"), i, i));
                         break;

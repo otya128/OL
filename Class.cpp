@@ -3,11 +3,13 @@
 #include "scope.h"
 #include "lang.h"
 #include "Function.h"
+#include "langException.h"
 namespace lang
 {
     Class::Class(std::string name,int index,membertype member,lang::scope* scope)
     {
         this->scope = scope;
+        this->scope->refinc();
         this->type = new Type(PreType::_Class, (char*)"class");
         this->name = name;
         this->index = index;
@@ -21,7 +23,8 @@ namespace lang
     Class::~Class(void)
     {
         if(this->type->TypeEnum == PreType::_Class)
-        {delete this->member;}//delete this->name;
+        {delete this->member;
+        this->scope->refdec();}//delete this->name;
 #if _DEBUG
         if(lang::gc_view)std::cout<<"remove"<<this<<this->type->name<<std::endl;
 #endif
@@ -30,6 +33,7 @@ namespace lang
     ClassObject::ClassObject(Class* type) : Class(type->name,type->index,type->member,type->scope)
     {
         thisscope = new lang::scope(type->scope->parsers, type->scope,this);
+        this->scope = type->scope;
         this->thisscope->refinc();
         this->type->TypeEnum = _ClassObject;
         foreach_(var_ i in_ *this->member)//C# style foreach
@@ -45,7 +49,24 @@ namespace lang
         }
     }
 
-
+    std::string ClassObject::toString(void)
+    {
+        if(this->thisscope->variable["ToString"] is _Function)
+        {
+            auto arg = new std::vector<langObject>;//—áŠOˆ—‚Å‹t‚Éç’·‚É‚È‚é—á
+            try
+            {
+                auto result = ((langFunction)this->thisscope->variable["ToString"])->call(arg);
+                delete arg;
+                return result->toString();
+            }
+            catch(...)
+            {
+                delete arg;
+                throw;
+            }
+        }
+    }
     ClassObject::~ClassObject(void)
     {
         this->thisscope->refdec();

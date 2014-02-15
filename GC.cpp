@@ -1,7 +1,9 @@
 #include "stdafx.h"
+#include <Windows.h>
 #include "GC.h"
 #include "scope.h"
 #include "Class.h"
+#include "Array.h"
 namespace lang
 {
     GC::GC(scope* root)
@@ -11,9 +13,15 @@ namespace lang
         count = 0;
         this->root = root;
         this->addRoot(root);
+        objectCount = 0;
     }
     void GC::addObject(Object* obj)
     {
+        objectCount++;
+        if(objectCount>=GCtimig)
+        {
+            this->start();
+        }
         this->object[obj] = 0;
     }
     void GC::start(void)
@@ -33,10 +41,17 @@ namespace lang
         if(gc_view)
             std::cout<<"‚ª‚×‚±‚êŠJŽn"<<std::endl;
 #endif
+    if(objectCount>160) 
+        std::cout<<""
+    ;
         // this->search(this->root);
         for(auto root : this->roots)
         {
             this->search(root.first);
+        }
+        for(auto o : this->constroot)
+        {
+            this->search(o);
         }
         for(auto obj : this->object)
         {
@@ -59,6 +74,14 @@ namespace lang
         if(gc_view)
             std::cout<<"‚ª‚×‚±‚êI—¹"<<std::endl;
 #endif
+        objectCount = object.size();
+        if(objectCount<=GCtimig/4) GCtimig/=2;
+        if(objectCount>=GCtimig/2) GCtimig*=2;
+        //_TCHAR buf[256];
+        //_tprintf_s(buf,"count:%d\tmax%d\n",objectCount,GCtimig);
+        char buf[256];
+        sprintf_s(buf,"count:%d\tmax%d\n",objectCount,GCtimig);
+        OutputDebugStringA(buf);
         NowGabekore = false;
     }
     void GC::search(scope* root)
@@ -69,7 +92,7 @@ namespace lang
             {
 
             }
-            if(this->object.find(obj.second) != this->object.end())
+            if(this->object.find(obj.second) != this->object.end() && this->object[obj.second] != count)
             {
                 switch (obj.second->type->TypeEnum)
                 {
@@ -83,6 +106,16 @@ namespace lang
                         }
                     }
                     break;
+                case lang::_Array:
+                    foreach_(var_ i in_ ((langArray)obj.second)->ary)
+                    {
+                        if(this->object[i] != count)
+                        {
+                            this->search(i);//
+                        }
+                    }
+                    
+                    break;
                 }
                 this->object[obj.second] = count;//++;//this->object[obj] = 0;4
             }
@@ -90,6 +123,7 @@ namespace lang
     }
     void GC::search(langObject object)
     {
+        if(object == nullptr) return;
         switch (object->type->TypeEnum)
         {
         case lang::_Object:
@@ -97,11 +131,28 @@ namespace lang
         case lang::_String:
         case lang::_Char:
         case lang::_Double:
-        case lang::_Array:
-        case lang::_Class:
         case lang::_Function:
         default:
             this->object[object] = count;
+            break;
+        case lang::_Class:
+            foreach_(var_ i in_ *((langClass)object)->member)
+            {
+                if(this->object[i.second] != count)
+                {
+                    this->search(i.second);//
+                }
+            }
+            break;
+        case lang::_Array:
+            this->object[object] = count;
+            foreach_(var_ i in_ ((langArray)object)->ary)
+            {
+                if(this->object[i] != count)
+                {
+                    this->search(i);//
+                }
+            }
             break;
         case lang::_ClassObject:
             this->object[object] = count;

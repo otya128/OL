@@ -131,6 +131,8 @@ namespace lang
         }
         throw lang::langRuntimeException("ˆø”‚Ì”‚ªˆê’v‚µ‚Ü‚¹‚ñ[String.Substring(,)]");
     }
+    typedef langObject (*BuiltFunc)(std::vector<langObject>);
+    std::map<std::string,BuiltFunc>* BuiltFunction = new std::map<std::string,BuiltFunc>;
     langObject (*FuncTable[])(langObject, std::vector<langObject>) =
     {
         &Object_ToString,

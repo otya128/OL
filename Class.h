@@ -22,6 +22,7 @@ namespace lang
     class ClassObject : public Class
     {
     public:
+        virtual std::string ClassObject::toString(void);
         //スコープ
         lang::scope* thisscope;
         ClassObject(Class* type);

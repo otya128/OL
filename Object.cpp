@@ -92,6 +92,9 @@ namespace lang
     {
         this->type = new Type(PreType::_Int);
         this->ptr = (void*)new int(i);
+        #if _DEBUG
+        debuggg = i;
+        #endif
     }
     Int::~Int(void)
     {
@@ -106,6 +109,9 @@ namespace lang
     {
         delete this->ptr;
         this->ptr = new int(i);
+        #if _DEBUG
+        debuggg = i;
+        #endif
         return;
     }
     std::string Int::toString()
@@ -156,7 +162,7 @@ namespace lang
         //return (static_cast<Int*>(obj))->getInt();
         return 0;//変換不可
     }
-    #define OPERA2ARG(name) auto clas = (langClassObject)obj1;\
+    #define OPERA2ARG(name) {auto clas = (langClassObject)obj1;\
             auto func = (langFunction)clas->thisscope->variable[name];\
             if(func != nullptr && func is _Function)\
             {\
@@ -175,7 +181,50 @@ namespace lang
                 }\
             }\
             else\
-                throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());
+                throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());}
+                
+    #define OPERA2ARG2(name) {auto clas = (langClassObject)obj2;\
+            auto func = (langFunction)clas->thisscope->variable[name];\
+            if(func != nullptr && func is _Function)\
+            {\
+                auto vec = new std::vector<langObject>();\
+                vec->push_back(obj1);\
+                try\
+                {\
+                    auto ret = func->call(vec);\
+                    delete vec;\
+                    return ret;\
+                }\
+                catch(...)\
+                {\
+                    delete vec;\
+                    throw;\
+                }\
+            }\
+            else\
+                throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());}
+                /*
+                {auto clas = (langClassObject)obj1;
+            auto func = (langFunction)clas->thisscope->variable[name];
+            if(func != nullptr && func is _Function)
+            {
+                auto vec = new std::vector<langObject>();
+                vec->push_back(obj2);
+                try
+                {
+                    auto ret = func->call(vec);
+                    delete vec;
+                    return ret;
+                }
+                catch(...)
+                {
+                    delete vec;
+                    throw;
+                }
+            }
+            else
+                throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());}
+                */
     langObject Object::plus(langObject obj1,langObject obj2)
     {
         switch (obj1->type->TypeEnum)
@@ -185,10 +234,29 @@ namespace lang
         case _String:
             return newString(&(obj1->toString() + obj2->toString()));
         case PreType::_ClassObject:
-            OPERA2ARG("plus")
+            {auto clas = (langClassObject)obj1;
+            auto func = (langFunction)clas->thisscope->variable["plus"];
+            if(func != nullptr && func is _Function)
+            {
+                auto vec = new std::vector<langObject>();
+                vec->push_back(obj2);
+                try
+                {
+                    auto ret = func->call(vec);
+                    delete vec;
+                    return ret;
+                }
+                catch(...)
+                {
+                    delete vec;
+                    throw;
+                }
+            }
+            else
+                throw langRuntimeException((std::string("関数plus")+"が定義されていません").c_str());}//OPERA2ARG("plus")
             //break;
         }
-        throw langRuntimeException("+出来ない");
+        throw langRuntimeException((std::string(obj1->type->name) + "+" + obj2->type->name + "出来ない").c_str());
         //変換不可
     }
     langObject Object::multiply(langObject obj1,langObject obj2)
@@ -200,7 +268,7 @@ namespace lang
         case PreType::_ClassObject:
             OPERA2ARG("multiply")
         }
-        throw "出来ない";
+        throw langRuntimeException((std::string(obj1->type->name) + "*" + obj2->type->name + "出来ない").c_str());
         //変換不可
     }
     langObject Object::greater(langObject obj1,langObject obj2)
@@ -212,7 +280,7 @@ namespace lang
         case PreType::_ClassObject:
             OPERA2ARG("greater")
         }
-        throw "出来ない";
+        throw langRuntimeException((std::string(obj1->type->name) + ">" + obj2->type->name + "出来ない").c_str());
         //変換不可
     }
     langObject Object::less(langObject obj1,langObject obj2)
@@ -224,7 +292,7 @@ namespace lang
         case PreType::_ClassObject:
             OPERA2ARG("less")
         }
-        throw "出来ない";
+        throw langRuntimeException((std::string(obj1->type->name) + "<" + obj2->type->name + "出来ない").c_str());
         //変換不可
     }
     langObject Object::greaterEqual(langObject obj1,langObject obj2)
@@ -236,7 +304,7 @@ namespace lang
         case PreType::_ClassObject:
             OPERA2ARG("greaterEqual")
         }
-        throw "出来ない";
+        throw langRuntimeException((std::string(obj1->type->name) + ">=" + obj2->type->name + "出来ない").c_str());
     }
     langObject Object::lessEqual(langObject obj1,langObject obj2)
     {
@@ -247,7 +315,7 @@ namespace lang
         case PreType::_ClassObject:
             OPERA2ARG("lessEqual")
         }
-        throw "出来ない";
+        throw langRuntimeException((std::string(obj1->type->name) + "[" + obj1->toString() + "]<=[" + obj2->toString() + "]" + obj2->type->name + "出来ない").c_str());
     }
     langObject Object::equal(langObject obj1,langObject obj2)
     {
@@ -282,7 +350,6 @@ namespace lang
             return newInt(obj1 == obj2);
         break;
         }
-        throw "出来ない";
     }
     langObject Object::modulo(langObject obj1,langObject obj2)
     {
@@ -293,7 +360,90 @@ namespace lang
         case PreType::_ClassObject:
             OPERA2ARG("modulo")
         }
-        throw "出来ない";
+        throw langRuntimeException((std::string(obj1->type->name) + "%" + obj2->type->name + "出来ない").c_str());
+    }
+    langObject Object::leftShift(langObject obj1,langObject obj2)
+    {
+        switch (obj1->type->TypeEnum)
+        {
+        case PreType::_Int:
+            if(obj2 is _ClassObject)
+            {
+                auto clas = (langClassObject)obj2;
+                auto func = (langFunction)clas->thisscope->variable["leftShift"];
+                if(func != nullptr && func is _Function)
+                {
+                    auto vec = new std::vector<langObject>();
+                    vec->push_back(obj1);
+                    try
+                    {
+                        auto ret = func->call(vec);
+                        delete vec;
+                        return ret;
+                    }
+                    catch(...)
+                    {
+                        delete vec;
+                        throw;
+                    }
+                }
+                else
+                    throw langRuntimeException((std::string("関数leftShift")+"が定義されていません").c_str());
+            }
+            return newInt(Int::toInt(obj1) << Int::toInt(obj2));
+        case PreType::_ClassObject:
+            OPERA2ARG("leftShift")
+        default:
+
+            if(obj2 is _ClassObject)
+            {
+                auto clas = (langClassObject)obj2;
+                auto func = (langFunction)clas->thisscope->variable["leftShift"];
+                if(func != nullptr && func is _Function)
+                {
+                    auto vec = new std::vector<langObject>();
+                    vec->push_back(obj1);
+                    try
+                    {
+                        auto ret = func->call(vec);
+                        delete vec;
+                        return ret;
+                    }
+                    catch(...)
+                    {
+                        delete vec;
+                        throw;
+                    }
+                }
+                else
+                    throw langRuntimeException((std::string("関数leftShift")+"が定義されていません").c_str());
+            }
+        }
+        throw langRuntimeException((std::string(obj1->type->name) + "[" + obj1->toString() + "]<<[" + obj2->toString() + "]" + obj2->type->name + "出来ない").c_str());
+    }
+    langObject Object::rightShift(langObject obj1,langObject obj2)
+    {
+        switch (obj1->type->TypeEnum)
+        {
+        case PreType::_Int:
+            return newInt(Int::toInt(obj1) >> Int::toInt(obj2));
+        case PreType::_ClassObject:
+            OPERA2ARG("rightShift")
+        }
+        throw langRuntimeException((std::string(obj1->type->name) + ">>" + obj2->type->name + "出来ない").c_str());
+    }
+    
+    langObject Object::inc(langObject obj1)
+    {
+        switch (obj1->type->TypeEnum)
+        {
+        case PreType::_Int:
+            return newInt(Int::toInt(obj1) + 1);
+        //case PreType::_ClassObject:
+        //    OPERA2ARG("inc")
+        }
+        throw langRuntimeException((std::string(obj1->type->name) + "++出来ない").c_str());
+        //変換不可
     }
 
 }

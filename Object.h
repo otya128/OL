@@ -59,6 +59,7 @@ namespace lang
         Object(void* ptr);
         Object(void);
         virtual ~Object(void);
+        static langObject inc(langObject obj1);
         static langObject plus(langObject obj1,langObject obj2);
         static langObject multiply(langObject obj1,langObject obj2);
         static langObject greater(langObject obj1,langObject obj2);
@@ -67,12 +68,17 @@ namespace lang
         static langObject lessEqual(langObject obj1,langObject obj2);
         static langObject modulo(langObject obj1,langObject obj2);
         static langObject equal(langObject obj1,langObject obj2);
+        static langObject leftShift(langObject obj1,langObject obj2);
+        static langObject rightShift(langObject obj1,langObject obj2);
     };
     extern SpecialFunction* object_tostr;
     extern SpecialFunction* string_substr;
     //typedef langObject langObject;
     class Int : public Object
     {
+    #if _DEBUG
+        int debuggg;
+    #endif
     public:
         int getInt();
         void setInt(int i);

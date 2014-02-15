@@ -24,6 +24,9 @@ namespace lang
         parseObj(char obj,int i,int j);
         ~parseObj(void);
         std::string toString(void);
+        #if _DEBUG
+        int line;
+        #endif
     };
 }
 

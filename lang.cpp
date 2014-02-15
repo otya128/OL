@@ -14,21 +14,35 @@
 #include <thread>
 #include <windows.h>
 #include "Function.h"
+#ifndef _DEBUG
+#include <eh.h>
+//構造化例外が発生すると、この関数が呼ばれる
+void se_translator_function(unsigned int code, struct _EXCEPTION_POINTERS* ep)
+{
+	throw ep; //標準C++の例外を発生させる
+}
+#endif
 #define END goto theend
 #define FAILEND result = 1;goto theend
 //#include "parseObj.h"
 //#include "parserEnum.h"
 namespace lang
 {
+    namespace lib{void init();}
     Type* ObjectType = new Type(PreType::_Object);
     langObject NULLOBJECT = nullptr;//ewObject(nullptr);
     bool ahogc = false,parserresult = false, leakcheck = false, pause = false;
+#if _DEBUG
+    std::vector<int> BreakPoint;//行で指定
+#endif
+    typedef langObject (*BuiltFunc)(std::vector<langObject>);
+    extern std::map<std::string,BuiltFunc>* BuiltFunction;
 }
 using namespace lang;
 #pragma once
 char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightparent","comma","plus","minus","multiply","equal","equalequal","semicolon","blockstart","blockend","plusplus","minusminus","greater","less","greaterequal","lessequal","modulo","plusequal","minusequal","dot","division","leftbracket","rightbracket","debbug_stop","multiplyequal","divisionequal","moduloequal","or","oror","and","andand","xor","notequal","not","notnot","leftshift","rightshift","leftshiftequal","rightshiftequal","andequal","orequal","xorequal","chr","none"
-    ,"_class"
-    ,"_new",
+    "_class",
+    "_new",
     "_this",};
 
 char* parserEnumToString(lang::parserEnum i)
@@ -65,8 +79,14 @@ int hook(int a1, char *a2, int *a3)
 }
 int _tmain(int argc, _TCHAR* argv[])
 {
+
+#ifndef _DEBUG
+//スレッド毎に変換関数を登録する
+	_set_se_translator(se_translator_function);
+#endif
     //_CrtSetReportMode( 1, _CRTDBG_MODE_WNDW );
     _CrtSetBreakAlloc(223);_CrtSetBreakAlloc(221);
+    _CrtSetBreakAlloc(218);
 #if _DEBUG
     std::cout<<"language DEBUG build"<<std::endl;
 #else
@@ -124,8 +144,8 @@ int _tmain(int argc, _TCHAR* argv[])
             break;
         }
     }
-
     if(leakcheck) _CrtSetReportHook((_CRT_REPORT_HOOK)hook);
+    lib::init();
     lang::NULLOBJECT = new lang::Object();
     lang::NULLOBJECT->type->name = "null";
     while (true)//std::getchar())
@@ -153,6 +173,13 @@ int _tmain(int argc, _TCHAR* argv[])
             std::cout<<std::endl<<"lang::langParseException - lang::parser"<<std::endl<<ex.what();
             continue;
         }
+        for(int i=0;i<pars->parsers.size();i++)
+            {
+                if(pars->parsers[i]->ptr != nullptr)
+                {
+                    lang::gc->constroot.push_back(pars->parsers[i]->ptr);
+                }
+            }
         //out testobj=new lang::parseObj("hoge");//アウト
         //std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
         int nest = 0;
@@ -184,9 +211,9 @@ int _tmain(int argc, _TCHAR* argv[])
                 std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "場所?:" << std::endl;
                 for(auto i : ex.stacktrace)
                 {
-                    std::cout << てかＬＩＮＥやってる？(input,ex.tokens[i.first]->sourcestartindex);
+                    std::cout << てかＬＩＮＥやってる？(input,ex.tokens[i.second]->sourcestartindex);
                     //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
-                    break;
+                    //break;
                 }
                 std::cout << "StackTrace" << std::endl;
                 for(auto i : ex.funcstacktrace)
@@ -236,6 +263,10 @@ int _tmain(int argc, _TCHAR* argv[])
             break;
     }
 theend:
+    #if _DEBUG
+        BreakPoint.~vector();
+    #endif
+    delete BuiltFunction;
     delete lang::NULLOBJECT;
     delete lang::ObjectType;
     delete lang::object_tostr;
@@ -252,7 +283,7 @@ theend:
 #if !defined(_DEBUG)
     system("PAUSE");//WINDOWSならこっちの方が親切だから使う
 #endif
-#elif
+#else
         std::getchar();
 #endif
     return result;

@@ -40,6 +40,7 @@ namespace lang
         {	// construct from message string
         }
     };
+    #define throw_langRuntimeException(...) {char buf[512];sprintf_s(buf,__VA_ARGS__);throw langRuntimeException(buf);}
     class langParseException : public langException
     {
     public:

@@ -38,6 +38,14 @@ namespace lang
             _none_,_function,for_,
         };
     }
+    
+enum class evals
+{
+    isbinaryoperation = 1,
+    arrayset = 2,
+    dmmy1 = 4,
+    dmmy2 = 8,
+};
 #define isClass() _this
     //std::map<std::string,langObject>
     class scope
@@ -60,7 +68,7 @@ namespace lang
         ~scope(void);
         int parentSkip(int index);
         int blockSkip(int index,int j=0);
-        langObject eval(langObject object,int& index,int opera = 17,bool isbinaryoperation=false);
+        langObject eval(langObject object,int& index,int opera = 17,evals ev = (evals)0);
         langFunction anonymousFunction(int& index);
         langClassObject _this;
     };
