@@ -11,13 +11,13 @@ var a = new 北背北;偁偄偆偊偍昞帵
 print(a.huge);
 print(a.func_test(),a.huga());
 print(a.huga.ToString().Substring(1));*/
-car ary = new Array(10);
+car ary = new Array(100);
 int i = 0;
-for(i=0;i<10;i++)
+for(i=0;i<100;i++)
 {
-	ary[i]=new Array(10);//YOSHI
+	ary[i]=new Array(100);//YOSHI
 	int j = 0;
-	for(j=0;j<10;j++)
+	for(j=0;j<100;j++)
 	{
 		ary[i][j]=j;
 	}
@@ -29,7 +29,7 @@ cout << "std::cout" << "偺傛偆側暔" << 1 << "+" << 1 << "=" << (1 + 1) << endl <
 endl <<
 //"getline" << (getline()) << endl <<
 "ToString" << "TEST" << a << tab << (a.ToString()) << endl <<
-"Array" << ary << endl
+"Array" /*<< ary*/ << endl
 ;
 //a.huga = null;
 //free(北背北);//class傪柍棟栴棟嶍彍偟偰傒傞->new 北背北偡傞偲C0000005
