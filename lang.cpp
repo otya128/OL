@@ -14,6 +14,7 @@
 #include <thread>
 #include <windows.h>
 #include "Function.h"
+#include <time.h>
 #ifndef _DEBUG
 #include <eh.h>
 //構造化例外が発生すると、この関数が呼ばれる
@@ -43,7 +44,8 @@ using namespace lang;
 char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightparent","comma","plus","minus","multiply","equal","equalequal","semicolon","blockstart","blockend","plusplus","minusminus","greater","less","greaterequal","lessequal","modulo","plusequal","minusequal","dot","division","leftbracket","rightbracket","debbug_stop","multiplyequal","divisionequal","moduloequal","or","oror","and","andand","xor","notequal","not","notnot","leftshift","rightshift","leftshiftequal","rightshiftequal","andequal","orequal","xorequal","chr","none"
     "_class",
     "_new",
-    "_this",};
+    "_this",
+    "_namespace",};
 
 char* parserEnumToString(lang::parserEnum i)
 {
@@ -143,7 +145,7 @@ int _tmain(int argc, _TCHAR* argv[])
         default:
             break;
         }
-    }
+    }//lang::gc_view = true;
     if(leakcheck) _CrtSetReportHook((_CRT_REPORT_HOOK)hook);
     lib::init();
     lang::NULLOBJECT = new lang::Object();
@@ -234,6 +236,8 @@ int _tmain(int argc, _TCHAR* argv[])
                 std::cout<<"異常終了 変数や定数を削除"<<std::endl;
             }
             #endif
+            clock_t start,end;
+            start = clock();
             std::vector<lang::scope*> del;
             for(auto i : lang::gc->roots)
             {
@@ -242,6 +246,9 @@ int _tmain(int argc, _TCHAR* argv[])
             lang::gc->roots.clear();
             //lang::gc->root->variable._variable.clear();
             lang::gc->start();
+
+            end = clock();
+            std::cout<<(double)(end-start)/CLOCKS_PER_SEC<<"秒"<<std::endl;
             for(int i=0;i<del.size();i++)
             {
                 delete del[i];

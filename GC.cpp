@@ -8,7 +8,7 @@ namespace lang
 {
     GC::GC(scope* root)
     {
-        GCtimig = 128;
+        GCtimig = 65536;
         this->NowGabekore = false;
         count = 0;
         this->root = root;

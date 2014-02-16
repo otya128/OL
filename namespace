@@ -1,0 +1,51 @@
+//using namespace hoge;
+//using namespace hoge::hoge;
+new test();//new hoge::test();
+//new hoge::test;
+namespace hoge
+{
+	var func(){}//hoge::func
+	class test//hoge::test
+	{
+		var ToString()
+		{
+			/*
+				search
+				root namespace ()
+				test2
+				this namespace (hoge)
+				hoge::test2
+					using namespace
+					hoge::test2
+					hoge::hoge::test2
+			*/
+			new hoge::test2();//new hoge::hoge::test2();
+		}
+	}
+	namespace hige//hoge::hige
+	{
+		var funct()//hoge::hige::funct
+		{
+			/*
+				search
+				root namespace ()
+				test
+				this namespace (hoge)
+				hoge::hige::test
+				parent namespace
+				hoge::test
+				*/
+			new test();//hoge::test
+		}
+	}
+}
+namespace hoge::hoge
+{
+	class test2//hoge::hoge::test2
+	{
+		var ToString()
+		{
+			new test2();//new hoge::hoge::test2();
+		}
+	}
+}

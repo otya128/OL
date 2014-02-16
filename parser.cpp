@@ -14,6 +14,7 @@ namespace lang
 #define HASHCLASS   1107
 #define HASHTHIS    659
 #define HASHNEW     339
+#define HASHNAMESPACE 3721
 #define ERROR(a) WARNING(a,0)//langObject NULLOBJECT = newObject(nullptr);
     enum class parserStatus
     {
@@ -40,7 +41,7 @@ namespace lang
     }
     bool isIden(unsigned char c)
     {
-        return (c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='0'&&c<='9')||(c=='_');
+        return (c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='0'&&c<='9')||(c=='_')||c==':';//namespace
     }
     bool isIdenShiftJIS(unsigned char c)
     {
@@ -397,6 +398,9 @@ ReadIden:
                                 break;
                             case HASHTHIS:
                                 if(*iden == "this"){this->parsers.push_back(new parseObj(parserEnum::_this,iden, startindex, i - 1));ok = true;}
+                                break;
+                            case HASHNAMESPACE:
+                                if(*iden == "namespace"){this->parsers.push_back(new parseObj(parserEnum::_namespace,iden, startindex, i - 1));ok = true;}
                                 break;
                             }
                             if(!ok) this->parsers.push_back(new parseObj(parserEnum::identifier,iden, startindex, i - 1));

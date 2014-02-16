@@ -61,6 +61,7 @@ namespace lang
         _class,
         _new,
         _this,
+        _namespace,
     };
 }
 #endif
