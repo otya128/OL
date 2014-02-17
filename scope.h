@@ -27,7 +27,7 @@ namespace lang
     {
         enum scopeStatus
         {
-            none,iden,var,_for,_if,
+            none,iden,var,_for,_if,ctor
         };
         enum returnStatus
         {
