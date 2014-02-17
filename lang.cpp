@@ -45,7 +45,10 @@ char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightpar
     "_class",
     "_new",
     "_this",
-    "_namespace",};
+    "_namespace",
+    "_using",
+    "_static",
+    };
 
 char* parserEnumToString(lang::parserEnum i)
 {

@@ -35,6 +35,17 @@ namespace lang{
             return this->parentVariable->search(name);
         }
     }
+    bool variable::definedVar(std::string name)
+    {
+        if(this->_variable.find(name) != this->_variable.end())
+            return true;
+        else
+        {
+            //lang::NULLOBJECT
+            if(this->parentVariable == nullptr) return false;
+            return this->parentVariable->definedVar(name);
+        }
+    }
     langObject variable::operator[](std::string name)
     {
         if(this->_variable.find(name) != this->_variable.end())

@@ -94,7 +94,15 @@ namespace lang
 
     langObject BuidInFunction(std::string name,std::vector<langObject> arg)
     {
-        return (((*BuiltFunction)[name]))(arg);
+        auto func = (*BuiltFunction)[name];
+        if(func)
+        {
+            return func(arg);
+        }
+        else
+        {
+            throw_langRuntimeException("組み込み関数%sが見つかりません。", name.c_str());
+        }
     #if 0
         if(name=="print")
         {
@@ -173,12 +181,12 @@ namespace lang
                 delete this;
         }
     }
-    scope::scope(std::vector<parseObj*>& v)
+    scope::scope(std::vector<parseObj*>& v):parsers(v)
     {
         this->isClass() = nullptr;
         refcount = 0;
         //this->variable = lang::variable();
-        this->parsers = v;
+        //this->parsers = v;
         this->index = 0;
         this->startIndex = 0;
         this->status = en::returnStatus::none_;
@@ -188,13 +196,13 @@ namespace lang
             std::cout<<"変数スコープを作成"<<this<<std::endl;
 #endif
     }
-    scope::scope(std::vector<parseObj*>& v,scope* parent,langClassObject _this)
+    scope::scope(std::vector<parseObj*>& v,scope* parent,langClassObject _this):parsers(v)
     {
         this->isClass() = isClass();
         gc->addRoot(this);//gc->roots[this] = 0;
         refcount = 0;
         this->variable.parentVariable = &parent->variable;//this->variable = new lang::variable(parent->variable);
-        this->parsers = v;
+        //this->parsers = v;
         this->index = 0;
         this->startIndex = 0;
         this->status = en::returnStatus::none_;
@@ -271,7 +279,7 @@ namespace lang
                     switch (j->pEnum)
                     {
                     case _class:
-                        index = this->blockSkip(index,-1);
+                        index = this->blockSkip(index);
                         break;
                     case parserEnum::identifier:
                         if(*j->name == "for")
@@ -338,6 +346,10 @@ namespace lang
                             status = en::none;index=i;
                         }
 
+                        break;
+                    case parserEnum::leftparent:
+                        index = this->parentSkip(index);
+                        status = en::none;
                         break;
                     default:
                         {

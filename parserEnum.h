@@ -62,6 +62,8 @@ namespace lang
         _new,
         _this,
         _namespace,
+        _using,
+        _static,
     };
 }
 #endif

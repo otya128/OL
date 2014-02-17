@@ -15,7 +15,7 @@ namespace lang
         variable(variable* s);
         variable(void);
         ~variable(void);
-
+        bool variable::definedVar(std::string name);
         langObject search(std::string name);
         langObject operator[](std::string name);
         langObject set(std::string name,langObject object);

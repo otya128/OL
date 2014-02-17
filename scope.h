@@ -56,7 +56,7 @@ enum class evals
         void refinc();
         void refdec();
         void del();
-        std::vector<parseObj*> parsers;
+        std::vector<parseObj*>& parsers;
         int startIndex;
         int index;
         en::scopeType type;
@@ -72,5 +72,6 @@ enum class evals
         langFunction anonymousFunction(int& index);
         langClassObject _this;
     };
+    #define DEFINEDSCPEVAR(scope, name) (scope->variable.definedVar(name))
     langObject BuidInFunction(std::string name,std::vector<langObject> arg);
 }

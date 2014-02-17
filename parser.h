@@ -8,15 +8,17 @@ namespace lang
     //extern ‚ª‚×‚±‚ê* gc;
     class parser
     {
+    private:
+        std::vector<int> staticevals;
+        void parser::function();
+        void parser::namespaceparse();
+        void parser::staticparse();
     public:
         scope* runner;
         std::vector<parseObj*> parsers;
+        std::vector<std::string> usings;
         std::string program;
-        void parser::function();
-
-    public:
         parser(std::string);
-    public:
         ~parser(void);
     };
 }

@@ -1,3 +1,22 @@
+using std;
+/*
+1.字句解析
+2.関数、クラス、ネームスペースを解析
+3.usingの解析
+4.static変数の実行
+5.実行
+===3.usingの解析===
+//すべての識別子が対象
+//遅そう
+using t;//usingListにtが追加される.
+new hoge;//->t::hogeに内部表現を置換.
+namespace t
+{
+class hoge{}//2.の時にt::hogeとしてクラスが作られ,t::hogeに内部表現が置換される.
+static huge = hoge;
+}
+*/
+std::cout<<"Hello,World!!"<<((new std::alias).write)("Hello,World!!")<<std::endl;
 //print(1.ToString().Substring(0),"\n");
 print(1+1>=2+1);
 string ptrstr = "hogehoge";
@@ -7,10 +26,11 @@ WriteMemory((VarPtr(ptrstr)+6),67);
 WriteMemory((VarPtr(ptrstr)+7),68);
 print("ポインタを取得",ptrstr,VarPtr(ptrstr),"ToString",VarPtr(ptrstr.ToString()),"Substring",VarPtr(ptrstr.Substring(1)));
 var a = new ｱｱｱｳｱｱ;あいうえお表示
-/*a.huge = "hage";
+a.huge = "hage";
 print(a.huge);
 print(a.func_test(),a.huga());
-print(a.huga.ToString().Substring(1));*/
+print(a.huga.ToString().Substring(1));
+//test::huge=new huga;
 car ary = new Array(100);
 int i = 0;
 for(i=0;i<100;i++)
@@ -23,12 +43,11 @@ for(i=0;i<100;i++)
 	}
 }
 //print("演算子の定義",a+"hoge");
-var cout = new costream;
-cout << "std::cout" << "のような物" << 1 << "+" << 1 << "=" << (1 + 1) << endl << 
+std::cout << "std::cout" << "のような物" << 1 << "+" << 1 << "=" << (1 + 1) << endl << 
 "演算順位てすと" << (2 * 2 + 2) << (2 * (2 + 2)) << endl <<
 endl <<
 //"getline" << (getline()) << endl <<
-"ToString" << "TEST" << a << tab << (a.ToString()) << endl <<
+"ToString" << "TEST" << a << tab << (a.ToString()) << std::endl <<
 "Array" /*<< ary*/ << endl
 ;
 //a.huga = null;
@@ -73,6 +92,13 @@ class ｱｱｱｳｱｱ//comment
 	}
 }
 //STD????? LIB
+namespace std
+{
+static alias = costream;
+static test = 1;//OK
+static test1 = test2;//null  static [test2] test1 = test2;
+static test2 = 1;//OK
+static cout = new costream;
 class endl
 {
 	//empty class
@@ -105,4 +131,12 @@ class costream
 	{
 		print(arg);
 	}
+}
+}
+namespace test
+{
+static huge = 1;
+}
+class huga
+{
 }

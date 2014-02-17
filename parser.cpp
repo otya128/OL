@@ -15,6 +15,8 @@ namespace lang
 #define HASHTHIS    659
 #define HASHNEW     339
 #define HASHNAMESPACE 3721
+#define HASHUSING    1067
+#define HASHSTATIC  1573
 #define ERROR(a) WARNING(a,0)//langObject NULLOBJECT = newObject(nullptr);
     enum class parserStatus
     {
@@ -56,6 +58,7 @@ namespace lang
     {
         return c>='0'&&c<='9';
     }
+    #define WARNINGS(level, ...) {char buf[512];sprintf_s(buf,__VA_ARGS__);WARNING(buf, level);}
     void WARNING(const char* param, int level = 0)
     {
         if(level<=error_level)
@@ -67,6 +70,25 @@ namespace lang
             std::cout<<"[WARNING]"<<param<<std::endl;
         }
     }
+    /**
+        function
+        class
+        namespace
+        ‚ð‰ðÍ‚·‚éB
+    */
+        enum class sts
+        {
+            Empty,      //   = 0,
+            Func,       //   = 1,
+            Class,      //   = 2,
+            NameSpace,  //   = 4,
+        };
+        struct BlockStruct
+        {
+            sts type;
+            std::string name;
+            BlockStruct(sts s,std::string n):type(s),name(n){}
+        };
     void parser::function()
     {
         this->runner = new scope(this->parsers);
@@ -74,26 +96,64 @@ namespace lang
         int funcRead = 0, classRead = 0;
         std::string funcName;std::string className;
         std::vector<std::string>* argList = nullptr;//new std::vector<std::string>();
-        std::stack<std::string> funcStack;
+        std::stack<BlockStruct> funcStack;
         int func = 0,parent = 0,bracket = 0;
         int class_read_stack_index = 0;
+        std::string namesp;int namespread(0);
         membertype member = nullptr;
         for(int i=0;i<this->parsers.size();i++)
         {
             auto token = this->parsers[i];
+            switch (namespread)
+            {
+            case 1:
+                if(token->pEnum != parserEnum::identifier)
+                    ERROR(("namespace‚Ì–¼‘O‚ªŽ¯•ÊŽq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ"+‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex)).c_str());
+                
+                if(!namesp.empty())namesp += "::";//æ“ª‚É‚à::‚ª•t‚­
+                namesp += *token->name;
+                delete token->name;
+                token->name = new std::string(namesp);
+                namesp += "::";
+                namespread++;
+                break;
+            case 2:
+                namespread++;
+                break;
+            case 3:
+                namespread = 0;
+                break;
+            }
             switch (token->pEnum)
             {
             case parserEnum::blockstart:
                 if(funcRead != 6)
                 {
-                    func++;
-                    funcStack.push("");
-                }
+                    if(namespread == 0)
+                    {
+                        funcStack.push(BlockStruct(sts::Empty,""));
+                    }
+                    else
+                        funcStack.push(BlockStruct(sts::NameSpace,namesp));
+                }else 
+                        func++;
                 break;
             case parserEnum::blockend:
                 if(funcStack.size() !=0)
                 {
-                    if(funcStack.top()!="")func--;
+                    if(funcStack.top().type == sts::NameSpace)
+                    {
+                        namesp.clear();
+                        auto cont = funcStack._Get_container();
+                        for(int i = funcStack.size() - 2;i>=0;i--)
+                        {
+                            if(cont[i].type == sts::NameSpace)
+                            {
+                                namesp = cont[i].name;
+                                break;
+                            }
+                        }
+                    }
                     funcStack.pop();
                     break;
                 }
@@ -110,6 +170,9 @@ namespace lang
             case parserEnum::rightbracket:
                 bracket--;
                 break;
+            case parserEnum::_namespace:
+                namespread++;
+                break;
             }
             switch (classRead)
             {
@@ -118,7 +181,7 @@ namespace lang
                 {
                     if(funcRead != 0)
                         ERROR((‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex) + "ŠÖ”‰ðÍ’†‚ÌƒNƒ‰ƒX").c_str());// WARNING("ŠÖ”‰ðÍ’†‚ÌƒNƒ‰ƒX");
-                    if(funcStack.size() !=0 && funcStack.top()=="")
+                    if(funcStack.size() !=0 && funcStack.top().type == sts::Empty)
                         ERROR((‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex) + "ƒlƒXƒg‚³‚ê‚½ƒNƒ‰ƒX").c_str());
                     classRead++;
                 }
@@ -126,7 +189,7 @@ namespace lang
             case 1:
                 if(token->pEnum != identifier)
                     ERROR(("ƒNƒ‰ƒX‚Ì–¼‘O‚ªŽ¯•ÊŽq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ"+‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex)).c_str());
-                className = *token->name;
+                className = namesp + *token->name;
                 if(member == nullptr)member = new membertype_();else delete member;
                 classRead++;
                 break;
@@ -214,13 +277,13 @@ namespace lang
                 break;
             case 6://{
                 if(argList == nullptr)argList = new std::vector<std::string>();
-                funcStack.push(funcName);
+                funcStack.push(BlockStruct(sts::Func,funcName));
                 std::cout<<std::endl;
                 for(int j=0;j<funcStack.size();j++)
                 {
                     std::cout<<" ";
                 }
-                std::cout<<funcName;
+                std::cout<<namesp + funcName;
                 funcRead = 0;
                 if(classRead == 3)
                 {
@@ -228,8 +291,9 @@ namespace lang
                 }
                 else if(func == 0)
                 {
-                    this->runner->variable.add(funcName, newFunction(funcName, argList, this->runner, i));
+                    this->runner->variable.add(namesp + funcName, newFunction(namesp + funcName, argList, this->runner, i));
                 }
+                else delete argList;//‚Æ‚è‚ ‚¦‚¸
                 argList = nullptr;//new std::vector<std::string>();
                 func++;
                 //this->runner->variable.add(*funcName,std::make_shared<langFunction>(*funcName,argList,this->runner));
@@ -245,6 +309,184 @@ namespace lang
             WARNING("ˆê’v‚µ‚È‚¢Š‡ŒÊ[");
         }
         std::cout<<std::endl;
+    }
+    void parser::namespaceparse()
+    {
+        std::string namesp;
+        std::stack<BlockStruct> funcStack;
+        for(int i=0;i<this->parsers.size();i++)
+        {
+            auto token = this->parsers[i];
+            parseObj* nextoken = nullptr;
+            if(i + 1 < this->parsers.size()) nextoken = this->parsers[i + 1];
+            switch (token->pEnum)
+            {
+                case parserEnum::_using:
+                    if(nextoken == nullptr) 
+                    {
+                        ERROR("•s³‚Èusing");
+                        break;
+                    }
+                    this->usings.push_back(*nextoken->name);
+                    break;
+                //odentifier
+                case parserEnum::identifier:
+                    if(!DEFINEDSCPEVAR(this->runner, *token->name))
+                    {
+                        //‘{‚·
+                        bool success = false;
+                        auto name = namesp + *token->name;
+                        if(DEFINEDSCPEVAR(this->runner, name))
+                        {
+                            delete token->name;
+                            token->name = new std::string(name);
+                            break;
+                        }
+                        else
+                        {
+                            for(auto i : this->usings)
+                            {
+                                //‘{‚·
+                                auto name = i + "::" + *token->name;
+                                if(DEFINEDSCPEVAR(this->runner, name))
+                                {
+                                    delete token->name;
+                                    token->name = new std::string(name);
+                                    success = true;
+                                    break;
+                                }
+                            }
+                        }
+                        //if(!success)WARNINGS(1, "%s‚ªŒ©‚Â‚©‚ç‚È‚¢", token->name->c_str());
+                    }
+                    break;
+                case parserEnum::_namespace:
+                    namesp = *nextoken->name + "::";
+                    break;
+                case parserEnum::blockstart:
+                    if(1 < i) 
+                    {
+                        auto prevtoken = this->parsers[i - 2];
+                        if(prevtoken->pEnum == parserEnum::_namespace)
+                        {
+                            funcStack.push(BlockStruct(sts::NameSpace, namesp));
+                        }
+                        else funcStack.push(BlockStruct(sts::Empty, ""));
+                    }else funcStack.push(BlockStruct(sts::Empty, ""));
+                    break;
+                case parserEnum::blockend:
+                    if(funcStack.size() !=0)
+                    {
+                        if(funcStack.top().type == sts::NameSpace)
+                        {
+                            namesp.clear();
+                            auto cont = funcStack._Get_container();
+                            for(int i = funcStack.size() - 2;i>=0;i--)
+                            {
+                                if(cont[i].type == sts::NameSpace)
+                                {
+                                    namesp = cont[i].name;
+                                    break;
+                                }
+                            }
+                        }
+                        funcStack.pop();
+                        break;
+                    }
+                    break;
+            }
+        }
+        for(int i=0;i<this->staticevals.size();i++)
+        {
+            int j = this->staticevals[i];
+            this->runner->eval(this->parsers[j]->ptr,j);
+        }
+    }
+    void parser::staticparse()
+    {
+        std::stack<BlockStruct> funcStack;
+        std::string namesp;
+        std::string varname;
+        int read = 0,block = 0;
+        for(int i=0;i<this->parsers.size();i++)
+        {
+            auto token = this->parsers[i];
+            parseObj* nextoken = nullptr;
+            if(i + 1 < this->parsers.size()) nextoken = this->parsers[i + 1];
+            switch(read)
+            {
+                case 0: 
+                    if(token->pEnum == parserEnum::_static)
+                    {
+                        read++;
+                    }
+                break;
+                case 1:
+                    varname = namesp + *token->name;
+                    this->runner->variable.add(varname, NULLOBJECT);
+                    read++;
+                break;
+                case 2:
+                    if(token->pEnum == parserEnum::equal)
+                    {
+                        read++;
+                    }
+                    else read = 0;
+                break;
+                case 3:
+                    staticevals.push_back(i - 2);
+                    read =0;
+                break;
+                case -1:
+                    read = -2;
+                break;
+                case -2:
+                    if(token->pEnum == parserEnum::blockstart)block++;
+                    if(token->pEnum == parserEnum::blockend)block--;
+                    if(block == 0) read = 0;
+                break;
+            }
+            switch (token->pEnum)
+            {
+            case parserEnum::_class:
+                read = -1;
+                break;
+            case parserEnum::_namespace:
+                namesp = *nextoken->name + "::";
+                break;
+            case parserEnum::blockstart:
+                if(1 < i) 
+                {
+                    auto prevtoken = this->parsers[i - 2];
+                    if(prevtoken->pEnum == parserEnum::_namespace)
+                    {
+                        funcStack.push(BlockStruct(sts::NameSpace, namesp));
+                    }
+                    else funcStack.push(BlockStruct(sts::Empty, ""));
+                }else funcStack.push(BlockStruct(sts::Empty, ""));
+                break;
+            case parserEnum::blockend:
+                if(funcStack.size() !=0)
+                {
+                    if(funcStack.top().type == sts::NameSpace)
+                    {
+                        namesp.clear();
+                        auto cont = funcStack._Get_container();
+                        for(int i = funcStack.size() - 2;i>=0;i--)
+                        {
+                            if(cont[i].type == sts::NameSpace)
+                            {
+                                namesp = cont[i].name;
+                                break;
+                            }
+                        }
+                    }
+                    funcStack.pop();
+                    break;
+                }
+                break;
+            }
+        }
     }
     parser::parser(std::string input)
     {
@@ -402,6 +644,12 @@ ReadIden:
                             case HASHNAMESPACE:
                                 if(*iden == "namespace"){this->parsers.push_back(new parseObj(parserEnum::_namespace,iden, startindex, i - 1));ok = true;}
                                 break;
+                            case HASHUSING:
+                                if(*iden == "using"){this->parsers.push_back(new parseObj(parserEnum::_using,iden, startindex, i - 1));ok = true;}
+                                break;
+                            case HASHSTATIC:
+                                if(*iden == "static"){this->parsers.push_back(new parseObj(parserEnum::_static,iden, startindex, i - 1));ok = true;}
+                                break;
                             }
                             if(!ok) this->parsers.push_back(new parseObj(parserEnum::identifier,iden, startindex, i - 1));
                             iden = new std::string();//!!!!ƒRƒs[‚³‚ê‚È‚¢‚Ì‚Ånew ‚·‚é!!!!
@@ -476,6 +724,8 @@ ReadIden:
         }
         if(iden->empty())delete iden;//Žg‚í‚ê‚Ä‚È‚¢‚©‚çdelete
         this->function();
+        this->staticparse();
+        this->namespaceparse();
 #if _DEBUG
         if(lang::parserresult)std::cout << "Done" << std::endl;
 #endif

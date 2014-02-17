@@ -1,6 +1,6 @@
-//using namespace hoge;
-//using namespace hoge::hoge;
-new test();//new hoge::test();
+using hoge;
+//using hoge::hoge;
+print(new test);//new hoge::test();
 //new hoge::test;
 namespace hoge
 {
@@ -19,7 +19,7 @@ namespace hoge
 					hoge::test2
 					hoge::hoge::test2
 			*/
-			new hoge::test2();//new hoge::hoge::test2();
+			return new hoge::test2;//new hoge::hoge::test2();
 		}
 	}
 	namespace hige//hoge::hige
@@ -45,7 +45,8 @@ namespace hoge::hoge
 	{
 		var ToString()
 		{
-			new test2();//new hoge::hoge::test2();
+			return "huga";
+			new test2;//new hoge::hoge::test2();
 		}
 	}
 }
