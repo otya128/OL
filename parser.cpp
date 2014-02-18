@@ -135,8 +135,8 @@ namespace lang
                     }
                     else
                         funcStack.push(BlockStruct(sts::NameSpace,namesp));
-                }else 
-                        func++;
+                }/*else 
+                        func++;*/
                 break;
             case parserEnum::blockend:
                 if(funcStack.size() !=0)
@@ -154,6 +154,7 @@ namespace lang
                             }
                         }
                     }
+                    if(funcStack.top().type == sts::Func) func--;
                     funcStack.pop();
                     break;
                 }
@@ -232,6 +233,12 @@ namespace lang
                         classRead = 3;
                     }
                 }
+                else if(token->pEnum == leftparent)
+                {
+                    funcRead = 2;
+                    funcName = "ctor";
+                    classRead = 3;
+                }
                         classRead = 3;
                 break;
             }
@@ -289,11 +296,12 @@ namespace lang
                 {
                     member->push_back(std::pair<std::string,langObject>(funcName, newFunction(funcName, argList, this->runner, i)));
                 }
-                else if(func == 0)
+                else if(func <= 0)
                 {
                     this->runner->variable.add(namesp + funcName, newFunction(namesp + funcName, argList, this->runner, i));
                 }
-                else delete argList;//‚Æ‚è‚ ‚¦‚¸
+                else
+                 delete argList;//‚Æ‚è‚ ‚¦‚¸
                 argList = nullptr;//new std::vector<std::string>();
                 func++;
                 //this->runner->variable.add(*funcName,std::make_shared<langFunction>(*funcName,argList,this->runner));
@@ -328,6 +336,7 @@ namespace lang
                         break;
                     }
                     this->usings.push_back(*nextoken->name);
+                    i++;
                     break;
                 //odentifier
                 case parserEnum::identifier:
@@ -415,25 +424,25 @@ namespace lang
             if(i + 1 < this->parsers.size()) nextoken = this->parsers[i + 1];
             switch(read)
             {
-                case 0: 
+                case 0: //static
                     if(token->pEnum == parserEnum::_static)
                     {
                         read++;
                     }
                 break;
-                case 1:
+                case 1: //name
                     varname = namesp + *token->name;
                     this->runner->variable.add(varname, NULLOBJECT);
                     read++;
                 break;
-                case 2:
+                case 2: //=
                     if(token->pEnum == parserEnum::equal)
                     {
                         read++;
                     }
                     else read = 0;
                 break;
-                case 3:
+                case 3:  //exp1517754
                     staticevals.push_back(i - 2);
                     read =0;
                 break;

@@ -4,6 +4,7 @@
 #include "scope.h"
 #include "Class.h"
 #include "Array.h"
+#include "Function.h"
 namespace lang
 {
     GC::GC(scope* root)

@@ -9,8 +9,11 @@ namespace lang
     typedef membertype_* membertype;
     class Class : public Object
     {
+    protected:
+        Class(Class* clas);
     public:
         membertype member;
+        langFunction finalize;
         Class(std::string name,int index,membertype member,scope* scope);
         virtual ~Class(void);
         //–¼‘O

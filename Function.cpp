@@ -51,7 +51,7 @@ namespace lang
     {
         auto sc =new lang::scope(this->scope->parsers,this->scope/*.get()*/,this->scope->_this);
         sc->type = en::scopeType::_function;
-        sc->startIndex = this->index;
+        sc->startIndex = this->index + 1;//+1‚µ‚ñ‚ ‚¢‚Æreturn‚ª–³‚¢ŠÖ”‚Åreturn‚³‚ê‚È‚­‚È‚é
         if(this->argList->size()!=argList->size())
             throw langRuntimeException("ˆø”‚Ì”‚ªˆá‚¤");
         for(int i=0;i<this->argList->size();i++)
@@ -59,7 +59,19 @@ namespace lang
             sc->variable.add((*this->argList)[i],(*argList)[i]);
         }
         auto buf = sc->run();
+        sc->del();
         return /*std::shared_ptr<Object>*/( buf);
+    }
+    langObject Function::ctorcall(std::vector<langObject>* argList)
+    {
+        auto sc =new lang::scope(this->scope->parsers,this->scope,this->scope->_this);
+        sc->type = en::scopeType::ctor;
+        sc->startIndex = this->index + 1;//+1‚µ‚ñ‚ ‚¢‚Æreturn‚ª–³‚¢ŠÖ”‚Åreturn‚³‚ê‚È‚­‚È‚é
+        if(this->argList->size()!=argList->size()) throw langRuntimeException("ˆø”‚Ì”‚ªˆá‚¤");
+        for(int i=0;i<this->argList->size();i++) sc->variable.add((*this->argList)[i],(*argList)[i]);
+        auto buf = sc->run();
+        sc->del();
+        return buf;
     }
     langFunction scope::anonymousFunction(int& index)
     {

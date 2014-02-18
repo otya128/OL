@@ -1,5 +1,13 @@
 using std;
 /*
+finalizeとctor
+戻り値指定の無いクラスと同名の関数はctorに置き換わるfinalize
+finalizeの関数オブジェクトはGCから除外される。
+finalizeを書き換えたりするとインスタンスが回収される前にfinalizeが回収されて例外が出たり前のfinalizeがメモリリークする。
+//scope.cppでreturn無しに抜けると
+return this->_this;が行われる
+*/
+/*
 1.字句解析
 2.関数、クラス、ネームスペースを解析
 3.usingの解析
@@ -16,9 +24,12 @@ class hoge{}//2.の時にt::hogeとしてクラスが作られ,t::hogeに内部表現が置換される.
 static huge = hoge;
 }
 */
-std::cout<<"Hello,World!!"<<((new std::alias).write)("Hello,World!!")<<std::endl;
+new huga(1);
+print(new one()+new one(),"\t2+3",new int(2)+new int(3),"\n");
+std::cout<<((new ctor:test("item")).ToString())<<"Hello,World!!"<<(((new std::alias).write)("Hello,World!!"))<<std::endl;
+//GC();
 //print(1.ToString().Substring(0),"\n");
-print(1+1>=2+1);
+print("????",1+1>=2+1);
 string ptrstr = "hogehoge";
 WriteMemory((VarPtr(ptrstr)+4),65);
 WriteMemory((VarPtr(ptrstr)+5),66);
@@ -99,6 +110,7 @@ static test = 1;//OK
 static test1 = test2;//null  static [test2] test1 = test2;
 static test2 = 1;//OK
 static cout = new costream;
+void func(){}
 class endl
 {
 	//empty class
@@ -137,6 +149,47 @@ namespace test
 {
 static huge = 1;
 }
+class ctor:test
+{
+	var item;
+	//これでもうまくいくctor:test
+	ctor:test ctor(var hoge)
+	{
+		this.item = hoge;
+		//returnが無い場合return this;と同等
+	}
+	var finalize()
+	{
+		print("delete!\n");
+	}
+	var ToString()
+	{
+		return this.item;
+	}
+}
+class one
+{
+	one()
+	{
+		return 1;
+	}
+}
+class int
+{
+	var item;
+	int(var i)
+	{
+		this.item = i;
+	}
+	var plus(var i)
+	{
+		return this.item + i.item;
+	}
+}
 class huga
 {
+	huga(int a)
+	{
+		print(a);
+	}
 }

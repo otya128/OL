@@ -22,6 +22,7 @@ namespace lang
         virtual ~Function(void);
         virtual std::string toString();
         virtual langObject call(std::vector<langObject>* argList);
+        virtual langObject ctorcall(std::vector<langObject>* argList);
     };
     langObject (*FuncTable[])(langObject, std::vector<langObject>); 
     class SpecialFunction : public Function

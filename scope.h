@@ -27,7 +27,7 @@ namespace lang
     {
         enum scopeStatus
         {
-            none,iden,var,_for,_if,ctor
+            none,iden,var,_for,_if
         };
         enum returnStatus
         {
@@ -35,7 +35,7 @@ namespace lang
         };
         enum scopeType
         {
-            _none_,_function,for_,
+            _none_,_function,for_,ctor,
         };
     }
     

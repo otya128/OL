@@ -21,7 +21,7 @@ namespace lang
         {
             for (auto var : arg)
             {
-                if(var != nullptr)std::cout<<var->toString(); else std::cout<< "null";
+                if(var != nullptr)std::cout<<var->toString(); else std::cout<< "nullptr";
             }
             return NULLOBJECT;
         }
@@ -281,6 +281,9 @@ namespace lang
                     case _class:
                         index = this->blockSkip(index);
                         break;
+                    case parserEnum::_new:
+                        eval(this->parsers[this->index]->ptr, this->index);
+                        break;
                     case parserEnum::identifier:
                         if(*j->name == "for")
                         {
@@ -301,7 +304,7 @@ namespace lang
                             status = en::iden;
                         break;
                     case parserEnum::blockend:
-
+                        if(this->type == en::ctor)return this->_this;
                         return NULLOBJECT;
                     case parserEnum::blockstart:
                         auto sc = /*std::make_shared<scope>*/new scope(this->parsers,this,this->_this);
@@ -596,7 +599,7 @@ namespace lang
                 }
                 else
                 {
-                    object = eval(NULLOBJECT,binaryoperation,17);
+                    object = eval(NULLOBJECT,binaryoperation,0);
                     index = binaryoperation;
                     binaryoperation = index + 1;
 
@@ -604,7 +607,38 @@ namespace lang
                     {
                         auto buf = (Class*)object;
                         object = newClassObject(buf);
+                        if(this->parsers[binaryoperation]->pEnum == parserEnum::leftparent)
+                        {
+                            int thisop = Operator(this->parsers[binaryoperation]->pEnum);
+                            j=index;
+                            i = this->parentSkip(binaryoperation);
+                            std::vector<langObject> arg;
+                            index = index + 2;
+                            while (index<i)
+                            {
+                                arg.push_back(eval(NULLOBJECT,index,17));
+                                index++;
+                                if(this->parsers[index]->pEnum==parserEnum::comma)index++;
+                            }
+                            auto ctor = ((langClassObject)object)->thisscope->variable["ctor"];
+                            if(ctor->type->TypeEnum == _Function)
+                            {
+                                try
+                                {
+                                    object = langObject(static_cast<Function*>(ctor)->ctorcall(&arg));
+                                }
+                                catch(langRuntimeException ex)
+                                {
+                                    throw langRuntimeException(ex.what(),ex.tokens,ex.funcstacktrace,static_cast<Function*>(ctor)->name.c_str(),ex.stacktrace);
+                                }
+                            }
+                            index = i;
+                            binaryoperation = index + 1;
+                            i = index-1;
+                            //OP4
+                        }
                     }
+
                     else
                     {
                         throw lang::langRuntimeException("new ‚ÍClassŒ^‚Å‚Ì‚Ý—LŒø‚Å‚·B");
@@ -642,6 +676,7 @@ namespace lang
             switch (this->parsers[binaryoperation]->pEnum)
             {
             case leftparent:
+                OP;
                 {
                     j=index;
                     i = this->parentSkip(binaryoperation);
