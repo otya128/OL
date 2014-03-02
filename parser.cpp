@@ -6,6 +6,7 @@
 #include "GC.h"
 #include "langException.h"
 #include "Class.h"
+#include "õ.h"
 //#include "parserEnum.h"
 #define newFunction(a,a1,a2,a3) new Function(a,a1,a2,a3)
 std::string ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(std::string input,int index);
@@ -506,7 +507,7 @@ namespace lang
 #endif
         auto sts = parserStatus::None;
         auto iden = new std::string();
-        bool shiftJis = true, ASCII = false;
+        bool shiftJis = false, ASCII = true;
         int startindex = 0;
         int blockComment = 0;
         for(int i=0;i<=input.size();i++)
@@ -521,25 +522,6 @@ namespace lang
             switch (sts)
             {
             case parserStatus::None:None:
-                if(isNum(chr))
-                {
-                    startindex = i;
-                    sts = parserStatus::ReadNum;
-                    goto ReadNum;
-                }
-                else
-                    if(isIden(chr))
-                    {
-                        startindex = i;
-                        sts = parserStatus::ReadIden;
-                        goto ReadIden;
-                    }
-                    else if(shiftJis && isIdenShiftJIS(chr))
-                    {
-                        startindex = i;
-                        sts = parserStatus::ReadIden;
-                        goto ReadIden;
-                    }
                     switch (chr)
                     {
                     case '(':
@@ -625,8 +607,28 @@ namespace lang
                     case '\r':case '\n':case '\t':
                     case ' ':break;
                     default:
-                        this->parsers.push_back(new parseObj(parserEnum::none,new std::string(input.substr(i,1)), i, i));
-                        break;
+                        if(isNum(chr))
+                        {
+                            startindex = i;
+                            sts = parserStatus::ReadNum;
+                            goto ReadNum;
+                        }
+                        else
+                            if(isIden(chr))
+                            {
+                                startindex = i;
+                                sts = parserStatus::ReadIden;
+                                goto ReadIden;
+                            }
+                            else if(shiftJis && isIdenShiftJIS(chr))
+                            {
+                                startindex = i;
+                                sts = parserStatus::ReadIden;
+                                goto ReadIden;
+                            }
+
+                            this->parsers.push_back(new parseObj(parserEnum::none,new std::string(input.substr(i,1)), i, i));
+                            break;
                     }
                     break;
             case parserStatus::ReadIden:
@@ -732,6 +734,7 @@ ReadIden:
 #endif
         }
         if(iden->empty())delete iden;//g‚í‚ê‚Ä‚È‚¢‚©‚çdelete
+            lang::plugin::õ(this->parsers);
         this->function();
         this->staticparse();
         this->namespaceparse();

@@ -15,6 +15,7 @@
 #include <windows.h>
 #include "Function.h"
 #include <time.h>
+#include "Åı.h"
 #ifndef _DEBUG
 #include <eh.h>
 //ç\ë¢âªó·äOÇ™î≠ê∂Ç∑ÇÈÇ∆ÅAÇ±ÇÃä÷êîÇ™åƒÇŒÇÍÇÈ
@@ -29,6 +30,10 @@ void se_translator_function(unsigned int code, struct _EXCEPTION_POINTERS* ep)
 //#include "parserEnum.h"
 namespace lang
 {
+    namespace plugin
+    {
+        
+    }
     namespace lib{void init();}
     Type* ObjectType = new Type(PreType::_Object);
     langObject NULLOBJECT = nullptr;//ewObject(nullptr);
@@ -93,9 +98,9 @@ int _tmain(int argc, _TCHAR* argv[])
     _CrtSetBreakAlloc(223);_CrtSetBreakAlloc(221);
     _CrtSetBreakAlloc(218);
 #if _DEBUG
-    std::cout<<"language DEBUG build"<<std::endl;
+    std::cout<<"OtyaLanguage DEBUG build"<<std::endl;
 #else
-    std::cout<<"language"<<std::endl;
+    std::cout<<"OtyaLanguage"<<std::endl;
 #endif
     option o = option::none;
     lang::error_level = 0;
