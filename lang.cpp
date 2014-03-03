@@ -104,7 +104,7 @@ int _tmain(int argc, _TCHAR* argv[])
 #endif
     option o = option::none;
     lang::error_level = 0;
-
+    bool endpause= false;
     int result = 0;
     _TCHAR*filename = L"";
     for(int i = 1;i < argc;i++)
@@ -135,6 +135,11 @@ int _tmain(int argc, _TCHAR* argv[])
                             if(!_tcscmp(argv[i],L"-pause"))
                             {
                                 pause = true;
+                            }
+                            else
+                            if(!_tcscmp(argv[i],L"-endpause"))
+                            {
+                                endpause = true;
                             }
                             else
                                 if(!_tcscmp(argv[i], L"-errorlevel"))
@@ -244,6 +249,7 @@ int _tmain(int argc, _TCHAR* argv[])
                 std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
             }
             #endif
+            if(endpause)std::getchar();
             clock_t start,end;
             start = clock();
             std::vector<lang::scope*> del;

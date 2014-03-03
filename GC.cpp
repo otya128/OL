@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <Windows.h>
+#include <mutex>
 #include "GC.h"
 #include "scope.h"
 #include "Class.h"
@@ -11,6 +12,8 @@ namespace lang
     {
         GCtimig = 65536;
         this->NowGabekore = false;
+        //this->NowAddRoot = false;
+        //this->NowAddObject = false;
         count = 0;
         this->root = root;
         this->addRoot(root);
@@ -18,6 +21,8 @@ namespace lang
     }
     void GC::addObject(Object* obj)
     {
+        if(NowGabekore) while (NowGabekore);
+        std::lock_guard<std::mutex> lock(this->ObjectMutex);
         objectCount++;
         if(objectCount>=GCtimig)
         {
@@ -175,6 +180,7 @@ namespace lang
     //GC‚©‚çíœ‚µ‚Äƒƒ‚ƒŠ‚©‚ç‰ð•ú‚·‚é
     void GC::free_(langObject object)
     {
+        if(NowGabekore) while (NowGabekore);
         if(this->object.find(object) != this->object.end())this->object.erase(object);
         delete object;
     }
@@ -182,6 +188,7 @@ namespace lang
     //Ó”C
     void GC::uncontroll(langObject object)
     {
+        if(NowGabekore) while (NowGabekore);
         if(this->object.find(object) != this->object.end()) this->object.erase(object);
     }
     GC::~GC(void)
@@ -189,11 +196,14 @@ namespace lang
     }
     void GC::addRoot(scope* root)
     {
+        if(NowGabekore) while (NowGabekore);
+        std::lock_guard<std::mutex> lock(this->RootMutex);
         this->roots[root] = 0;
     }
     //Šù‚É–³‚¢‚Ì‚Éíœ‚µ‚½‚çfalse
     bool GC::removeRoot(scope* root)
     {
+        if(NowGabekore) while (NowGabekore);
         if(this->roots.find(root) != this->roots.end())
         {
             this->roots.erase(root);

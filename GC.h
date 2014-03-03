@@ -1,5 +1,6 @@
 #pragma once
 #include "Object.h"
+#include <mutex>
 #include <vector>
 //#include "scope.h"
 namespace lang
@@ -10,6 +11,10 @@ namespace lang
     private:
         int count;
         std::vector<Object*> erased;
+        //bool NowAddObject;
+        //bool NowAddRoot;
+        std::mutex ObjectMutex;
+        std::mutex RootMutex;
     public:
         std::vector<langObject> constroot;
         int objectCount;

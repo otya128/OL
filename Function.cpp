@@ -7,6 +7,7 @@ namespace lang
 
     Function::Function(std::string name,std::vector<std::string>* argList,lang::scope* scope,int index)
     {
+        this->thread = nullptr;
         this->type = new Type(PreType::_Function);
         this->name = name;
         this->argList = argList;
@@ -16,6 +17,7 @@ namespace lang
     }
     Function::Function(Function* f,lang::scope* this_scope)
     {
+        this->thread = nullptr;
         //if(f is _Function){}
         this->type = new Type(f->type->TypeEnum,(char*)f->type->name);
         this->name = f->name;
@@ -27,6 +29,9 @@ namespace lang
     }
     Function::~Function(void)
     {
+        //if(thread)thread->detach();
+        delete thread;
+        
         if(this->scope != nullptr)this->scope->refdec();
         if(this->thisscope != nullptr)this->thisscope->refdec();
         //this->scope = nullptr;

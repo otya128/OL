@@ -1,4 +1,5 @@
 #pragma once
+#include <thread>
 #include "scope.h"
 #include "GC.h"
 //#include "Object.h"
@@ -7,6 +8,8 @@ namespace lang
     class Function : public Object
     {
     public:
+        //関数に関連付けられたスレッド
+        std::thread* thread;
         //std::string* getString();
         //void setString(std::string* i);
         //名前

@@ -5,6 +5,10 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <thread>
+#include <mutex>
+#include <sstream>
+#include <iosfwd>
 #include "Function.h"
 #include "GC.h"
 #include "langException.h"
@@ -17,11 +21,18 @@ namespace lang
     extern std::map<std::string,BuiltFunc>* BuiltFunction;
     namespace lib
     {
+        std::mutex printm;
+        ///thread safe?
         langObject print(std::vector<langObject> arg)
         {
-            for (auto var : arg)
             {
-                if(var != nullptr)std::cout<<var->toString(); else std::cout<< "nullptr";
+                std::lock_guard<std::mutex> lock(printm);//lock
+                //if(locktst)while(locktst); locktst = true;
+                for (auto var : arg)
+                {
+                    if(var != nullptr)std::cout<<var->toString(); else std::cout<< "nullptr";
+                }
+                //locktst = false;
             }
             return NULLOBJECT;
         }
@@ -74,6 +85,49 @@ namespace lang
         {
             return /*std::make_shared<Int>*/newInt((int)std::sqrt<int>(lang::Int::toInt(arg[0])));
         }
+        langObject thread(std::vector<langObject> arg)
+        {
+            langFunction threadFunc = new Function((langFunction)arg[0],((langFunction)arg[0])->thisscope);
+            std::thread* thd = new std::thread([threadFunc]
+            {
+                std::vector<langObject> rarg;
+                threadFunc->call(&rarg);
+                threadFunc->thread->detach();
+                lang::gc->free_(threadFunc);
+            });
+            threadFunc->thread = thd;
+            return NULLOBJECT;
+        }
+        langObject thread_join(std::vector<langObject> arg)
+        {
+            langFunction threadFunc = new Function((langFunction)arg[0],((langFunction)arg[0])->thisscope);
+            bool thread_end = false;
+            std::thread* thd = new std::thread([threadFunc,&thread_end]
+            {
+                std::vector<langObject> rarg;
+                threadFunc->call(&rarg);
+                threadFunc->thread->detach();
+                lang::gc->free_(threadFunc);
+                thread_end = true;
+            });
+            threadFunc->thread = thd;
+            try
+            {
+                if(!thread_end)thd->join();
+            }
+            catch(...)
+            {
+            }
+            return NULLOBJECT;
+        }
+        langObject threadid(std::vector<langObject> arg)
+        {
+        std::ostringstream a;
+        //std::ostream a;
+           std::this_thread::get_id()._To_text<char, std::char_traits<char>
+	/*std::allocator<char>*/>(a);
+        return newString(&a.str());
+        }
         void Add(std::string name, BuiltFunc func)
         {
             (*lang::BuiltFunction)[name] = func;
@@ -89,6 +143,9 @@ namespace lang
             Add("WriteMemory",  WriteMemory);
             Add("ReadMemoryInt",ReadMemoryInt);
             Add("sqrt",         sqrt);
+            Add("thread",       thread);
+            Add("threadid",       threadid);
+            Add("thread::join",       thread_join);
         }
     }
 
