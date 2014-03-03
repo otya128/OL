@@ -5,6 +5,7 @@
 //#include "scope.h"
 namespace lang
 {
+    typedef std::recursive_mutex GCmutex;
     class scope;
     class GC
     {
@@ -13,8 +14,8 @@ namespace lang
         std::vector<Object*> erased;
         //bool NowAddObject;
         //bool NowAddRoot;
-        std::mutex ObjectMutex;
-        std::mutex RootMutex;
+        GCmutex ObjectMutex;
+        GCmutex RootMutex;
     public:
         std::vector<langObject> constroot;
         int objectCount;

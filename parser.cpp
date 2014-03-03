@@ -110,8 +110,8 @@ namespace lang
             case 1:
                 if(token->pEnum != parserEnum::identifier)
                     ERROR(("namespace‚Ì–¼‘O‚ªŽ¯•ÊŽq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ"+‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex)).c_str());
-                
-                if(!namesp.empty())namesp += "::";//æ“ª‚É‚à::‚ª•t‚­
+                //BUG!!
+                //if(!namesp.empty())namesp += "::";//æ“ª‚É‚à::‚ª•t‚­
                 namesp += *token->name;
                 delete token->name;
                 token->name = new std::string(namesp);

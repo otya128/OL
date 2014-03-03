@@ -5,6 +5,7 @@ namespace lang
     extern bool ahogc,parserresult, leakcheck, pause;
     extern bool gc_view;
     extern int error_level;
+    extern bool running;
 #define vifƒÖfjv //‚½‚µ‚©‚É~~~~~
 #define var_ auto
 #define in_ :

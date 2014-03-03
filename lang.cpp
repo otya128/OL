@@ -34,6 +34,7 @@ namespace lang
     {
         
     }
+    bool running;
     namespace lib{void init();}
     Type* ObjectType = new Type(PreType::_Object);
     langObject NULLOBJECT = nullptr;//ewObject(nullptr);
@@ -98,7 +99,7 @@ int _tmain(int argc, _TCHAR* argv[])
     _CrtSetBreakAlloc(223);_CrtSetBreakAlloc(221);
     _CrtSetBreakAlloc(218);
 #if _DEBUG
-    std::cout<<"OtyaLanguage DEBUG build"<<std::endl;
+    std::cout<<"OtyaLanguage DEBUG build"<<stdout<<std::endl;
 #else
     std::cout<<"OtyaLanguage"<<std::endl;
 #endif
@@ -218,6 +219,7 @@ int _tmain(int argc, _TCHAR* argv[])
                     if(ahogc)std::thread thd([]{ while (true) lang::gc->start();});
                 //#endif
                 // lang::NULLOBJECT = new lang::Object();
+                running = true;
                 pars->runner->run();
                 std::cout<<"ŽÀsI •Ï”‚â’è”‚ðíœ"<<std::endl;
             }
@@ -249,6 +251,7 @@ int _tmain(int argc, _TCHAR* argv[])
                 std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
             }
             #endif
+                running = false;
             if(endpause)std::getchar();
             clock_t start,end;
             start = clock();

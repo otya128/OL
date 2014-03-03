@@ -122,11 +122,36 @@ namespace lang
         }
         langObject threadid(std::vector<langObject> arg)
         {
-        std::ostringstream a;
-        //std::ostream a;
-           std::this_thread::get_id()._To_text<char, std::char_traits<char>
-	/*std::allocator<char>*/>(a);
-        return newString(&a.str());
+            std::stringstream a;
+            a<<std::this_thread::get_id();
+            return newString(&a.str());
+        }
+        langObject Fopen(std::vector<langObject> arg)
+        {
+            FILE* fp;
+            fopen_s(&fp,arg[0]->toString().c_str(),arg[1]->toString().c_str());
+            return newInt((size_t)fp);
+        }
+        langObject Fclose(std::vector<langObject> arg)
+        {
+            return newInt(fclose((FILE*)(size_t)Int::toInt(arg[0])));
+        }
+        langObject Fwrite(std::vector<langObject> arg)
+        {
+            auto str = arg[0]->toString();
+            return newInt(fwrite(str.data(),sizeof(char),str.size(),(FILE*)(size_t)Int::toInt(arg[1])));
+        }
+        langObject getstdin(std::vector<langObject> arg)
+        {
+            return newInt((size_t)stdin);
+        }
+        langObject getstdout(std::vector<langObject> arg)
+        {
+            return newInt((size_t)stdout);
+        }
+        langObject getstderr(std::vector<langObject> arg)
+        {
+            return newInt((size_t)stderr);
         }
         void Add(std::string name, BuiltFunc func)
         {
@@ -144,8 +169,14 @@ namespace lang
             Add("ReadMemoryInt",ReadMemoryInt);
             Add("sqrt",         sqrt);
             Add("thread",       thread);
-            Add("threadid",       threadid);
-            Add("thread::join",       thread_join);
+            Add("threadid",     threadid);
+            Add("thread::join", thread_join);
+            Add("File::open",   Fopen);
+            Add("File::close",  Fclose);
+            Add("File::write",  Fwrite);
+            Add("File::stdin",  getstdin);
+            Add("File::stdout", getstdout);
+            Add("File::stderr", getstderr);
         }
     }
 
@@ -160,7 +191,7 @@ namespace lang
         {
             throw_langRuntimeException("組み込み関数%sが見つかりません。", name.c_str());
         }
-    #if 0
+#if 0
         if(name=="print")
         {
             for (auto var : arg)
@@ -215,7 +246,7 @@ namespace lang
             return /*std::make_shared<Int>*/newInt((int)sqrt<int>(Int::toInt(arg[0])));
         }
         return 0;
-        #endif
+#endif
     }
     void scope::refinc()
     {
@@ -768,11 +799,11 @@ namespace lang
                     binaryoperation = index + 1;
                 }
                 if(!isBuilt)v（’ω’）v
-                        i = index-1;
+                    i = index-1;
                 OP4
-                //if(this->parsers.size()>index+1&& Operator(this->parsers[index+1]->pEnum) >= thisop ||this->parsers[index+1]->pEnum==leftparent)
-                // object = eval(object,i,17,true),index = i;
-                break;
+                    //if(this->parsers.size()>index+1&& Operator(this->parsers[index+1]->pEnum) >= thisop ||this->parsers[index+1]->pEnum==leftparent)
+                    // object = eval(object,i,17,true),index = i;
+                    break;
             case parserEnum::plus:
                 OP;
                 buf = eval(object,i,thisop);
@@ -780,77 +811,77 @@ namespace lang
                 index  = i;
                 //delete buf;
                 OP2
-                break;
+                    break;
             case parserEnum::multiply:
                 OP;
                 buf = eval(object,i,thisop);
                 object = (Object::multiply(object,buf));
                 index = i;
                 OP2
-                break;
+                    break;
             case parserEnum::modulo:
                 OP;
                 buf = eval(object,i,thisop);
                 object = (Object::modulo(object,buf));
                 index = i;
                 OP2
-                break;
+                    break;
             case parserEnum::greater:
                 OP;
                 buf = eval(object,i,thisop);
                 object = (Object::greater(object,buf));
                 index = i;
                 OP2
-                break;
+                    break;
             case parserEnum::less:
                 OP;
                 buf = eval(object,i,thisop);
                 object = (Object::less(object,buf));
                 index = i;
                 OP2
-                break;
+                    break;
             case parserEnum::greaterequal:
                 OP;
                 buf = eval(object,i,thisop);
                 object = (Object::greaterEqual(object,buf));
                 index = i;
                 OP2
-                break;
+                    break;
             case parserEnum::lessequal:
                 OP;
                 buf = eval(object,i,thisop);
                 object = (Object::lessEqual(object,buf));
                 index = i;
                 OP2//if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop) object = eval(object,i,17,true),index = i;
-                break;
+                    break;
             case parserEnum::equalequal:
                 OP;
                 buf = eval(object,i,thisop);
                 object = (Object::equal(object,buf));
                 index = i;
                 OP2
-                break;
+                    break;
             case parserEnum::leftshift:
                 OP;
                 buf = eval(object,i,thisop);
                 object = (Object::leftShift(object,buf));
                 index = i;
                 OP2
-                break;
+                    break;
             case parserEnum::rightshift:
                 OP;
                 buf = eval(object,i,thisop);
                 object = (Object::rightShift(object,buf));
                 index = i;
                 OP2
-                break;
+                    break;
             case parserEnum::equal:
                 OP;
                 object = eval(object,i,thisop);
                 this->variable.set(*this->parsers[index]->name,object);//this->variable[*this->parsers[index]->name] = object;
                 index = i;
                 OP2
-                break;
+                    break;
             case parserEnum::plusplus:
                 OP;
                 //buf = newInt(1);
@@ -858,7 +889,7 @@ namespace lang
                 this->variable.set(*this->parsers[index]->name,object);
                 index = i;
                 OP2
-                break;
+                    break;
             case parserEnum::leftbracket:
                 OP;
                 {
@@ -881,10 +912,10 @@ namespace lang
                                 binaryoperation++;
                                 int ind = Int::toInt(buf);
                                 if(set->ary.size()<=ind)
-                                
+
                                     throw_langRuntimeException("配列の範囲外にアクセス%xのサイズは%dで、 %dにアクセスしようとしました。:VAR_DUMP%s",set,set->ary.size(),ind,set->toString().c_str())
-                                
-                                set->ary[ind] = eval(NULLOBJECT, binaryoperation);
+
+                                    set->ary[ind] = eval(NULLOBJECT, binaryoperation);
                                 object = set->ary[Int::toInt(object)];
                                 //object = buf->thisscope->variable[*bufbuf->name];
                                 index = binaryoperation;
@@ -896,7 +927,7 @@ namespace lang
                     object = ((langArray)ob)->ary[Int::toInt(buf)];
                 }
                 OP5
-            break;
+                    break;
             case parserEnum::dot:
                 OP;
                 if(object->type->TypeEnum == PreType::_ClassObject )
@@ -973,8 +1004,8 @@ namespace lang
                 }
                 //i = index + 2;
                 OP3
-                //if(this->parsers.size() > index + 1 && Operator(this->parsers[index + 1]->pEnum) >= thisop) object = eval(object, i, 17, true), index = i;
-                break;
+                    //if(this->parsers.size() > index + 1 && Operator(this->parsers[index + 1]->pEnum) >= thisop) object = eval(object, i, 17, true), index = i;
+                    break;
             }
         }
         return langObject(object);

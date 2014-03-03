@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <Windows.h>
 #include <mutex>
+//#include </>
 #include "GC.h"
 #include "scope.h"
 #include "Class.h"
@@ -21,8 +22,7 @@ namespace lang
     }
     void GC::addObject(Object* obj)
     {
-        if(NowGabekore) while (NowGabekore);
-        std::lock_guard<std::mutex> lock(this->ObjectMutex);
+        std::lock_guard<GCmutex> lock(this->ObjectMutex);
         objectCount++;
         if(objectCount>=GCtimig)
         {
@@ -32,6 +32,8 @@ namespace lang
     }
     void GC::start(void)
     {
+        std::lock_guard<GCmutex> lock(this->RootMutex);
+        std::lock_guard<GCmutex> lock2(this->ObjectMutex);
         if(NowGabekore)
         {
 #if _DEBUG
@@ -180,7 +182,7 @@ namespace lang
     //GCÇ©ÇÁçÌèúÇµÇƒÉÅÉÇÉäÇ©ÇÁâï˙Ç∑ÇÈ
     void GC::free_(langObject object)
     {
-        if(NowGabekore) while (NowGabekore);
+        std::lock_guard<GCmutex> lock(this->RootMutex);
         if(this->object.find(object) != this->object.end())this->object.erase(object);
         delete object;
     }
@@ -188,7 +190,7 @@ namespace lang
     //ê”îC
     void GC::uncontroll(langObject object)
     {
-        if(NowGabekore) while (NowGabekore);
+        std::lock_guard<GCmutex> lock(this->RootMutex);
         if(this->object.find(object) != this->object.end()) this->object.erase(object);
     }
     GC::~GC(void)
@@ -196,17 +198,17 @@ namespace lang
     }
     void GC::addRoot(scope* root)
     {
-        if(NowGabekore) while (NowGabekore);
-        std::lock_guard<std::mutex> lock(this->RootMutex);
+        std::lock_guard<GCmutex> lock(this->RootMutex);
         this->roots[root] = 0;
     }
     //ä˘Ç…ñ≥Ç¢ÇÃÇ…çÌèúÇµÇΩÇÁfalse
     bool GC::removeRoot(scope* root)
     {
-        if(NowGabekore) while (NowGabekore);
+        std::lock_guard<GCmutex> lock(this->RootMutex);
         if(this->roots.find(root) != this->roots.end())
         {
             this->roots.erase(root);
+            //this->RootMutex.unlock();
             return true;
         }
         return false;

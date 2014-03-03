@@ -103,10 +103,13 @@ namespace lang
     ClassObject::~ClassObject(void)
     {
         this->thisscope->refdec();
-        if(this->finalize)
-        { 
-            std::vector<langObject> arg;
-            this->finalize->call(&arg);
+        if(this->finalize)//もう終了してたらファイナライザは呼ばれない
+        {
+            if(lang::running)
+            {
+                std::vector<langObject> arg;
+                this->finalize->call(&arg);
+            }
             delete this->finalize;
         }
         //this->scope->refdec();//scopeじゃなくてthisscopeでは
