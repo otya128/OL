@@ -10,6 +10,7 @@ namespace lang
     {
     private:
         std::vector<int> staticevals;
+        std::vector<std::tuple<int,std::string&,std::string>> staticmemberevals;
         void parser::function();
         void parser::namespaceparse();
         void parser::staticparse();

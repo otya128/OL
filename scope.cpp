@@ -798,7 +798,7 @@ namespace lang
                     index = i;
                     binaryoperation = index + 1;
                 }
-                if(!isBuilt)vifƒÖfjv
+                if(isBuilt)vifƒÖfjv
                     i = index-1;
                 OP4
                     //if(this->parsers.size()>index+1&& Operator(this->parsers[index+1]->pEnum) >= thisop ||this->parsers[index+1]->pEnum==leftparent)
@@ -930,7 +930,7 @@ namespace lang
                     break;
             case parserEnum::dot:
                 OP;
-                if(object->type->TypeEnum == PreType::_ClassObject )
+                if(object->type->TypeEnum == PreType::_ClassObject || object->type->TypeEnum == PreType::_Class)
                 {
                     auto buf = (ClassObject*)object;
                     if(this->parsers.size()>binaryoperation +1)

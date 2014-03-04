@@ -88,9 +88,9 @@ int hook(int a1, char *a2, int *a3)
     std::cout<<a2;
     return a1;
 }
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain(int argc, _TCHAR *argv[])
 {
-
+//([](int x){return x*x;})();
 #ifndef _DEBUG
 //ƒXƒŒƒbƒh–ˆ‚É•ÏŠ·ŠÖ”‚ð“o˜^‚·‚é
 	_set_se_translator(se_translator_function);
@@ -99,7 +99,7 @@ int _tmain(int argc, _TCHAR* argv[])
     _CrtSetBreakAlloc(223);_CrtSetBreakAlloc(221);
     _CrtSetBreakAlloc(218);
 #if _DEBUG
-    std::cout<<"OtyaLanguage DEBUG build"<<stdout<<std::endl;
+    std::cout<<"OtyaLanguage DEBUG build"<<std::endl;
 #else
     std::cout<<"OtyaLanguage"<<std::endl;
 #endif
@@ -189,6 +189,24 @@ int _tmain(int argc, _TCHAR* argv[])
             std::cout<<std::endl<<"lang::langParseException - lang::parser"<<std::endl<<ex.what();
             continue;
         }
+        catch(lang::langRuntimeException ex)
+            {
+                std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "êŠ?:" << std::endl;
+                for(auto i : ex.stacktrace)
+                {
+                    std::cout << ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(input,ex.tokens[i.second]->sourcestartindex);
+                    //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
+                    //break;
+                }
+                std::cout << "StackTrace" << std::endl;
+                for(auto i : ex.funcstacktrace)
+                {
+                    std::cout << i << std::endl;
+                }
+                std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
+                std::getchar();
+                vifƒÖfjv ;vifƒÖfjv ;FAILEND;vifƒÖfjv vifƒÖfjv //continue;
+            }
         for(int i=0;i<pars->parsers.size();i++)
             {
                 if(pars->parsers[i]->ptr != nullptr)

@@ -14,20 +14,20 @@ namespace lang
     public:
         membertype member;
         langFunction finalize;
-        Class(std::string name,int index,membertype member,scope* scope);
+        Class(std::string name,int index,membertype member,scope* scope,membertype staticmember);
         virtual ~Class(void);
         //名前
         std::string name;
         lang::scope* scope;
         int index;
         virtual std::string toString();
+        //スコープ
+        lang::scope* thisscope;
     };
     class ClassObject : public Class
     {
     public:
         virtual std::string ClassObject::toString(void);
-        //スコープ
-        lang::scope* thisscope;
         ClassObject(Class* type);
         ~ClassObject(void);
     };

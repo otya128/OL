@@ -6,7 +6,7 @@
 #include "langException.h"
 namespace lang
 {
-    Class::Class(std::string name,int index,membertype member,lang::scope* scope)
+    Class::Class(std::string name,int index,membertype member,lang::scope* scope,membertype staticmember)
     {
         this->scope = scope;
         this->scope->refinc();
@@ -26,6 +26,28 @@ namespace lang
                 }
             }
         }
+        
+        thisscope = new lang::scope(this->scope->parsers, this->scope, nullptr);
+        this->thisscope->refinc();
+        foreach_(var_ i in_ *staticmember)//C# style foreach
+        {
+            if(i.second->type->TypeEnum == _Function)
+            {
+                auto buf = new Function((langFunction)i.second,this->thisscope);
+                buf->scope = thisscope;
+                this->thisscope->variable.add(i.first, buf);
+            }
+            else
+                this->thisscope->variable.add(i.first, i.second);
+        }
+        /*
+        if(this->finalize != nullptr)
+        {
+            this->finalize = new Function((langFunction)this->finalize,this->thisscope);
+            this->finalize->scope = thisscope;
+            this->thisscope->variable.add("finalize", this->finalize);
+            lang::gc->uncontroll(this->finalize);
+        }*/
     }
     Class::Class(Class* clas)
     {
@@ -48,12 +70,13 @@ namespace lang
 #if _DEBUG
         if(lang::gc_view)std::cout<<"remove"<<this<<this->type->name<<std::endl;
 #endif
+        this->thisscope->refdec();
         //delete this->type->name;
     }
     ClassObject::ClassObject(Class* type) : Class(type)//type->name,type->index,type->member,type->scope)
     {
-        thisscope = new lang::scope(type->scope->parsers, type->scope,this);
         this->scope = type->scope;
+        thisscope = new lang::scope(this->scope->parsers, this->scope,this);
         this->thisscope->refinc();
         this->type->TypeEnum = _ClassObject;
         foreach_(var_ i in_ *this->member)//C# style foreach
@@ -102,7 +125,6 @@ namespace lang
     }
     ClassObject::~ClassObject(void)
     {
-        this->thisscope->refdec();
         if(this->finalize)//もう終了してたらファイナライザは呼ばれない
         {
             if(lang::running)

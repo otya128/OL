@@ -36,7 +36,7 @@ namespace lang
 #define newInt(a) new lang::Int(a)
 #define newString(a) new lang::String(a)
 #define newFunction(a,a1,a2,a3) new lang::Function(a,a1,a2,a3)
-#define newClass(a,a1,a2,a3) new lang::Class(a,a1,a2,a3)
+#define newClass(a,a1,a2,a3,a4) new lang::Class(a,a1,a2,a3,a4)
 #define newClassObject(a) new lang::ClassObject(a)
 #define newArray(a) new lang::Array(a);
 #endif
