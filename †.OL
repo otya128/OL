@@ -1,10 +1,13 @@
+Console.WriteLine("aho")("hoge")("huga")("hege");
 var a=new haga;
 a.hogeõ"A"ö;
-//print(threadid());
-print(true);/*
+print(threadid(),OL::Thread.ID(),OL::ID,Console);
+print(true,haga.lf);/*
 var fp = File::open("fopen.txt","wb+");
 File::write("Hello,World!",fp);
 File::close(fp);*/
+OL::Console << "Hello" << OL::tab << "World!!" << OL::endl;
+OL::Console<<"Hello,World!!"<<OL::endl;
 var file = OL::IO::MakeFile(File::stdout());//new OL::IO::FileStream("fopen.txt","wb+");
 file<<("Hello,World!!OL::IO::FileStream");
 file.close();
@@ -52,6 +55,10 @@ namespace OL
 		{
 			thread::join(this.func);
 		}
+		static String ID()
+		{
+			return threadid();
+		}
 	}
 	class endl
 	{
@@ -61,6 +68,7 @@ namespace OL
 	{
 		//empty class
 	}
+	static Console = OL::IO::MakeFile(File::stdout());
 	namespace IO
 	{
 		FileStream MakeFile(var fp)
@@ -78,12 +86,12 @@ namespace OL
 			}
 			var leftShift(var arg)
 			{
-				if(arg == endl)
+				if(arg == OL::endl)
 				{
 					File::write("\n",_fp);
 					return this;
 				}
-				if(arg == tab)
+				if(arg == OL::tab)
 				{
 					File::write("\t",_fp);
 					return this;
@@ -107,8 +115,17 @@ namespace OL
 		}
 	}
 }
+class Console
+{
+	static void WriteLine(string arg)
+	{
+		OL::Console << arg;
+		return WriteLine;
+	}
+}
 class haga
 {
+static var lf = "\n";
 void hogeõvar hogeö
 {
 //ASCII MODE ONLY
