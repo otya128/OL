@@ -106,7 +106,7 @@ namespace lang
         std::vector<std::string>* argList = nullptr;//new std::vector<std::string>();
         std::stack<BlockStruct> funcStack;
         int func = 0,parent = 0,bracket = 0;
-        int class_read_stack_index = 0;
+        size_t class_read_stack_index = 0;
         std::string namesp;int namespread(0);
         membertype member = nullptr;
         membertype staticmember = nullptr;
@@ -155,7 +155,7 @@ namespace lang
                     {
                         namesp.clear();
                         auto cont = funcStack._Get_container();
-                        for(int i = funcStack.size() - 2;i>=0;i--)
+                        for(size_t i = funcStack.size() - 2;i>=0;i--)
                         {
                             if(cont[i].type == sts::NameSpace)
                             {
@@ -437,7 +437,7 @@ namespace lang
                     {
                         namesp.clear();
                         auto cont = funcStack._Get_container();
-                        for(int i = funcStack.size() - 2;i>=0;i--)
+                        for(size_t i = funcStack.size() - 2;i>=0;i--)
                         {
                             if(cont[i].type == sts::NameSpace)
                             {
@@ -542,7 +542,7 @@ namespace lang
                     {
                         namesp.clear();
                         auto cont = funcStack._Get_container();
-                        for(int i = funcStack.size() - 2;i>=0;i--)
+                        for(size_t i = funcStack.size() - 2;i>=0;i--)
                         {
                             if(cont[i].type == sts::NameSpace)
                             {

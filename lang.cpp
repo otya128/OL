@@ -64,8 +64,8 @@ char* escapetable[256];
 std::string escape(std::string& str)
 {
     std::string result;
-    int size = str.length();
-    for(int i=0;i<size;i++)
+    size_t size = str.length();
+    for(size_t i=0;i<size;i++)
     {
         result.append(escapetable[(unsigned char)str.at(i)]);
     }
@@ -105,13 +105,14 @@ int _tmain(int argc, _TCHAR *argv[])
     for(unsigned char i=0;i<255;i++)
     {
         wchar_t a;
-        (&a)[0] = i;
-        (&a)[1] = '\0';
+        ((char*)&a)[0] = i;
+        ((char*)&a)[1] = '\0';
         et[(unsigned char)i] = i;
         escapetable[(unsigned char)i] = (char*)&(et[(unsigned char)i]);
     }
     escapetable[10] = "\\n";
     escapetable[13] = "\\r";
+    escapetable[(int)'\"'] = "\\\"";
     //([](int x){return x*x;})();
 #ifndef _DEBUG
     //ƒXƒŒƒbƒh–ˆ‚É•ÏŠ·ŠÖ”‚ð“o˜^‚·‚é

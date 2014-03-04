@@ -18,7 +18,7 @@ namespace lang
         GCmutex RootMutex;
     public:
         std::vector<langObject> constroot;
-        int objectCount;
+        size_t objectCount;
         int GCtimig;
         void addRoot(scope* root);
         bool removeRoot(scope* root);

@@ -130,28 +130,28 @@ namespace lang
         {
             FILE* fp;
             fopen_s(&fp,arg[0]->toString().c_str(),arg[1]->toString().c_str());
-            return newInt((size_t)fp);
+            return newObject((void*)fp);
         }
         langObject Fclose(std::vector<langObject> arg)
         {
-            return newInt(fclose((FILE*)(size_t)Int::toInt(arg[0])));
+            return newObject((void*)fclose((FILE*)arg[0]->getPointer()));
         }
         langObject Fwrite(std::vector<langObject> arg)
         {
             auto str = arg[0]->toString();
-            return newInt(fwrite(str.data(),sizeof(char),str.size(),(FILE*)(size_t)Int::toInt(arg[1])));
+            return newObject((void*)fwrite(str.data(),sizeof(char),str.size(),(FILE*)arg[1]->getPointer()/*(FILE*)(size_t)Int::toInt(arg[1])*/));
         }
         langObject getstdin(std::vector<langObject> arg)
         {
-            return newInt((size_t)stdin);
+            return newObject((void*)stdin);
         }
         langObject getstdout(std::vector<langObject> arg)
         {
-            return newInt((size_t)stdout);
+            return newObject((void*)stdout);
         }
         langObject getstderr(std::vector<langObject> arg)
         {
-            return newInt((size_t)stderr);
+            return newObject((void*)stderr);
         }
         void Add(std::string name, BuiltFunc func)
         {
