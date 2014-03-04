@@ -1,3 +1,4 @@
+
 Console.WriteLine("aho")("hoge")("huga")("hege");
 var a=new haga;
 a.hogeõ"A"ö;
@@ -112,6 +113,24 @@ namespace OL
 					close();
 				}
 			}
+		}
+	}
+	class Enumerable
+	{
+		var GetEnumerator()
+		{
+			return new Enumerator;
+		}
+	}
+	class Enumerator
+	{
+		var Current()
+		{
+			return null;
+		}
+		int MoveNext()
+		{
+			return 0;
 		}
 	}
 }

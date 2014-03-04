@@ -320,12 +320,17 @@ namespace lang
             case 6://{
                 if(argList == nullptr)argList = new std::vector<std::string>();
                 funcStack.push(BlockStruct(sts::Func,funcName));
-                std::cout<<std::endl;
-                for(int j=0;j<funcStack.size();j++)
+#if _DEBUG
+                if(lang::parserresult)
                 {
-                    std::cout<<" ";
+                    std::cout<<std::endl;
+                    for(int j=0;j<funcStack.size();j++)
+                    {
+                        std::cout<<" ";
+                    }
+                    std::cout<<namesp + funcName;
                 }
-                std::cout<<namesp + funcName;
+#endif
                 funcRead = 0;
                 if(classRead == 3)
                 {
