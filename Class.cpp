@@ -48,6 +48,7 @@ namespace lang
             this->thisscope->variable.add("finalize", this->finalize);
             lang::gc->uncontroll(this->finalize);
         }*/
+        delete staticmember;
     }
     Class::Class(Class* clas)
     {

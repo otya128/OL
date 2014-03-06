@@ -13,6 +13,7 @@ namespace lang
         this->argList = argList;
         this->thisscope = nullptr;
         this->scope = scope;//std::make_shared<lang::scope>(*scope);
+        if(this->scope != nullptr)scope->refinc();
         this->index = index;
     }
     Function::Function(Function* f,lang::scope* this_scope)
@@ -20,11 +21,13 @@ namespace lang
         this->thread = nullptr;
         //if(f is _Function){}
         this->type = new Type(f->type->TypeEnum,(char*)f->type->name);
-        this->name = f->name;
+        this->name = f->name; 
         this->argList = new std::vector<std::string>(*f->argList);
         this->scope = f->scope;
         this->index = f->index;
         this->thisscope = this_scope;
+        if(this->thisscope != nullptr)this_scope->refinc();
+        if(this->scope != nullptr)this->scope->refinc();
         this->ptr = nullptr;
     }
     Function::~Function(void)
@@ -42,7 +45,7 @@ namespace lang
         #if _DEBUG
         if(gc_view)
         {
-            std::cout<<"‚ª‚×‚±‚ê’†..."<< name <<std::endl;
+            std::cout<<"‚ª‚×‚±‚ê’†..."<< name << this <<std::endl;
             //delete this->name;
         }
         #endif

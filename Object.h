@@ -9,7 +9,7 @@
 namespace lang
 {
     //#define newObject(a) std::make_shared<Object>(a)
-
+    //int objectalloc_count = 0;
     enum PreType
     {
         _Object,_Int,_String,_Char,_Double,_Array,_Class,_Function,_ClassObject,_BuiltFunc

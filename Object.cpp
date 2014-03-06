@@ -63,7 +63,7 @@ namespace lang
     {
 #if GABEKORE
 #if _DEBUG
-        if(gc_view) std::cout<<"がべこれ中..."<<this<<"が滅亡しました...\t"<<this->type->name<<"\t"<<_toString(this)<<std::endl;//<<std::endl;
+        if(gc_view) std::cout<<"がべこれ中..."<<this<<"が滅亡しました...ptr"<<this->ptr<<"\t"<<this->type->name<<"\t"<<_toString(this)<<std::endl;//<<std::endl;
 #endif
 #endif
         if(type != (Type*)ObjectType)delete this->type;
@@ -92,9 +92,9 @@ namespace lang
     {
         this->type = new Type(PreType::_Int);
         this->ptr = (void*)new int(i);
-        #if _DEBUG
+#if _DEBUG
         debuggg = i;
-        #endif
+#endif
     }
     Int::~Int(void)
     {
@@ -109,9 +109,9 @@ namespace lang
     {
         delete this->ptr;
         this->ptr = new int(i);
-        #if _DEBUG
+#if _DEBUG
         debuggg = i;
-        #endif
+#endif
         return;
     }
     std::string Int::toString()
@@ -130,6 +130,10 @@ namespace lang
     String::~String(void)
     {
         //delete this->type;
+#if _DEBUG
+        if(lang::gc_view)
+            std::cout<<*(std::string*)this->ptr;
+#endif
         delete (std::string*)this->ptr;
     }
     std::string* String::getString(void)
@@ -149,9 +153,9 @@ namespace lang
     langObject String::getMember(std::string& name)
     {
         if(name == "ToString")
-        return object_tostr;
+            return object_tostr;
         else if(name == "Substring")
-        return string_substr;
+            return string_substr;
     }
 
     int Int::toInt(langObject obj)
@@ -162,69 +166,69 @@ namespace lang
         //return (static_cast<Int*>(obj))->getInt();
         return 0;//変換不可
     }
-    #define OPERA2ARG(name) {auto clas = (langClassObject)obj1;\
-            auto func = (langFunction)clas->thisscope->variable[name];\
-            if(func != nullptr && func is _Function)\
-            {\
-                auto vec = new std::vector<langObject>();\
-                vec->push_back(obj2);\
-                try\
-                {\
-                    auto ret = func->call(vec);\
-                    delete vec;\
-                    return ret;\
-                }\
-                catch(...)\
-                {\
-                    delete vec;\
-                    throw;\
-                }\
-            }\
+#define OPERA2ARG(name) {auto clas = (langClassObject)obj1;\
+    auto func = (langFunction)clas->thisscope->variable[name];\
+    if(func != nullptr && func is _Function)\
+    {\
+    auto vec = new std::vector<langObject>();\
+    vec->push_back(obj2);\
+    try\
+    {\
+    auto ret = func->call(vec);\
+    delete vec;\
+    return ret;\
+    }\
+    catch(...)\
+    {\
+    delete vec;\
+    throw;\
+    }\
+    }\
             else\
-                throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());}
-                
-    #define OPERA2ARG2(name) {auto clas = (langClassObject)obj2;\
-            auto func = (langFunction)clas->thisscope->variable[name];\
-            if(func != nullptr && func is _Function)\
-            {\
-                auto vec = new std::vector<langObject>();\
-                vec->push_back(obj1);\
-                try\
-                {\
-                    auto ret = func->call(vec);\
-                    delete vec;\
-                    return ret;\
-                }\
-                catch(...)\
-                {\
-                    delete vec;\
-                    throw;\
-                }\
-            }\
+            throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());}
+
+#define OPERA2ARG2(name) {auto clas = (langClassObject)obj2;\
+    auto func = (langFunction)clas->thisscope->variable[name];\
+    if(func != nullptr && func is _Function)\
+    {\
+    auto vec = new std::vector<langObject>();\
+    vec->push_back(obj1);\
+    try\
+    {\
+    auto ret = func->call(vec);\
+    delete vec;\
+    return ret;\
+    }\
+    catch(...)\
+    {\
+    delete vec;\
+    throw;\
+    }\
+    }\
             else\
-                throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());}
-                /*
-                {auto clas = (langClassObject)obj1;
-            auto func = (langFunction)clas->thisscope->variable[name];
-            if(func != nullptr && func is _Function)
-            {
-                auto vec = new std::vector<langObject>();
-                vec->push_back(obj2);
-                try
-                {
-                    auto ret = func->call(vec);
-                    delete vec;
-                    return ret;
-                }
-                catch(...)
-                {
-                    delete vec;
-                    throw;
-                }
-            }
-            else
-                throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());}
-                */
+            throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());}
+    /*
+    {auto clas = (langClassObject)obj1;
+    auto func = (langFunction)clas->thisscope->variable[name];
+    if(func != nullptr && func is _Function)
+    {
+    auto vec = new std::vector<langObject>();
+    vec->push_back(obj2);
+    try
+    {
+    auto ret = func->call(vec);
+    delete vec;
+    return ret;
+    }
+    catch(...)
+    {
+    delete vec;
+    throw;
+    }
+    }
+    else
+    throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());}
+    */
     langObject Object::plus(langObject obj1,langObject obj2)
     {
         switch (obj1->type->TypeEnum)
@@ -324,31 +328,31 @@ namespace lang
         case PreType::_Int:
             return newInt(Int::toInt(obj1) == Int::toInt(obj2));
         case PreType::_ClassObject:
-        {
-            auto clas = (langClassObject)obj1;
-            auto func = (langFunction)clas->thisscope->variable["equal"];
-            if(func != nullptr && func is _Function)
             {
-                auto vec = new std::vector<langObject>();
-                vec->push_back(obj2);
-                try
+                auto clas = (langClassObject)obj1;
+                auto func = (langFunction)clas->thisscope->variable["equal"];
+                if(func != nullptr && func is _Function)
                 {
-                    auto ret = func->call(vec);
-                    delete vec;
-                    return ret;
+                    auto vec = new std::vector<langObject>();
+                    vec->push_back(obj2);
+                    try
+                    {
+                        auto ret = func->call(vec);
+                        delete vec;
+                        return ret;
+                    }
+                    catch(...)
+                    {
+                        delete vec;
+                        throw;
+                    }
                 }
-                catch(...)
-                {
-                    delete vec;
-                    throw;
-                }
+                else
+                    return newInt(obj1 == obj2);
             }
-            else
-                return newInt(obj1 == obj2);
-        }
         default:
             return newInt(obj1 == obj2);
-        break;
+            break;
         }
     }
     langObject Object::modulo(langObject obj1,langObject obj2)
@@ -432,15 +436,15 @@ namespace lang
         }
         throw langRuntimeException((std::string(obj1->type->name) + ">>" + obj2->type->name + "出来ない").c_str());
     }
-    
+
     langObject Object::inc(langObject obj1)
     {
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
             return newInt(Int::toInt(obj1) + 1);
-        //case PreType::_ClassObject:
-        //    OPERA2ARG("inc")
+            //case PreType::_ClassObject:
+            //    OPERA2ARG("inc")
         }
         throw langRuntimeException((std::string(obj1->type->name) + "++出来ない").c_str());
         //変換不可

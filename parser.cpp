@@ -155,7 +155,7 @@ namespace lang
                     {
                         namesp.clear();
                         auto cont = funcStack._Get_container();
-                        for(size_t i = funcStack.size() - 2;i>=0;i--)
+                        if( funcStack.size()>=2)for(size_t i = funcStack.size() - 2;i>=0;i--)
                         {
                             if(cont[i].type == sts::NameSpace)
                             {
@@ -437,7 +437,7 @@ namespace lang
                     {
                         namesp.clear();
                         auto cont = funcStack._Get_container();
-                        for(size_t i = funcStack.size() - 2;i>=0;i--)
+                        if(funcStack.size() >= 2) for(size_t i = funcStack.size() - 2;i>=0;i--)
                         {
                             if(cont[i].type == sts::NameSpace)
                             {
@@ -542,7 +542,7 @@ namespace lang
                     {
                         namesp.clear();
                         auto cont = funcStack._Get_container();
-                        for(size_t i = funcStack.size() - 2;i>=0;i--)
+                        if( funcStack.size() >= 2)for(size_t i = funcStack.size() - 2;i>=0;i--)
                         {
                             if(cont[i].type == sts::NameSpace)
                             {

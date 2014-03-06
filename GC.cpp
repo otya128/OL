@@ -32,8 +32,8 @@ namespace lang
     }
     void GC::start(void)
     {
-        std::lock_guard<GCmutex> lock(this->RootMutex);
-        std::lock_guard<GCmutex> lock2(this->ObjectMutex);
+        //std::lock_guard<GCmutex> lock(this->RootMutex);
+        //std::lock_guard<GCmutex> lock2(this->ObjectMutex);
         if(NowGabekore)
         {
 #if _DEBUG
@@ -98,7 +98,7 @@ namespace lang
         {
             if(obj.second->type->TypeEnum == PreType::_ClassObject)
             {
-
+                obj.second->type->TypeEnum = PreType::_ClassObject;
             }
             if(this->object.find(obj.second) != this->object.end() && this->object[obj.second] != count)
             {
@@ -107,6 +107,13 @@ namespace lang
                 case lang::_Class://íœ‚µ‚È‚¢
                     //Ä‹A‚·‚é•K—v‚ª
                     foreach_(var_ i in_ *((langClass)obj.second)->member)
+                    {
+                        if(this->object[i.second] != count)
+                        {
+                            this->search(i.second);//
+                        }
+                    }
+                    if(((langClass)obj.second)->thisscope) foreach_(var_ i in_ ((langClass)obj.second)->thisscope->variable._variable)
                     {
                         if(this->object[i.second] != count)
                         {

@@ -153,6 +153,23 @@ namespace lang
         {
             return newObject((void*)stderr);
         }
+        langObject olruntime_gc_objectcount(std::vector<langObject> arg)
+        {
+            return newInt(lang::gc->objectCount);
+        }
+        langObject olruntime_gc_gctiming(std::vector<langObject> arg)
+        {
+            return newInt(lang::gc->GCtimig);
+        }
+        langObject olruntime_gc_run(std::vector<langObject> arg)
+        {
+            return newInt(lang::gc->NowGabekore);
+        }
+        langObject olruntime_gc_asyncgc(std::vector<langObject> arg)
+        {
+            std::thread* thd = new std::thread([]{lang::gc->start();});
+            return NULLOBJECT;
+        }
         void Add(std::string name, BuiltFunc func)
         {
             (*lang::BuiltFunction)[name] = func;
@@ -177,6 +194,8 @@ namespace lang
             Add("File::stdin",  getstdin);
             Add("File::stdout", getstdout);
             Add("File::stderr", getstderr);
+            Add("OLRuntime::GC::ObjectCount", olruntime_gc_objectcount);
+            Add("OLRuntime::GC::BackgroundGC", olruntime_gc_asyncgc);
         }
     }
 

@@ -1,5 +1,7 @@
 
 Console.WriteLine("aho")("hoge")("huga")("hege");
+//thread(function(){GC();});
+OLRuntime::GC::BackgroundGC();
 var a=new haga;
 a.hogeõ"A"ö;
 print(threadid(),OL::Thread.ID(),OL::ID,Console);
