@@ -199,7 +199,7 @@ namespace lang
         }
     }
 
-    langObject BuidInFunction(std::string name,std::vector<langObject> arg)
+    langObject BuitInFunction(std::string name,std::vector<langObject> arg)
     {
         auto func = (*BuiltFunction)[name];
         if(func)
@@ -673,7 +673,7 @@ namespace lang
                 object = static_cast<Function*>(this->variable[*this->parsers[j]->name].get())->call(&arg);
                 }
                 else 
-                object = BuidInFunction(*this->parsers[binaryoperation - 1]->name,arg);
+                object = BuitInFunction(*this->parsers[binaryoperation - 1]->name,arg);
                 //object = 
                 index = i;
                 binaryoperation = index + 1;
@@ -812,7 +812,7 @@ namespace lang
                         isBuilt = false;
                     }
                     else 
-                        object = BuidInFunction(*this->parsers[binaryoperation - 1]->name,arg);
+                        object = BuitInFunction(*this->parsers[binaryoperation - 1]->name,arg);
                     //object = 
                     index = i;
                     binaryoperation = index + 1;
@@ -951,25 +951,36 @@ namespace lang
                 OP;
                 if(object->type->TypeEnum == PreType::_ClassObject || object->type->TypeEnum == PreType::_Class)
                 {
-                    auto buf = (ClassObject*)object;
+                    auto buf = (Class*)object;
                     if(this->parsers.size()>binaryoperation +1)
                     {
                         auto bufbuf = this->parsers[binaryoperation + 1];
-                        if(bufbuf->pEnum==identifier)
+                        if(bufbuf->pEnum == identifier || bufbuf->pEnum == _static)
                         {
-                            object = buf->thisscope->variable[*bufbuf->name];
-                            index++;
-                            binaryoperation++;
-                            if(this->parsers.size()>binaryoperation + 1)
+                            if(bufbuf->pEnum == identifier)
                             {
-                                if(this->parsers[binaryoperation + 1]->pEnum == equal)
+                                object = buf->thisscope->variable[*bufbuf->name];
+                                index++;
+                                binaryoperation++;
+                                if(this->parsers.size()>binaryoperation + 1)
                                 {
-                                    //binaryoperation++;
-                                    buf->thisscope->variable.set(*bufbuf->name,eval(NULLOBJECT,binaryoperation));
-                                    //object = buf->thisscope->variable[*bufbuf->name];
-                                    index++;
-                                    binaryoperation++;
+                                    if(this->parsers[binaryoperation + 1]->pEnum == equal)
+                                    {
+                                        //binaryoperation++;
+                                        buf->thisscope->variable.set(*bufbuf->name,eval(NULLOBJECT,binaryoperation));
+                                        //object = buf->thisscope->variable[*bufbuf->name];
+                                        index++;
+                                        binaryoperation++;
+                                    }
                                 }
+                            }
+                            else
+                            {
+                                if(object->type->TypeEnum == PreType::_ClassObject)
+                                object = ((langClassObject)object)->staticClass;
+                                //else ; //staticƒNƒ‰ƒX‚©‚çstatic‚ðŽæ‚ë‚¤‚Æ‚µ‚Ä‚¢‚é
+                                index++;
+                                binaryoperation++;
                             }
                         }
                     }

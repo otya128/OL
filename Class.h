@@ -27,6 +27,7 @@ namespace lang
     class ClassObject : public Class
     {
     public:
+        Class* staticClass;
         virtual std::string ClassObject::toString(void);
         ClassObject(Class* type);
         ~ClassObject(void);

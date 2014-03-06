@@ -61,7 +61,7 @@ namespace lang
     }
     std::string Class::toString()
     {
-        return "class:" + this->name;
+        return "Class:" + this->name;
     }
     Class::~Class(void)
     {
@@ -74,7 +74,7 @@ namespace lang
         this->thisscope->refdec();
         //delete this->type->name;
     }
-    ClassObject::ClassObject(Class* type) : Class(type)//type->name,type->index,type->member,type->scope)
+    ClassObject::ClassObject(Class* type) : Class(type) , staticClass(type)//type->name,type->index,type->member,type->scope)
     {
         this->scope = type->scope;
         thisscope = new lang::scope(this->scope->parsers, this->scope,this);
@@ -122,7 +122,7 @@ namespace lang
                 throw;
             }*/
         }
-        return Class::toString();
+        return "ClassObject:" + this->name;//Class::toString();
     }
     ClassObject::~ClassObject(void)
     {

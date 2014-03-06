@@ -1,9 +1,10 @@
 
 Console.WriteLine("aho")("hoge")("huga")("hege");
 //thread(function(){GC();});
-OLRuntime::GC::BackgroundGC();
+//OLRuntime::GC::BackgroundGC();
 var a=new haga;
-a.hogeõ"A"ö;
+print("\na.static",a.static,"\na",a,"\nnew (a.static)",new (a.static));
+a.hogeõ"\nA\n"ö;
 print(threadid(),OL::Thread.ID(),OL::ID,Console);
 print(true,haga.lf);/*
 var fp = File::open("fopen.txt","wb+");
