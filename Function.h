@@ -10,6 +10,7 @@ namespace lang
     public:
         //関数に関連付けられたスレッド
         std::thread* thread;
+        bool working;
         //std::string* getString();
         //void setString(std::string* i);
         //名前

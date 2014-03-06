@@ -57,6 +57,7 @@ namespace lang
     }
     langObject Function::call(std::vector<langObject>* argList)
     {
+        working = true;
         auto sc =new lang::scope(this->scope->parsers,this->scope/*.get()*/,this->scope->_this);
         sc->type = en::scopeType::_function;
         sc->startIndex = this->index + 1;//+1‚µ‚ñ‚ ‚¢‚Æreturn‚ª–³‚¢ŠÖ”‚Åreturn‚³‚ê‚È‚­‚È‚é
@@ -68,6 +69,7 @@ namespace lang
         }
         auto buf = sc->run();
         sc->del();
+        working = false;
         return /*std::shared_ptr<Object>*/( buf);
     }
     langObject Function::ctorcall(std::vector<langObject>* argList)

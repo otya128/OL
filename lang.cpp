@@ -99,6 +99,15 @@ int hook(int a1, char *a2, int *a3)
     std::cout<<a2;
     return a1;
 }
+//–Ê“|‚É‚È‚Á‚½‚©‚çƒRƒsƒyhttp://d.hatena.ne.jp/kryozahiro/20080809/1218295912
+//->wcstombs_sŽg‚¤
+void narrow(const std::wstring &src, std::string &dest) {
+	char *mbs = new char[src.length() * MB_CUR_MAX + 1];
+	wcstombs_s(NULL,mbs, src.length() * MB_CUR_MAX + 1, src.c_str(), src.length() * MB_CUR_MAX + 1);
+	dest = mbs;
+	delete [] mbs;
+}
+
 int _tmain(int argc, _TCHAR *argv[])
 {
     wchar_t et[256];
@@ -125,7 +134,9 @@ int _tmain(int argc, _TCHAR *argv[])
     lang::error_level = 0;
     bool endpause= false,json = false;
     int result = 0;
+    bool notfileload = false;
     _TCHAR*filename = L"";
+    std::string input;
     for(int i = 1;i < argc;i++)
     {
         switch (o)
@@ -171,10 +182,16 @@ int _tmain(int argc, _TCHAR *argv[])
                                             o = option::errorlevel;
                                         }
                                         else
-                                        {
-                                            filename = argv[i];
-                                        }
-                                        break;
+                                            if(!_tcscmp(argv[i], L"-e"))
+                                            {
+                                                narrow(std::wstring(argv[i + 1]),input);
+                                                notfileload = true;
+                                            }
+                                            else
+                                            {
+                                                filename = argv[i];
+                                            }
+                                            break;
         case option::errorlevel:
             lang::error_level = _ttoi(argv[i]);
             o = option::none;
@@ -189,6 +206,7 @@ int _tmain(int argc, _TCHAR *argv[])
 #else
         std::cout<<"OtyaLanguage"<<std::endl;
 #endif
+http://0xbaadf00d/
     //lang::gc_view = true;
     if(leakcheck) _CrtSetReportHook((_CRT_REPORT_HOOK)hook);
     lib::init();
@@ -196,19 +214,21 @@ int _tmain(int argc, _TCHAR *argv[])
     lang::NULLOBJECT->type->name = "null";
     while (true)//std::getchar())
     {
-        std::string input;
         std::stringstream ss;
         //std::getline(std::cin,input);
-        std::ifstream ifs( filename);
-        if(ifs.fail())
+        if(!notfileload)
         {
-            _tcprintf(L"file:%s‚ðŠJ‚¯‚Ü‚¹‚ñ\n",filename);//std::cout<<"file:"<<filename<<"‚ðŠJ‚¯‚Ü‚¹‚ñ"<<std::endl;
-            vifƒÖfjv ;vifƒÖfjv ;FAILEND;vifƒÖfjv vifƒÖfjv 
+            std::ifstream ifs( filename);
+            if(ifs.fail())
+            {
+                _tcprintf(L"file:%s‚ðŠJ‚¯‚Ü‚¹‚ñ\n",filename);//std::cout<<"file:"<<filename<<"‚ðŠJ‚¯‚Ü‚¹‚ñ"<<std::endl;
+                vifƒÖfjv ;vifƒÖfjv ;FAILEND;vifƒÖfjv vifƒÖfjv 
+            }
+            while(ifs && getline(ifs, input)) {
+                ss << input << '\n';
+            }
+            input = ss.str();
         }
-        while(ifs && getline(ifs, input)) {
-            ss << input << '\n';
-        }
-        input = ss.str();
         lang::parser* pars;
         try
         {
@@ -269,7 +289,7 @@ int _tmain(int argc, _TCHAR *argv[])
                 {
                     std::cout << "null";
                 }
-            std::cout << '}' << ',';
+                std::cout << '}' << ',';
             }
             std::cout << ']' << ',';
             std::cout << '}';

@@ -49,9 +49,9 @@ namespace lang
         if(gc_view)
             std::cout<<"がべこれ開始"<<std::endl;
 #endif
-    if(objectCount>160) 
-        std::cout<<""
-    ;
+        if(objectCount>160) 
+            std::cout<<""
+            ;
         // this->search(this->root);
         for(auto root : this->roots)
         {
@@ -73,7 +73,11 @@ namespace lang
         {
             if(this->object.find(obj) != this->object.end())
             {
-                object.erase(obj);
+                if(obj is _Function && ((langFunction)obj)->working)
+                //マルチスレッドなどでどこからも参照されていないが動いている状態の時は開放しない
+                    ;
+                else
+                    object.erase(obj);
                 delete obj;
             }
         }
@@ -129,7 +133,7 @@ namespace lang
                             this->search(i);//
                         }
                     }
-                    
+
                     break;
                 }
                 this->object[obj.second] = count;//++;//this->object[obj] = 0;4
