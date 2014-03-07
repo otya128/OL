@@ -1,5 +1,8 @@
-
-Console.WriteLine("aho")("hoge")("huga")("hege");
+//ADD char,wchar type
+var view = function(char a){Console.WriteLine(a);};
+var v = view;
+v('É÷')v(L'É÷')v(L'É÷')//ÇΩÇµÇ©Ç…Å`
+Console.WriteLine("aho")("hoge")("huga")("hege")('A')(0)(false)(true)(false)(null)('\n');
 //thread(function(){GC();});
 //OLRuntime::GC::BackgroundGC();
 var a=new haga;

@@ -160,11 +160,85 @@ namespace lang
 
     int Int::toInt(langObject obj)
     {
-        if(obj->type->TypeEnum==PreType::_Int)
-            return (static_cast<Int*>(obj/*.get()*/))->getInt();
-        //if(obj->type->TypeEnum==PreType::_Int)
-        //return (static_cast<Int*>(obj))->getInt();
+        if(obj->type->TypeEnum == PreType::_Int)
+            return (static_cast<Int*>(obj))->getInt();
         return 0;//変換不可
+    }
+    char Char::toChar(langObject obj)
+    {
+        if(obj->type->TypeEnum == PreType::_Char)
+            return (static_cast<Char*>(obj))->getChar();
+        return 0;//変換不可
+    }
+    Char::Char(char i)
+    {
+        this->type = new Type(PreType::_Char);
+        this->chr = i;
+        this->ptr = &this->chr;//(void*)new char(i);
+    }
+    Char::~Char(void)
+    {
+    }
+    char Char::getChar(void)
+    {
+        return *(char*)(this->ptr);
+    }
+    void Char::setChar(char i)
+    {
+        this->chr = i;
+        this->ptr = &this->chr;
+        return;
+    }
+    std::string Char::toString()
+    {
+        std::stringstream ss;
+        ss<<this->getChar();
+        return (ss.str());
+    }
+
+    wchar WChar::toWChar(langObject obj)
+    {
+        if(obj->type->TypeEnum == PreType::_Char)
+            return (static_cast<Char*>(obj))->getChar();
+        return 0;//変換不可
+    }
+    WChar::WChar(wchar i)
+    {
+        this->type = new Type(PreType::_WChar);
+        this->chr = i;
+        this->ptr = &this->chr;//(void*)new char(i);
+    }
+    WChar::~WChar(void)
+    {
+    }
+    wchar WChar::getWChar(void)
+    {
+        return *(char*)(this->ptr);
+    }
+    void WChar::setWChar(wchar i)
+    {
+        this->chr = i;
+        this->ptr = &this->chr;
+        return;
+    }
+    std::string WChar::toString()
+    {
+        v（’ω’）v
+            //変換文字列格納バッファ
+            /*char wStrC[3];
+            size_t wLen = 0;
+            errno_t err = 0;
+            //ロケール指定
+            setlocale(LC_ALL,"japanese");
+            //変換
+            err = wcstombs_s(&wLen, wStrC, 2, &this->chr, _TRUNCATE);*/
+        char mbs[3];//char *mbs = new char[src.length() * MB_CUR_MAX + 1];
+        wcstombs_s(NULL,mbs , 3, &this->chr, 2);
+        /*dest = mbs;
+        delete [] mbs;*/
+        std::stringstream ss;
+        ss<<mbs;
+        return (ss.str());
     }
 #define OPERA2ARG(name) {auto clas = (langClassObject)obj1;\
     auto func = (langFunction)clas->thisscope->variable[name];\
@@ -280,7 +354,8 @@ namespace lang
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
-            return newInt(Int::toInt(obj1) > Int::toInt(obj2));
+            if(obj2 is _Int)return newInt(Int::toInt(obj1) > Int::toInt(obj2));
+            else return newInt(obj1->getPointer() > obj2->getPointer());
         case PreType::_ClassObject:
             OPERA2ARG("greater")
         }
@@ -292,7 +367,8 @@ namespace lang
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
-            return newInt(Int::toInt(obj1) < Int::toInt(obj2));
+            if(obj2 is _Int)return newInt(Int::toInt(obj1) < Int::toInt(obj2));
+            else return newInt(obj1->getPointer() < obj2->getPointer());
         case PreType::_ClassObject:
             OPERA2ARG("less")
         }
@@ -304,7 +380,8 @@ namespace lang
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
-            return newInt(Int::toInt(obj1) >= Int::toInt(obj2));
+            if(obj2 is _Int)return newInt(Int::toInt(obj1) >= Int::toInt(obj2));
+            else return newInt(obj1->getPointer() >= obj2->getPointer());
         case PreType::_ClassObject:
             OPERA2ARG("greaterEqual")
         }
@@ -315,7 +392,8 @@ namespace lang
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
-            return newInt(Int::toInt(obj1) <= Int::toInt(obj2));
+            if(obj2 is _Int)return newInt(Int::toInt(obj1) <= Int::toInt(obj2));
+            else return newInt(obj1->getPointer() <= obj2->getPointer());
         case PreType::_ClassObject:
             OPERA2ARG("lessEqual")
         }
@@ -326,7 +404,8 @@ namespace lang
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
-            return newInt(Int::toInt(obj1) == Int::toInt(obj2));
+            if(obj2 is _Int)return newInt(Int::toInt(obj1) == Int::toInt(obj2));
+            else return newInt(obj1->getPointer() == obj2->getPointer());
         case PreType::_ClassObject:
             {
                 auto clas = (langClassObject)obj1;

@@ -16,8 +16,11 @@ namespace lang
 #define HASHTHIS    659
 #define HASHNEW     339
 #define HASHNAMESPACE 3721
-#define HASHUSING    1067
+#define HASHUSING   1067
 #define HASHSTATIC  1573
+#define HASHTRUE    651
+#define HASHFALSE   1062
+#define HASHNULL    657
 #define ERROR(a) WARNING(a,0)//langObject NULLOBJECT = newObject(nullptr);
     enum class parserStatus
     {
@@ -28,6 +31,8 @@ namespace lang
         ReadComment,
         ReadBlockComment,
         ReadEscapeString,
+        ReadChar,
+        ReadEscapeChar,
     };
     int error_level;
     //文字列から単純なhashを作成
@@ -560,6 +565,7 @@ namespace lang
     }
     parser::parser(std::string input)
     {
+        int line = 0;
         lang::gc = nullptr;
         this->program = (input);
 #if _DEBUG
@@ -570,6 +576,7 @@ namespace lang
         bool shiftJis = false, ASCII = true;
         int startindex = 0;
         int blockComment = 0;
+        bool isWChar = false;
         for(int i=0;i<=input.size();i++)
         {
             bool islast = i >= input.size() - 1;
@@ -582,6 +589,7 @@ namespace lang
             switch (sts)
             {
             case parserStatus::None:None:
+                isWChar = false;
                 switch (chr)
                 {
                 case '(':
@@ -649,6 +657,14 @@ namespace lang
                     startindex = i;
                     sts = parserStatus::ReadStr;
                     break;
+                case 'L':
+                    if(nextchr != '\'') break;
+                    isWChar = true;
+                    i++;
+                case '\'':
+                    startindex = i;
+                    sts = parserStatus::ReadChar;
+                    break;
                 case '/':
                     if(nextchr == '/')
                     {
@@ -664,7 +680,8 @@ namespace lang
                                 this->parsers.push_back(new parseObj(parserEnum::divisionequal,new std::string("/="), i, i + 1)),i++;
                             else this->parsers.push_back(new parseObj(parserEnum::division,new std::string("/"), i, i));
                             break;
-                case '\r':case '\n':case '\t':
+                case '\n': line++;
+                case '\r':case '\t':
                 case ' ':break;
                 default:
                     if(isNum(chr))
@@ -721,6 +738,15 @@ ReadIden:
                             case HASHSTATIC:
                                 if(*iden == "static"){this->parsers.push_back(new parseObj(parserEnum::_static,iden, startindex, i - 1));ok = true;}
                                 break;
+                            case HASHTRUE:
+                                if(*iden == "true"){this->parsers.push_back(new parseObj(parserEnum::_true,iden, startindex, i - 1, TRUEOBJECT));ok = true;}
+                                break;
+                            case HASHFALSE:
+                                if(*iden == "false"){this->parsers.push_back(new parseObj(parserEnum::_false,iden, startindex, i - 1, FALSEOBJECT));ok = true;}
+                                break;
+                            case HASHNULL:
+                                if(*iden == "null"){this->parsers.push_back(new parseObj(parserEnum::_null,iden, startindex, i - 1,NULLOBJECT));ok = true;}
+                                break;
                             }
                             if(!ok) this->parsers.push_back(new parseObj(parserEnum::identifier,iden, startindex, i - 1));
                             iden = new std::string();//!!!!コピーされないのでnew する!!!!
@@ -762,6 +788,58 @@ ReadIden:
                             iden->append(input.substr(i,1));
                 }
                 break;
+            case parserStatus::ReadChar:ReadChar:
+                if(chr=='\'')
+                {
+                    if(iden->size() < 1 || iden->size() > 1)
+                    {
+                        if(iden->size() == 2)
+                        {
+                            if(!isWChar) 
+                            {
+                                WARNINGS(0,"charのsizeは1ですWCharに変更します。L\'%s\'", iden->c_str());
+                                isWChar = true;
+                            }
+                        }
+                        else
+                            WARNINGS(0,"charのsizeは1です%s", iden->c_str());
+                    }
+                    if(isWChar)
+                    {
+                        int size = iden->size();
+                        const char* wStrC = iden->c_str();
+                        //変換文字列格納バッファ
+                        wchar wStrW[2];
+                        size_t wLen = 0;
+                        errno_t err = 0;
+                        //ロケール指定
+                        setlocale(LC_ALL,"japanese");
+                        //変換
+                        err = mbstowcs_s(&wLen, /*&*/wStrW, size, wStrC, _TRUNCATE);
+                        this->parsers.push_back(new parseObj(wStrW[0], startindex, i));
+                    }
+                    else
+                    {
+                        this->parsers.push_back(new parseObj((*iden)[0], startindex, i));
+
+                    }
+                    iden->clear();
+
+                    sts = parserStatus::None;
+                }
+                else
+                {
+                    if(chr == '\\' && !(shiftJis && isIdenShiftJIS1(prevchr)))
+                    {
+                        sts = parserStatus::ReadEscapeChar;
+                    }else
+                        if(chr=='\n'||chr=='\0')
+                        {
+                            WARNING("閉じられていないchar");//throw langParseException("閉じられていないstring");
+                        }else
+                            iden->append(input.substr(i,1));
+                }
+                break;
             case parserStatus::ReadComment:
                 if(chr=='\n'||chr=='\0') sts = parserStatus::None;
                 break;
@@ -784,6 +862,21 @@ ReadIden:
                     break;
                 }
                 sts = parserStatus::ReadStr;
+                break;
+            case parserStatus::ReadEscapeChar:
+                switch (chr)
+                {
+                case 'n':
+                    *iden += '\n';
+                    break;
+                case 't':
+                    *iden +='\t';
+                    break;
+                default:
+                    WARNING((std::string("認識できないエスケープシーケンス") + chr).c_str(),1);
+                    break;
+                }
+                sts = parserStatus::ReadChar;
                 break;
             default:
                 throw langParseException("WHAT???");

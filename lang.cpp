@@ -15,6 +15,7 @@
 #include <windows.h>
 #include "Function.h"
 #include <time.h>
+#include "OLWindow.h"
 #include "†.h"
 #ifndef _DEBUG
 #include <eh.h>
@@ -38,6 +39,8 @@ namespace lang
     namespace lib{void init();}
     Type* ObjectType = new Type(PreType::_Object);
     langObject NULLOBJECT = nullptr;//ewObject(nullptr);
+    langObject TRUEOBJECT = nullptr;
+    langObject FALSEOBJECT = nullptr;
     bool ahogc = false,parserresult = false, leakcheck = false, pause = false;
 #if _DEBUG
     std::vector<int> BreakPoint;//行で指定
@@ -54,6 +57,9 @@ char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightpar
     "_namespace",
     "_using",
     "_static",
+    "_true",
+    "_false",
+    "_null",
 };
 
 char* parserEnumToString(lang::parserEnum i)
@@ -102,12 +108,71 @@ int hook(int a1, char *a2, int *a3)
 //面倒になったからコピペhttp://d.hatena.ne.jp/kryozahiro/20080809/1218295912
 //->wcstombs_s使う
 void narrow(const std::wstring &src, std::string &dest) {
-	char *mbs = new char[src.length() * MB_CUR_MAX + 1];
-	wcstombs_s(NULL,mbs, src.length() * MB_CUR_MAX + 1, src.c_str(), src.length() * MB_CUR_MAX + 1);
-	dest = mbs;
-	delete [] mbs;
+    char *mbs = new char[src.length() * MB_CUR_MAX + 1];
+    wcstombs_s(NULL,mbs, src.length() * MB_CUR_MAX + 1, src.c_str(), src.length() * MB_CUR_MAX + 1);
+    dest = mbs;
+    delete [] mbs;
 }
+TextBox* txt;
+OLWindow* window;
+void Window_OnSizeChange(eventargs<OLWindow*> arg)
+{
+    std::cout<<arg.Arg->GetWidth()<<"\t"<<arg.Arg->GetHeight()<<std::endl;
+    txt->SetHeight(arg.Arg->GetHeight());
+    txt->SetWidth(arg.Arg->GetWidth());
+}
+TCHAR filename_[MAX_PATH];
+_TCHAR*filename = L"";
+//見にくいから分けた
+void gui(void)
+{
 
+    window = new OLWindow(L"OtyaLanguage",512,128);
+    window->SetResize(FALSE);
+    Button btn(*window,L"File",512-128,0,128,32);
+    Button btn_2(*window,L"Run",512-128,32,128,32);
+    txt = new TextBox(*window,L"",0,0,512-128,32);
+    btn.OnClick+=[](eventargs<Button*> c)
+    {
+        OpenFileDialog ofd(_T("OL(*.OL)\0*.OL\0All files(*.*)\0*.*\0\0"),_T("OL"),_T("OpenFileDialog"),*window);
+        ofd.Show();
+        lstrcpynW(filename_,ofd.GetFileName(),sizeof(filename_));
+        filename = filename_;
+        txt->SetText(ofd.GetFileName());
+    };
+    btn_2.OnClick+=[](eventargs<Button*> c)
+    {
+        txt->GetText(filename_,sizeof(filename_));
+        window->Close();
+    };
+    window->Show();
+    delete window;
+    delete txt;
+    return;
+    //DEBUG
+    window = new OLWindow(L"Hello",512,512);
+    /*Button*/ btn = Button(*window,L"Button",0,0,128,32);
+    Button btn2(*window,L"Button2",128,0,128,32);
+    Button btn3(*window,L"Button3",0,32,128,32);
+    txt = new TextBox(*window,L"Text",0,64,512,512-64);
+    txt->SetMultiLine(TRUE);
+    Button btn4(*txt,L"Button4",0,32,128,32);
+    btn.OnClick+=[](eventargs<Button*> c){std::cout<<"Button1"<<txt->GetReadOnly();txt->SetReadOnly(!txt->GetReadOnly());};
+    btn.OnClick+=[](eventargs<Button*> c){std::cout<<std::endl;};
+    btn2.OnClick+=[](eventargs<Button*> c){std::cout<<"Button2"<<txt->GetReadOnly();txt->SetReadOnly(!txt->GetReadOnly());};
+    btn3.OnClick+=[](eventargs<Button*> c)
+    {
+        std::cout<<"Button3";
+        OpenFileDialog ofd(_T("OL(*.OL)\0*.txt\0All files(*.*)\0*.*\0\0"),_T("OL"),_T("OpenFileDialog"),*window);
+        ofd.Show();
+        lstrcpynW(filename_,ofd.GetFileName(),sizeof(filename_));
+        filename = filename_;
+    };
+    window->OnSizeChange+=Window_OnSizeChange;
+    window->Show();
+    delete window;
+    delete txt;
+}
 int _tmain(int argc, _TCHAR *argv[])
 {
     wchar_t et[256];
@@ -135,7 +200,7 @@ int _tmain(int argc, _TCHAR *argv[])
     bool endpause= false,json = false;
     int result = 0;
     bool notfileload = false;
-    _TCHAR*filename = L"";
+    bool gui = false;
     std::string input;
     for(int i = 1;i < argc;i++)
     {
@@ -188,10 +253,15 @@ int _tmain(int argc, _TCHAR *argv[])
                                                 notfileload = true;
                                             }
                                             else
-                                            {
-                                                filename = argv[i];
-                                            }
-                                            break;
+                                                if(!_tcscmp(argv[i], L"-gui"))
+                                                {
+                                                    gui = true;
+                                                }
+                                                else
+                                                {
+                                                    filename = argv[i];
+                                                }
+                                                break;
         case option::errorlevel:
             lang::error_level = _ttoi(argv[i]);
             o = option::none;
@@ -199,6 +269,10 @@ int _tmain(int argc, _TCHAR *argv[])
         default:
             break;
         }
+    }
+    if(gui)
+    {
+        ::gui();
     }
     if(!json)
 #if _DEBUG
@@ -212,6 +286,10 @@ http://0xbaadf00d/
     lib::init();
     lang::NULLOBJECT = new lang::Object();
     lang::NULLOBJECT->type->name = "null";
+    lang::TRUEOBJECT = new lang::Int(true);
+    lang::TRUEOBJECT->type->name = "true";
+    lang::FALSEOBJECT = new lang::Int(false);
+    lang::FALSEOBJECT->type->name = "false";
     while (true)//std::getchar())
     {
         std::stringstream ss;
@@ -388,6 +466,8 @@ theend:
 #endif
     delete BuiltFunction;
     delete lang::NULLOBJECT;
+    delete lang::TRUEOBJECT;
+    delete lang::FALSEOBJECT;
     delete lang::ObjectType;
     delete lang::object_tostr;
     delete lang::string_substr;

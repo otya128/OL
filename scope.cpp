@@ -763,6 +763,11 @@ namespace lang
                 index = index + 0;
                 //throw lang::langRuntimeException("new ‚ÍClassŒ^‚Å‚Ì‚İ—LŒø‚Å‚·B");
                 break;
+            case parserEnum::_false:
+                object = this->parsers[index]->ptr;
+                break;
+            case parserEnum::_null:
+            case parserEnum::_true:
             case parserEnum::num:
             case parserEnum::str:
             case parserEnum::chr:

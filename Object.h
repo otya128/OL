@@ -12,7 +12,7 @@ namespace lang
     //int objectalloc_count = 0;
     enum PreType
     {
-        _Object,_Int,_String,_Char,_Double,_Array,_Class,_Function,_ClassObject,_BuiltFunc
+        _Object,_Int,_String,_Char,_WChar,_Double,_Array,_Class,_Function,_ClassObject,_BuiltFunc
     };
 #pragma once
     static const char* PreTypeName[] = {"Object","Int","String","Char","Double","Array","Class","Function","ClassObject","BuiltFunc"};
@@ -98,10 +98,37 @@ namespace lang
         ~String(void);
         virtual std::string toString();
     };
-
+    
+    class Char : public Object
+    {
+    public:
+        char getChar();
+        void setChar(char i);
+        Char(char ptr);
+        ~Char(void);
+        static char toChar(langObject obj);
+        virtual std::string toString();
+    private:
+        char chr;
+    };
+    typedef wchar_t wchar;
+    class WChar : public Object
+    {
+    public:
+        wchar getWChar();
+        void setWChar(wchar i);
+        WChar(wchar ptr);
+        ~WChar(void);
+        static wchar toWChar(langObject obj);
+        virtual std::string toString();
+    private:
+        wchar chr;
+    };
     //typedef std::shared_ptr<String> langString;
 
 
     extern langObject NULLOBJECT;// = newObject(nullptr);//std::make_shared<Object>();
+    extern langObject FALSEOBJECT;
+    extern langObject TRUEOBJECT;
 
 }

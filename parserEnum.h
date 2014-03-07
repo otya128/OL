@@ -64,6 +64,10 @@ namespace lang
         _namespace,
         _using,
         _static,
+        //’è”
+        _true,
+        _false,
+        _null,
     };
 }
 #endif

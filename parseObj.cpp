@@ -38,8 +38,19 @@ namespace lang
     {
         this->sourceendindex = j;
         this->sourcestartindex = i;
+        this->ptr = new Char((char)obj);
         //this->ptr=new char(obj);
-        //this->pEnum=parserEnum::chr;
+        this->pEnum=parserEnum::chr;
+        this->name = nullptr;
+    }
+    parseObj::parseObj(wchar obj,int i,int j)
+    {
+        this->sourceendindex = j;
+        this->sourcestartindex = i;
+        this->ptr = new WChar((wchar)obj);
+        this->name = nullptr;
+        //this->ptr=new char(obj);
+        this->pEnum=parserEnum::chr;
     }
 
     parseObj::parseObj(parserEnum p,std::string* n,int i,int j)
@@ -50,10 +61,18 @@ namespace lang
         this->name  = n;
         this->ptr = nullptr;
     }
+    parseObj::parseObj(parserEnum p,std::string* n,int i,int j, langObject obj)
+    {
+        this->sourceendindex = j;
+        this->sourcestartindex = i;
+        this->pEnum = p;
+        this->name  = n;
+        this->ptr   = obj;
+    }
 
     parseObj::~parseObj(void)
     {
-        delete this->ptr;
+        if(!(this->pEnum >= _true && this->pEnum <= _null)) delete this->ptr;
         delete this->name;
     }
 

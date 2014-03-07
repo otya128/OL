@@ -45,6 +45,8 @@ namespace lang
         NowGabekore = true;
         count++;
         this->object[NULLOBJECT] = count;//’è”‚ªGC‚É‰ñû‚³‚ê‚é
+        this->object[TRUEOBJECT] = count;//’è”‚ªGC‚É‰ñû‚³‚ê‚é
+        this->object[FALSEOBJECT] = count;//’è”‚ªGC‚É‰ñû‚³‚ê‚é
 #if _DEBUG
         if(gc_view)
             std::cout<<"‚ª‚×‚±‚êŠJn"<<std::endl;
