@@ -55,48 +55,10 @@ namespace lang
     void OLWindow::ctor(LPCWSTR title, int X,int Y,int nWidth,int nHeight, LPCWSTR ClassName,long style,HWND parent)
     {
         hInst = GetModuleHandle(NULL);
-        // ウィンドウクラスの情報を設定
-        wc.cbSize = sizeof(wc);               // 構造体サイズ
-        wc.style = CS_HREDRAW | CS_VREDRAW;   // スタイル
-        auto a = this;
-        wc.lpfnWndProc = [] /*CALLBACK*/(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT{
-
-            OLWindow* win = static_cast<OLWindow*>(OLWindow::windowmap[hWnd]);
-            switch( msg )
-            {
-            case WM_SIZING:
-                win->OnSizeChange(eventargs<OLWindow*>(win));
-                break;
-            case WM_DESTROY:  // ウィンドウを破棄するとき
-                PostQuitMessage( 0 );
-                return 0;
-            }
-
-            // 他のメッセージは、デフォルトの処理を行う
-            return DefWindowProc( hWnd, msg, wp, lp );
-        };             // ウィンドウプロシージャ
-        wc.cbClsExtra = 0;                    // 拡張情報１
-        wc.cbWndExtra = 0;                    // 拡張情報２
-        wc.hInstance = hInst;                 // インスタンスハンドル
-        wc.hIcon = (HICON)LoadImage(          // アイコン
-            NULL, MAKEINTRESOURCE(IDI_APPLICATION), IMAGE_ICON,
-            0, 0, LR_DEFAULTSIZE | LR_SHARED
-            );
-        wc.hIconSm = wc.hIcon;                // 子アイコン
-        wc.hCursor = (HCURSOR)LoadImage(      // マウスカーソル
-            NULL, MAKEINTRESOURCE(IDC_ARROW), IMAGE_CURSOR,
-            0, 0, LR_DEFAULTSIZE | LR_SHARED
-            );
-        wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH); // ウィンドウ背景
-        wc.lpszMenuName = NULL;                     // メニュー名
-        wc.lpszClassName = (ClassName);// ウィンドウクラス名
-
-        // ウィンドウクラスを登録する
-        if( RegisterClassEx( &wc ) == 0 ){ throw GetLastError();}//return ; }
 
         // ウィンドウを作成する
         hWnd = CreateWindow(
-            wc.lpszClassName,      // ウィンドウクラス名
+            OLWindow::classname,      // ウィンドウクラス名
             /*_T*/(title),  // タイトルバーに表示する文字列
             style,   // ウィンドウの種類
             X,         // ウィンドウを表示する位置（X座標）
@@ -173,7 +135,7 @@ namespace lang
             switch( msg )
             {
             case WM_LBUTTONUP:
-                win->OnClick(eventargs<Button*>(win));
+                win->OnClick(eventargs<OLWindow*>(win));
                 break;
             }
             return CallWindowProc( win->baseWndProc, hWnd, msg, wp, lp );
@@ -249,4 +211,123 @@ namespace lang
             result &= ~WS_THICKFRAME;
         SetWindowLongPtr(this->hWnd,GWL_STYLE,result);
     }
+    Label::Label(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight) 
+    {
+        hInst = GetModuleHandle(NULL);
+        // ウィンドウクラスの情報を設定
+
+        this->hWnd = CreateWindow(
+            _T("OLlabel"),                            // ウィンドウクラス名
+            title,                                // キャプション
+            WS_CHILD | WS_VISIBLE,   // スタイル指定
+            X, Y,                                  // 座標
+            nWidth, nHeight,                                  // サイズ
+            parent.hWnd,                                    // 親ウィンドウのハンドル
+            (HMENU)this,                                    // メニューハンドル
+            hInst,                                 // インスタンスハンドル
+            NULL                                     // その他の作成データ
+            );
+        OLWindow::windowmap[this->hWnd] = this;
+    }
+    BYTE WindowClassInit()
+    {
+        WNDCLASSEX wc;
+        // ウィンドウクラスの情報を設定
+        wc.cbSize = sizeof(wc);               // 構造体サイズ
+        wc.style = CS_HREDRAW | CS_VREDRAW;   // スタイル
+        wc.lpfnWndProc = [] /*CALLBACK*/(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT{
+
+            OLWindow* win = static_cast<OLWindow*>(OLWindow::windowmap[hWnd]);
+            switch( msg )
+            {
+            case WM_LBUTTONUP:
+                win->OnClick(eventargs<OLWindow*>(win));
+                break;
+            case WM_SIZING:
+                win->OnSizeChange(eventargs<OLWindow*>(win));
+                break;
+            case WM_DESTROY:  // ウィンドウを破棄するとき
+                PostQuitMessage( 0 );
+                return 0;
+            }
+
+            // 他のメッセージは、デフォルトの処理を行う
+            return DefWindowProc( hWnd, msg, wp, lp );
+        };             // ウィンドウプロシージャ
+        wc.cbClsExtra = 0;                    // 拡張情報１
+        wc.cbWndExtra = 0;                    // 拡張情報２
+        wc.hInstance = GetModuleHandle(NULL);                 // インスタンスハンドル
+        wc.hIcon = (HICON)LoadImage(          // アイコン
+            NULL, MAKEINTRESOURCE(IDI_APPLICATION), IMAGE_ICON,
+            0, 0, LR_DEFAULTSIZE | LR_SHARED
+            );
+        wc.hIconSm = wc.hIcon;                // 子アイコン
+        wc.hCursor = (HCURSOR)LoadImage(      // マウスカーソル
+            NULL, MAKEINTRESOURCE(IDC_ARROW), IMAGE_CURSOR,
+            0, 0, LR_DEFAULTSIZE | LR_SHARED
+            );
+        wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH); // ウィンドウ背景
+        wc.lpszMenuName = NULL;                     // メニュー名
+        wc.lpszClassName = OLWindow::classname;// ウィンドウクラス名
+
+        // ウィンドウクラスを登録する
+        if( RegisterClassEx( &wc ) == 0 ){ throw GetLastError();}//return ; }
+        //================LABEL================
+        wc.cbSize = sizeof(wc);               // 構造体サイズ
+        wc.style = CS_HREDRAW | CS_VREDRAW;   // スタイル
+        wc.lpfnWndProc = [] /*CALLBACK*/(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT{
+
+            OLWindow* win = static_cast<OLWindow*>(OLWindow::windowmap[hWnd]);
+            switch( msg )
+            {
+            case WM_PAINT:
+                {
+                    auto reult = DefWindowProc( hWnd, msg, wp, lp );
+                    RECT rc;
+                    HDC hDC = GetDC( hWnd );
+                    auto text = win->GetText();
+                    GetClientRect(hWnd, &rc);
+                    ////GetWindowRect(hWnd, &rc);
+                    DrawText( hDC, win->GetText(), -1, &rc, 0 );
+                    //SetTextColor( hDC, RGB(255,0,0) );
+                    //TextOut( hDC, 50, 50, text, (int)_tcslen(text) );
+                    delete text;
+                    ReleaseDC( hWnd, hDC );
+                    return reult;
+                }    
+            case WM_LBUTTONUP:
+                win->OnClick(eventargs<OLWindow*>(win));
+                break;
+            case WM_SIZING:
+                win->OnSizeChange(eventargs<OLWindow*>(win));
+                break;
+            case WM_DESTROY:  // ウィンドウを破棄するとき
+                PostQuitMessage( 0 );
+                return 0;
+            }
+
+            // 他のメッセージは、デフォルトの処理を行う
+            return DefWindowProc( hWnd, msg, wp, lp );
+        };             // ウィンドウプロシージャ
+        wc.cbClsExtra = 0;                    // 拡張情報１
+        wc.cbWndExtra = 0;                    // 拡張情報２
+        wc.hInstance = GetModuleHandle(NULL);                 // インスタンスハンドル
+        wc.hIcon = (HICON)LoadImage(          // アイコン
+            NULL, MAKEINTRESOURCE(IDI_APPLICATION), IMAGE_ICON,
+            0, 0, LR_DEFAULTSIZE | LR_SHARED
+            );
+        wc.hIconSm = wc.hIcon;                // 子アイコン
+        wc.hCursor = (HCURSOR)LoadImage(      // マウスカーソル
+            NULL, MAKEINTRESOURCE(IDC_ARROW), IMAGE_CURSOR,
+            0, 0, LR_DEFAULTSIZE | LR_SHARED
+            );
+        wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH); // ウィンドウ背景
+        wc.lpszMenuName = NULL;                     // メニュー名
+        wc.lpszClassName = _T("OLlabel");// ウィンドウクラス名
+
+        // ウィンドウクラスを登録する
+        if( RegisterClassEx( &wc ) == 0 ){ throw GetLastError();}
+        return NULL;
+    }
+    BYTE Init = WindowClassInit();
 }

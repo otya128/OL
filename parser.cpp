@@ -92,8 +92,8 @@ namespace lang
     struct BlockStruct
     {
         sts type;
-        std::string &name;
-        BlockStruct(sts s,std::string &n):type(s),name(n){}
+        std::string name;
+        BlockStruct(sts s,std::string n):type(s),name(n){}
         BlockStruct(const BlockStruct& a) : name(a.name), type(a.type)
         {
         }
@@ -160,8 +160,10 @@ namespace lang
                     {
                         namesp.clear();
                         auto cont = funcStack._Get_container();
-                        if( funcStack.size()>=2)for(size_t i = funcStack.size() - 2;i>=0;i--)
-                        {
+                        //if( funcStack.size()>=2)for(size_t i = funcStack.size() - 2;i>=0;i--)
+                        
+                        if(funcStack.size() >= 2)
+                         for(size_t i = funcStack.size() - 1;i>=0;i--){
                             if(cont[i].type == sts::NameSpace)
                             {
                                 namesp = cont[i].name;
@@ -442,7 +444,9 @@ namespace lang
                     {
                         namesp.clear();
                         auto cont = funcStack._Get_container();
-                        if(funcStack.size() >= 2) for(size_t i = funcStack.size() - 2;i>=0;i--)
+                        if(funcStack.size() >= 2)
+                         for(size_t i = funcStack.size() - 1;i>=0;i--)
+                        //for(size_t i = 0;i<=funcStack.size() - 2;i++)
                         {
                             if(cont[i].type == sts::NameSpace)
                             {
@@ -547,7 +551,10 @@ namespace lang
                     {
                         namesp.clear();
                         auto cont = funcStack._Get_container();
-                        if( funcStack.size() >= 2)for(size_t i = funcStack.size() - 2;i>=0;i--)
+                        //if( funcStack.size() >= 2)for(size_t i = funcStack.size() - 2;i>=0;i--)
+                        
+                        if(funcStack.size() >= 2)
+                         for(size_t i = funcStack.size() - 1;i>=0;i--)
                         {
                             if(cont[i].type == sts::NameSpace)
                             {
@@ -658,7 +665,7 @@ namespace lang
                     sts = parserStatus::ReadStr;
                     break;
                 case 'L':
-                    if(nextchr != '\'') break;
+                    if(nextchr != '\'') goto _default;
                     isWChar = true;
                     i++;
                 case '\'':
@@ -683,7 +690,7 @@ namespace lang
                 case '\n': line++;
                 case '\r':case '\t':
                 case ' ':break;
-                default:
+                default:_default:
                     if(isNum(chr))
                     {
                         startindex = i;

@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "scope.h"
 //#include "variable.h"
+#include <tchar.h>
 #include <map>
 #include <memory>
 #include <vector>
@@ -15,8 +16,9 @@
 #include "lang.h"
 #include "Class.h"
 #include "Array.h"
+#include "OLWindow.h"
 namespace lang
-{
+{//VisualStadio
     typedef langObject (*BuiltFunc)(std::vector<langObject>);
     extern std::map<std::string,BuiltFunc>* BuiltFunction;
     namespace lib
@@ -165,6 +167,106 @@ namespace lang
         {
             return newInt(lang::gc->NowGabekore);
         }
+        template<class T>
+        class ObjectWindow : public Object
+        {
+        public:
+            ObjectWindow()
+            {
+                this->ptr = &win;
+            }
+            std::map<std::string,langFunction> Event;
+            T win; 
+        };
+        typedef ObjectWindow<OLWindow> ObjectWin;
+        typedef ObjectWindow<Button> ObjectBtn;
+        typedef ObjectWindow<Label> ObjectLabel;
+        langObject window_create(std::vector<langObject> arg)
+        {
+            ObjectWin* a = new ObjectWin();
+            std::string str2 = arg[0]->toString();
+            int len = str2.length();
+            TCHAR* buf = new TCHAR[len * 2];
+            buf[len] = '\0';
+            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            a->win = OLWindow(buf,Int::toInt(arg[1]),Int::toInt(arg[2]));
+            delete buf;
+            OLWindow::windowmap[a->win.hWnd] = &a->win;
+            a->win.Tag = a;
+            //
+            return a;
+        }
+        langObject window_show(std::vector<langObject> arg)
+        {
+            ObjectWin* a = dynamic_cast<ObjectWin*>(arg[0]);
+            a->win.Show();
+            return a;
+        }/*
+        class ObjectBtn : public ObjectWin
+        {
+        public:
+            ObjectBtn()
+            {
+                this->ptr = &win;
+            }
+            Button win;
+        };*/
+        langObject button_create(std::vector<langObject> arg)
+        {
+            ObjectWin* parent = dynamic_cast<ObjectWin*>(arg[0]);
+            ObjectBtn* a = new ObjectBtn();
+            std::string str2 = arg[1]->toString();
+            int len = str2.length();
+            TCHAR* buf = new TCHAR[len * 2];
+            buf[len] = '\0';
+            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            a->win = Button(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
+            delete buf;
+            OLWindow::windowmap[a->win.hWnd] = &a->win;
+            a->win.Tag = a;
+            return a;
+        }
+        langObject label_create(std::vector<langObject> arg)
+        {
+            ObjectWin* parent = dynamic_cast<ObjectWin*>(arg[0]);
+            ObjectLabel* a = new ObjectLabel();
+            std::string str2 = arg[1]->toString();
+            int len = str2.length();
+            TCHAR* buf = new TCHAR[len * 2];
+            buf[len] = '\0';
+            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            a->win = Label(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
+            delete buf;
+            OLWindow::windowmap[a->win.hWnd] = &a->win;
+            a->win.Tag = a;
+            return a;
+        }
+        
+        langObject window_setonclick(std::vector<langObject> arg)
+        {
+            ObjectWin* a = (ObjectWin*)arg[0];//dynamic_cast<ObjectWin*>(arg[0]);
+            a->Event["OnClick"] = (langFunction)arg[1];
+            a->win.OnClick += [](eventargs<OLWindow*> v)
+            {
+                ObjectWin* a = static_cast<ObjectWin*>(v.Arg->Tag);
+                std::vector<langObject> arg;
+                arg.push_back(a);
+                a->Event["OnClick"]->call(&arg);
+            };
+            return a;
+        }
+        langObject messagebox(std::vector<langObject> arg)
+        {
+            if(arg.size() == 1)
+                MessageBoxA(NULL, arg[0]->toString().c_str(),"",MB_OK);
+            else
+            if(arg.size() == 2)
+            {
+                ObjectWin* window = dynamic_cast<ObjectWin*>(arg[1]);
+                MessageBoxA(window->win.hWnd, arg[0]->toString().c_str(),"",MB_OK);
+            }
+            return NULLOBJECT;
+        }
         langObject olruntime_gc_asyncgc(std::vector<langObject> arg)
         {
             std::thread* thd = new std::thread([]{lang::gc->start();});
@@ -196,6 +298,12 @@ namespace lang
             Add("File::stderr", getstderr);
             Add("OLRuntime::GC::ObjectCount", olruntime_gc_objectcount);
             Add("OLRuntime::GC::BackgroundGC", olruntime_gc_asyncgc);
+            Add("OLRuntime::GUI::Window::Create", window_create);
+            Add("OLRuntime::GUI::Window::Show", window_show);
+            Add("OLRuntime::GUI::Button::Create", button_create);
+            Add("OLRuntime::GUI::Window::SetOnClick", window_setonclick);
+            Add("OLRuntime::GUI::Label::Create", label_create);
+            Add("OLRuntime::GUI::MessageBox", messagebox);
         }
     }
 
@@ -208,7 +316,7 @@ namespace lang
         }
         else
         {
-            throw_langRuntimeException("組み込み関数%sが見つかりません。", name.c_str());
+            throw_langRuntimeException("関数%sが見つかりません。", name.c_str());
         }
 #if 0
         if(name=="print")
@@ -982,7 +1090,7 @@ namespace lang
                             else
                             {
                                 if(object->type->TypeEnum == PreType::_ClassObject)
-                                object = ((langClassObject)object)->staticClass;
+                                    object = ((langClassObject)object)->staticClass;
                                 //else ; //staticクラスからstaticを取ろうとしている
                                 index++;
                                 binaryoperation++;

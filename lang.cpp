@@ -131,8 +131,9 @@ void gui(void)
     window->SetResize(FALSE);
     Button btn(*window,L"File",512-128,0,128,32);
     Button btn_2(*window,L"Run",512-128,32,128,32);
+    Label label(*window,L"OtyaLanguage",8,32,128,128);
     txt = new TextBox(*window,L"",0,0,512-128,32);
-    btn.OnClick+=[](eventargs<Button*> c)
+    btn.OnClick+=[](eventargs<OLWindow*> c)
     {
         OpenFileDialog ofd(_T("OL(*.OL)\0*.OL\0All files(*.*)\0*.*\0\0"),_T("OL"),_T("OpenFileDialog"),*window);
         ofd.Show();
@@ -140,15 +141,16 @@ void gui(void)
         filename = filename_;
         txt->SetText(ofd.GetFileName());
     };
-    btn_2.OnClick+=[](eventargs<Button*> c)
+    btn_2.OnClick+=[](eventargs<OLWindow*> c)
     {
         txt->GetText(filename_,sizeof(filename_));
         window->Close();
     };
     window->Show();
     delete window;
-    delete txt;
+   // delete txt;
     return;
+    #ifndef vifƒÖfjv
     //DEBUG
     window = new OLWindow(L"Hello",512,512);
     /*Button*/ btn = Button(*window,L"Button",0,0,128,32);
@@ -157,10 +159,10 @@ void gui(void)
     txt = new TextBox(*window,L"Text",0,64,512,512-64);
     txt->SetMultiLine(TRUE);
     Button btn4(*txt,L"Button4",0,32,128,32);
-    btn.OnClick+=[](eventargs<Button*> c){std::cout<<"Button1"<<txt->GetReadOnly();txt->SetReadOnly(!txt->GetReadOnly());};
-    btn.OnClick+=[](eventargs<Button*> c){std::cout<<std::endl;};
-    btn2.OnClick+=[](eventargs<Button*> c){std::cout<<"Button2"<<txt->GetReadOnly();txt->SetReadOnly(!txt->GetReadOnly());};
-    btn3.OnClick+=[](eventargs<Button*> c)
+    btn.OnClick+=[](eventargs<OLWindow*> c){std::cout<<"Button1"<<txt->GetReadOnly();txt->SetReadOnly(!txt->GetReadOnly());};
+    btn.OnClick+=[](eventargs<OLWindow*> c){std::cout<<std::endl;};
+    btn2.OnClick+=[](eventargs<OLWindow*> c){std::cout<<"Button2"<<txt->GetReadOnly();txt->SetReadOnly(!txt->GetReadOnly());};
+    btn3.OnClick+=[](eventargs<OLWindow*> c)
     {
         std::cout<<"Button3";
         OpenFileDialog ofd(_T("OL(*.OL)\0*.txt\0All files(*.*)\0*.*\0\0"),_T("OL"),_T("OpenFileDialog"),*window);
@@ -172,230 +174,152 @@ void gui(void)
     window->Show();
     delete window;
     delete txt;
+    #endif
 }
 int _tmain(int argc, _TCHAR *argv[])
 {
-    wchar_t et[256];
-    for(unsigned char i=0;i<255;i++)
+        int result = 0;
     {
-        wchar_t a;
-        ((char*)&a)[0] = i;
-        ((char*)&a)[1] = '\0';
-        et[(unsigned char)i] = i;
-        escapetable[(unsigned char)i] = (char*)&(et[(unsigned char)i]);
-    }
-    escapetable[10] = "\\n";
-    escapetable[13] = "\\r";
-    escapetable[(int)'\"'] = "\\\"";
-    //([](int x){return x*x;})();
-#ifndef _DEBUG
-    //ƒXƒŒƒbƒh–ˆ‚É•ÏŠ·ŠÖ”‚ð“o˜^‚·‚é
-    _set_se_translator(se_translator_function);
-#endif
-    //_CrtSetReportMode( 1, _CRTDBG_MODE_WNDW );
-    _CrtSetBreakAlloc(223);_CrtSetBreakAlloc(221);
-    _CrtSetBreakAlloc(218);
-    option o = option::none;
-    lang::error_level = 0;
-    bool endpause= false,json = false;
-    int result = 0;
-    bool notfileload = false;
-    bool gui = false;
-    std::string input;
-    for(int i = 1;i < argc;i++)
-    {
-        switch (o)
+        wchar_t et[256];
+        for(unsigned char i=0;i<255;i++)
         {
-        case option::none:
-            if(!_tcscmp(argv[i],L"-ahogc"))
+            wchar_t a;
+            ((char*)&a)[0] = i;
+            ((char*)&a)[1] = '\0';
+            et[(unsigned char)i] = i;
+            escapetable[(unsigned char)i] = (char*)&(et[(unsigned char)i]);
+        }
+        escapetable[10] = "\\n";
+        escapetable[13] = "\\r";
+        escapetable[(int)'\"'] = "\\\"";
+        //([](int x){return x*x;})();
+#ifndef _DEBUG
+        //ƒXƒŒƒbƒh–ˆ‚É•ÏŠ·ŠÖ”‚ð“o˜^‚·‚é
+        _set_se_translator(se_translator_function);
+#endif
+        //_CrtSetReportMode( 1, _CRTDBG_MODE_WNDW );
+        _CrtSetBreakAlloc(223);_CrtSetBreakAlloc(221);
+        _CrtSetBreakAlloc(218);
+        option o = option::none;
+        lang::error_level = 0;
+        bool endpause= false,json = false;
+        bool notfileload = false;
+        bool gui = false;
+        std::string input;
+        for(int i = 1;i < argc;i++)
+        {
+            switch (o)
             {
-                ahogc = true;
-            }
-            else
-                if(!_tcscmp(argv[i],L"-parserresult"))
+            case option::none:
+                if(!_tcscmp(argv[i],L"-ahogc"))
                 {
-                    parserresult = true;
+                    ahogc = true;
                 }
                 else
-                    if(!_tcscmp(argv[i],L"-gcview"))
+                    if(!_tcscmp(argv[i],L"-parserresult"))
                     {
-                        lang::gc_view = true;
+                        parserresult = true;
                     }
                     else
-                        if(!_tcscmp(argv[i],L"-leakcheck"))
+                        if(!_tcscmp(argv[i],L"-gcview"))
                         {
-                            leakcheck = true;
+                            lang::gc_view = true;
                         }
                         else
-                            if(!_tcscmp(argv[i],L"-pause"))
+                            if(!_tcscmp(argv[i],L"-leakcheck"))
                             {
-                                pause = true;
+                                leakcheck = true;
                             }
                             else
-                                if(!_tcscmp(argv[i],L"-endpause"))
+                                if(!_tcscmp(argv[i],L"-pause"))
                                 {
-                                    endpause = true;
+                                    pause = true;
                                 }
                                 else
-                                    if(!_tcscmp(argv[i],L"-json"))
+                                    if(!_tcscmp(argv[i],L"-endpause"))
                                     {
-                                        json = true;
+                                        endpause = true;
                                     }
                                     else
-                                        if(!_tcscmp(argv[i], L"-errorlevel"))
+                                        if(!_tcscmp(argv[i],L"-json"))
                                         {
-                                            o = option::errorlevel;
+                                            json = true;
                                         }
                                         else
-                                            if(!_tcscmp(argv[i], L"-e"))
+                                            if(!_tcscmp(argv[i], L"-errorlevel"))
                                             {
-                                                narrow(std::wstring(argv[i + 1]),input);
-                                                notfileload = true;
+                                                o = option::errorlevel;
                                             }
                                             else
-                                                if(!_tcscmp(argv[i], L"-gui"))
+                                                if(!_tcscmp(argv[i], L"-e"))
                                                 {
-                                                    gui = true;
+                                                    narrow(std::wstring(argv[i + 1]),input);
+                                                    notfileload = true;
                                                 }
                                                 else
-                                                {
-                                                    filename = argv[i];
-                                                }
-                                                break;
-        case option::errorlevel:
-            lang::error_level = _ttoi(argv[i]);
-            o = option::none;
-            break;
-        default:
-            break;
+                                                    if(!_tcscmp(argv[i], L"-gui"))
+                                                    {
+                                                        gui = true;
+                                                    }
+                                                    else
+                                                    {
+                                                        filename = argv[i];
+                                                    }
+                                                    break;
+            case option::errorlevel:
+                lang::error_level = _ttoi(argv[i]);
+                o = option::none;
+                break;
+            default:
+                break;
+            }
         }
-    }
-    if(gui)
-    {
-        ::gui();
-    }
-    if(!json)
+        if(gui)
+        {
+            ::gui();
+        }
+        if(!json)
 #if _DEBUG
-        std::cout<<"OtyaLanguage DEBUG build"<<std::endl;
+            std::cout<<"OtyaLanguage DEBUG build"<<std::endl;
 #else
-        std::cout<<"OtyaLanguage"<<std::endl;
+            std::cout<<"OtyaLanguage"<<std::endl;
 #endif
 http://0xbaadf00d/
-    //lang::gc_view = true;
-    if(leakcheck) _CrtSetReportHook((_CRT_REPORT_HOOK)hook);
-    lib::init();
-    lang::NULLOBJECT = new lang::Object();
-    lang::NULLOBJECT->type->name = "null";
-    lang::TRUEOBJECT = new lang::Int(true);
-    lang::TRUEOBJECT->type->name = "true";
-    lang::FALSEOBJECT = new lang::Int(false);
-    lang::FALSEOBJECT->type->name = "false";
-    while (true)//std::getchar())
-    {
-        std::stringstream ss;
-        //std::getline(std::cin,input);
-        if(!notfileload)
+        //lang::gc_view = true;
+        if(leakcheck) _CrtSetReportHook((_CRT_REPORT_HOOK)hook);
+        lib::init();
+        lang::NULLOBJECT = new lang::Object();
+        lang::NULLOBJECT->type->name = "null";
+        lang::TRUEOBJECT = new lang::Int(true);
+        lang::TRUEOBJECT->type->name = "true";
+        lang::FALSEOBJECT = new lang::Int(false);
+        lang::FALSEOBJECT->type->name = "false";
+        while (true)//std::getchar())
         {
-            std::ifstream ifs( filename);
-            if(ifs.fail())
+            std::stringstream ss;
+            //std::getline(std::cin,input);
+            if(!notfileload)
             {
-                _tcprintf(L"file:%s‚ðŠJ‚¯‚Ü‚¹‚ñ\n",filename);//std::cout<<"file:"<<filename<<"‚ðŠJ‚¯‚Ü‚¹‚ñ"<<std::endl;
-                vifƒÖfjv ;vifƒÖfjv ;FAILEND;vifƒÖfjv vifƒÖfjv 
-            }
-            while(ifs && getline(ifs, input)) {
-                ss << input << '\n';
-            }
-            input = ss.str();
-        }
-        lang::parser* pars;
-        try
-        {
-            pars = new lang::parser(input);//ƒAƒEƒg
-        }
-        catch(lang::langParseException ex)
-        {
-            std::cout<<std::endl<<"lang::langParseException - lang::parser"<<std::endl<<ex.what();
-            continue;
-        }
-        catch(lang::langRuntimeException ex)
-        {
-            std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "êŠ?:" << std::endl;
-            for(auto i : ex.stacktrace)
-            {
-                std::cout << ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(input,ex.tokens[i.second]->sourcestartindex);
-                //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
-                //break;
-            }
-            std::cout << "StackTrace" << std::endl;
-            for(auto i : ex.funcstacktrace)
-            {
-                std::cout << i << std::endl;
-            }
-            std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
-            std::getchar();
-            vifƒÖfjv ;vifƒÖfjv ;FAILEND;vifƒÖfjv vifƒÖfjv //continue;
-        }
-        for(int i=0;i<pars->parsers.size();i++)
-        {
-            if(pars->parsers[i]->ptr != nullptr)
-            {
-                lang::gc->constroot.push_back(pars->parsers[i]->ptr);
-            }
-        }
-        //out testobj=new lang::parseObj("hoge");//ƒAƒEƒg
-        //std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
-        int nest = 0;
-        if(json)
-        {
-            std::cout << "{\"parser\":[";
-            for(auto &&i : pars->parsers)
-            {
-                std::cout << '{' << "\"name\":\"" << (i->name ? escape(*i->name) : "") << '\"' <<',' << "\"pEnum\":\"" << enumtable[i->pEnum] << '\"' << ',' << "\"ptr\":";
-                if(i->ptr)
+                std::ifstream ifs( filename);
+                if(ifs.fail())
                 {
-                    if(i->ptr is _Int)
-                    {
-                        std::cout << *(int*)i->ptr->getPointer();
-                    }
-                    else
-                        if(i->ptr is _String)
-                        {
-                            std::cout << '\"' << escape(*(std::string*)i->ptr->getPointer()) << '\"';
-                        }
+                    _tcprintf(L"file:%s‚ðŠJ‚¯‚Ü‚¹‚ñ\n",filename);//std::cout<<"file:"<<filename<<"‚ðŠJ‚¯‚Ü‚¹‚ñ"<<std::endl;
+                    vifƒÖfjv ;vifƒÖfjv ;FAILEND;vifƒÖfjv vifƒÖfjv 
                 }
-                else
-                {
-                    std::cout << "null";
+                while(ifs && getline(ifs, input)) {
+                    ss << input << '\n';
                 }
-                std::cout << '}' << ',';
+                input = ss.str();
             }
-            std::cout << ']' << ',';
-            std::cout << '}';
-            exit(0);
-        }
-        if(parserresult)
-            for(int i=0;i<pars->parsers.size();i++)
-            {
-                if(pars->parsers[i]->pEnum == lang::blockend)nest--;
-                if(pars->parsers[i]->pEnum == lang::rightparent)nest--;
-                std::cout<<i<<"\t";
-                for(int j=0;j<nest;j++)std::cout<<" ";
-                std::cout<<input.substr(pars->parsers[i]->sourcestartindex, pars->parsers[i]->sourceendindex - pars->parsers[i]->sourcestartindex + 1)<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
-                if(pars->parsers[i]->pEnum == lang::blockstart)nest++;
-                if(pars->parsers[i]->pEnum == lang::leftparent)nest++;
-            }
+            lang::parser* pars;
             try
             {
-                vifƒÖfjv
-                    vifƒÖfjv
-                    vifƒÖfjv
-                    //#if AHO_GC //ƒXƒŒƒbƒh‚Å“®‚«‘±‚¯‚éƒAƒz‚ÈGC
-                    if(ahogc)std::thread thd([]{ while (true) lang::gc->start();});
-                //#endif
-                // lang::NULLOBJECT = new lang::Object();
-                running = true;
-                pars->runner->run();
-                std::cout<<"ŽÀsI •Ï”‚â’è”‚ðíœ"<<std::endl;
+                pars = new lang::parser(input);//ƒAƒEƒg
+            }
+            catch(lang::langParseException ex)
+            {
+                std::cout<<std::endl<<"lang::langParseException - lang::parser"<<std::endl<<ex.what();
+                continue;
             }
             catch(lang::langRuntimeException ex)
             {
@@ -412,65 +336,146 @@ http://0xbaadf00d/
                     std::cout << i << std::endl;
                 }
                 std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
+                std::getchar();
+                vifƒÖfjv ;vifƒÖfjv ;FAILEND;vifƒÖfjv vifƒÖfjv //continue;
             }
-#if !defined(_DEBUG)//ƒfƒoƒbƒO‚È‚çƒfƒoƒbƒK‚Ì‹@”\‚ð—˜—p‚·‚é
-            catch(std::exception ex)
-            {
-                std::cout<<"BUG!!!"<<ex.what()<<std::endl;
-                std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
-            }
-            catch(...)
-            {
-                std::cout<<"BUG!!!!!!!!!!!!!!!!!!"<<std::endl;
-                std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
-            }
-#endif
-            running = false;
-            if(endpause)std::getchar();
-            clock_t start,end;
-            start = clock();
-            std::vector<lang::scope*> del;
-            for(auto i : lang::gc->roots)
-            {
-                del.push_back(i.first);
-            }
-            lang::gc->roots.clear();
-            //lang::gc->root->variable._variable.clear();
-            lang::gc->start();
-
-            end = clock();
-            std::cout<<(double)(end-start)/CLOCKS_PER_SEC<<"•b"<<std::endl;
-            for(int i=0;i<del.size();i++)
-            {
-                delete del[i];
-            }
-            std::cout<<"’è”‚Ìíœ"<<std::endl;
             for(int i=0;i<pars->parsers.size();i++)
             {
-                // delete pars->parsers[i]->ptr;
-                delete pars->parsers[i];
+                if(pars->parsers[i]->ptr != nullptr)
+                {
+                    lang::gc->constroot.push_back(pars->parsers[i]->ptr);
+                }
             }
-            delete pars;
-            //(new lang::scope(pars->parsers))->run();
-            //}
-            //catch(char* ex)
-            //{
-            //    std::cout<< ex<<std::endl;3333
-            //}
-            //delete pars;
-            break;
-    }
+            //out testobj=new lang::parseObj("hoge");//ƒAƒEƒg
+            //std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
+            int nest = 0;
+            if(json)
+            {
+                std::cout << "{\"parser\":[";
+                for(auto &&i : pars->parsers)
+                {
+                    std::cout << '{' << "\"name\":\"" << (i->name ? escape(*i->name) : "") << '\"' <<',' << "\"pEnum\":\"" << enumtable[i->pEnum] << '\"' << ',' << "\"ptr\":";
+                    if(i->ptr)
+                    {
+                        if(i->ptr is _Int)
+                        {
+                            std::cout << *(int*)i->ptr->getPointer();
+                        }
+                        else
+                            if(i->ptr is _String)
+                            {
+                                std::cout << '\"' << escape(*(std::string*)i->ptr->getPointer()) << '\"';
+                            }
+                    }
+                    else
+                    {
+                        std::cout << "null";
+                    }
+                    std::cout << '}' << ',';
+                }
+                std::cout << ']' << ',';
+                std::cout << '}';
+                exit(0);
+            }
+            if(parserresult)
+                for(int i=0;i<pars->parsers.size();i++)
+                {
+                    if(pars->parsers[i]->pEnum == lang::blockend)nest--;
+                    if(pars->parsers[i]->pEnum == lang::rightparent)nest--;
+                    std::cout<<i<<"\t";
+                    for(int j=0;j<nest;j++)std::cout<<" ";
+                    std::cout<<input.substr(pars->parsers[i]->sourcestartindex, pars->parsers[i]->sourceendindex - pars->parsers[i]->sourcestartindex + 1)<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
+                    if(pars->parsers[i]->pEnum == lang::blockstart)nest++;
+                    if(pars->parsers[i]->pEnum == lang::leftparent)nest++;
+                }
+                try
+                {
+                    vifƒÖfjv
+                        vifƒÖfjv
+                        vifƒÖfjv
+                        //#if AHO_GC //ƒXƒŒƒbƒh‚Å“®‚«‘±‚¯‚éƒAƒz‚ÈGC
+                        if(ahogc)std::thread thd([]{ while (true) lang::gc->start();});
+                    //#endif
+                    // lang::NULLOBJECT = new lang::Object();
+                    running = true;
+                    pars->runner->run();
+                    std::cout<<"ŽÀsI •Ï”‚â’è”‚ðíœ"<<std::endl;
+                }
+                catch(lang::langRuntimeException ex)
+                {
+                    std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "êŠ?:" << std::endl;
+                    for(auto i : ex.stacktrace)
+                    {
+                        std::cout << ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(input,ex.tokens[i.second]->sourcestartindex);
+                        //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
+                        //break;
+                    }
+                    std::cout << "StackTrace" << std::endl;
+                    for(auto i : ex.funcstacktrace)
+                    {
+                        std::cout << i << std::endl;
+                    }
+                    std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
+                }
+#if !defined(_DEBUG)//ƒfƒoƒbƒO‚È‚çƒfƒoƒbƒK‚Ì‹@”\‚ð—˜—p‚·‚é
+                catch(std::exception ex)
+                {
+                    std::cout<<"BUG!!!"<<ex.what()<<std::endl;
+                    std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
+                }
+                catch(...)
+                {
+                    std::cout<<"BUG!!!!!!!!!!!!!!!!!!"<<std::endl;
+                    std::cout<<"ˆÙíI—¹ •Ï”‚â’è”‚ðíœ"<<std::endl;
+                }
+#endif
+                running = false;
+                if(endpause)std::getchar();
+                clock_t start,end;
+                start = clock();
+                std::vector<lang::scope*> del;
+                for(auto i : lang::gc->roots)
+                {
+                    del.push_back(i.first);
+                }
+                lang::gc->roots.clear();
+                //lang::gc->root->variable._variable.clear();
+                lang::gc->start();
+
+                end = clock();
+                std::cout<<(double)(end-start)/CLOCKS_PER_SEC<<"•b"<<std::endl;
+                for(int i=0;i<del.size();i++)
+                {
+                    delete del[i];
+                }
+                std::cout<<"’è”‚Ìíœ"<<std::endl;
+                for(int i=0;i<pars->parsers.size();i++)
+                {
+                    // delete pars->parsers[i]->ptr;
+                    delete pars->parsers[i];
+                }
+                delete pars;
+                //(new lang::scope(pars->parsers))->run();
+                //}
+                //catch(char* ex)
+                //{
+                //    std::cout<< ex<<std::endl;3333
+                //}
+                //delete pars;
+                break;
+        }
 theend:
 #if _DEBUG
-    BreakPoint.~vector();
+        BreakPoint.~vector();
 #endif
-    delete BuiltFunction;
-    delete lang::NULLOBJECT;
-    delete lang::TRUEOBJECT;
-    delete lang::FALSEOBJECT;
-    delete lang::ObjectType;
-    delete lang::object_tostr;
-    delete lang::string_substr;
+        delete BuiltFunction;
+        delete lang::NULLOBJECT;
+        delete lang::TRUEOBJECT;
+        delete lang::FALSEOBJECT;
+        delete lang::ObjectType;
+        delete lang::object_tostr;
+        delete lang::string_substr;
+    }
     if(leakcheck) 
     {
         _CrtDumpMemoryLeaks();

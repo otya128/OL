@@ -29,9 +29,10 @@ namespace lang
         }
         void operator ()(eventargs<T> er)
         {
-            for(auto e : even)
+            if(even.size())
+            for(int i=0;i<even.size();i++)
             {
-                e(er);
+                even[i](er);
             }
         }
         EFunc operator += (EFunc e)
@@ -44,16 +45,15 @@ namespace lang
     class OLWindow
     {
 
-        static LPCWSTR classname;
     protected:
         void OLWindow::ctor(LPCWSTR title, int X,int Y,int nWidth,int nHeight, LPCWSTR ClassName,long style = WS_OVERLAPPEDWINDOW,HWND parent = NULL);
     public:
+        static LPCWSTR classname;
         static std::map<HWND,OLWindow*> windowmap;
         WindowEvent OnClick;
         WindowEvent OnSizeChange;
         OLWindow::OLWindow();
         HINSTANCE hInst;
-        WNDCLASSEX wc;
         HWND hWnd;
         MSG msg;
         WNDPROC proc;
@@ -94,19 +94,30 @@ namespace lang
         {
             return GetWindowText(hWnd,text,bufsiz);
         }
+        //deleteïKê{
+        TCHAR* GetText()
+        {
+            int size = SendMessage(hWnd,WM_GETTEXTLENGTH,0,0);
+            TCHAR* buf = new TCHAR[size + 2];//îOÇÃÇΩÇﬂ+2
+            GetWindowText(hWnd,buf,size + 1);
+            return buf;
+        }
+        void* Tag;
     };
     class Button : public OLWindow
     {
         static LPCWSTR classname;
     public:
-        Event<Button*,ButtonEventFunc> OnClick;
+       // Event<Button*,ButtonEventFunc> OnClick;
         WNDPROC baseWndProc;
+        Button(){}
         Button(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
     };
 
     class TextBox : public OLWindow
     {
     public:
+        TextBox(){}
         BOOL SetReadOnly(BOOL fr)
         {
             return SendMessage(this->hWnd, EM_SETREADONLY, fr,0);
@@ -186,5 +197,11 @@ namespace lang
         {
             return filename_full;
         }
+    };
+    class Label : public OLWindow
+    {
+        public:
+        Label(){}
+        Label(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
     };
 }

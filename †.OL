@@ -1,7 +1,23 @@
 //ADD char,wchar type
-var view = function(char a){Console.WriteLine(a);};
-var v = view;
-v('É÷')v(L'É÷')v(L'É÷')//ÇΩÇµÇ©Ç…Å`
+
+using OL::GUI;
+var form1 = new Window("Hello",256,128);
+var button1 = new Button(form1,"Button",0,0,128,24);
+var button2 = new Button(form1,"Click!",0,40,128,24);
+var label1 = new Label(form1,"Hello,World!!",0,24,128,16);
+button2.SetOnClick(function(var btn){form1.MessageBox("Click!");});
+form1.Show();
+var window = OLRuntime::GUI::Window::Create("Hello",256,128);
+var button = OLRuntime::GUI::Button::Create(window,"Button",0,0,128,24);
+OLRuntime::GUI::Window::SetOnClick(button,function(var btn){OLRuntime::GUI::MessageBox("Click!");});
+var button2 = OLRuntime::GUI::Button::Create(window,"Click!",0,40,128,24);
+OLRuntime::GUI::Window::SetOnClick(button2,function(var btn){OLRuntime::GUI::MessageBox("Click!");});
+var label1 = OLRuntime::GUI::Label::Create(window,"Hello,World!!",0,24,128,16);
+OLRuntime::GUI::Window::Show(window);
+
+//var view = function(char a){Console.WriteLine(a);};
+//var v = view;
+//v('É÷')v(L'É÷')v(L'É÷');//ÇΩÇµÇ©Ç…Å`
 Console.WriteLine("aho")("hoge")("huga")("hege")('A')(0)(false)(true)(false)(null)('\n');
 //thread(function(){GC();});
 //OLRuntime::GC::BackgroundGC();
@@ -47,6 +63,61 @@ thread(function(){for(;1;){print("thread:",threadid());}});*/
 for(;1;){print("thread:",threadid(),"\n");}
 namespace OL
 {
+	namespace GUI
+	{
+	//îqèä
+	//åpè≥ó~ÇµÇ¢
+		class Window
+		{
+			var _window;
+			Window(var title, var width, var height)
+			{
+				this._window = OLRuntime::GUI::Window::Create(title, width, height);
+			}
+			void Show()
+			{
+				OLRuntime::GUI::Window::Show(this._window);
+			}
+			var _OnClick;
+			void SetOnClick(func f)
+			{
+				this._OnClick = f;
+				OLRuntime::GUI::Window::SetOnClick(this._window, this._OnClick);
+			}
+			void MessageBox(string mes)
+			{
+				OLRuntime::GUI::MessageBox(mes, this._window);
+			}
+		}
+		class Button
+		{
+			var _window;
+			Button(Window window,string title, int X, int Y, int width, int height)
+			{
+				this._window = OLRuntime::GUI::Button::Create(window._window, title, X, Y, width, height);
+			}
+			var _OnClick;
+			void SetOnClick(func f)
+			{
+				this._OnClick = f;
+				OLRuntime::GUI::Window::SetOnClick(this._window, this._OnClick);
+			}
+		}
+		class Label
+		{
+			var _window;
+			Label(Window window,string title, int X, int Y, int width, int height)
+			{
+				this._window = OLRuntime::GUI::Label::Create(window._window, title, X, Y, width, height);
+			}
+			var _OnClick;
+			void SetOnClick(func f)
+			{
+				this._OnClick = f;
+				OLRuntime::GUI::Window::SetOnClick(this._window, this._OnClick);
+			}
+		}
+	}
 	class Thread
 	{
 		var func;
