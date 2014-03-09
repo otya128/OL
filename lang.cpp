@@ -11,13 +11,15 @@
 #include <sstream>
 #include "langException.h"
 #include <cassert>
+#ifdef CPP11
 #include <thread>
+#endif
 #include <windows.h>
 #include "Function.h"
 #include <time.h>
 #include "OLWindow.h"
 #include "õ.h"
-  #pragma comment(linker, "\"/manifestdependency:type='Win32' "\
+#pragma comment(linker, "\"/manifestdependency:type='Win32' "\
     "name='Microsoft.Windows.Common-Controls' version='6.0.0.0' "\
     "processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #ifndef _DEBUG
@@ -151,9 +153,9 @@ void gui(void)
     };
     window->Show();
     delete window;
-   // delete txt;
+    // delete txt;
     return;
-    #ifndef vifƒÖfjv
+#ifndef vifƒÖfjv
     //DEBUG
     window = new OLWindow(L"Hello",512,512);
     /*Button*/ btn = Button(*window,L"Button",0,0,128,32);
@@ -177,11 +179,11 @@ void gui(void)
     window->Show();
     delete window;
     delete txt;
-    #endif
+#endif
 }
 int _tmain(int argc, _TCHAR *argv[])
 {
-        int result = 0;
+    int result = 0;
     {
         wchar_t et[256];
         for(unsigned char i=0;i<255;i++)
@@ -397,7 +399,9 @@ http://0xbaadf00d/
                         vifƒÖfjv
                         vifƒÖfjv
                         //#if AHO_GC //ƒXƒŒƒbƒh‚Å“®‚«‘±‚¯‚éƒAƒz‚ÈGC
+#ifdef CPP11
                         if(ahogc)std::thread thd([]{ while (true) lang::gc->start();});
+#endif
                     //#endif
                     // lang::NULLOBJECT = new lang::Object();
                     running = true;

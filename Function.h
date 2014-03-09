@@ -1,5 +1,8 @@
 #pragma once
+#include "lang.h"
+#ifdef CPP11
 #include <thread>
+#endif
 #include "scope.h"
 #include "GC.h"
 //#include "Object.h"
@@ -9,7 +12,9 @@ namespace lang
     {
     public:
         //関数に関連付けられたスレッド
+#ifdef CPP11
         std::thread* thread;
+#endif
         bool working;
         //std::string* getString();
         //void setString(std::string* i);

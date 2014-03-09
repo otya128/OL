@@ -22,7 +22,7 @@ namespace lang
 #define HASHFALSE   1062
 #define HASHNULL    657
 #define ERROR(a) WARNING(a,0)//langObject NULLOBJECT = newObject(nullptr);
-    enum class parserStatus
+    ENUMCLASS parserStatus
     {
         None,
         ReadIden,

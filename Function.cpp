@@ -33,7 +33,9 @@ namespace lang
     Function::~Function(void)
     {
         //if(thread)thread->detach();
+#ifdef CPP11
         delete thread;
+#endif
         
         if(this->scope != nullptr)this->scope->refdec();
         if(this->thisscope != nullptr)this->thisscope->refdec();

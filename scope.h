@@ -1,4 +1,5 @@
 #pragma once
+#include "lang.h"
 #include <vector>
 #include "parseObj.h"
 #include <map>
@@ -39,7 +40,7 @@ namespace lang
         };
     }
     
-enum class evals
+ENUMCLASS evals
 {
     isbinaryoperation = 1,
     arrayset = 2,

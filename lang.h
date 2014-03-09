@@ -1,5 +1,7 @@
 #include <memory>
 #pragma once
+#define CPP11
+#define ENUMCLASS enum class
 namespace lang
 {
     extern bool ahogc,parserresult, leakcheck, pause;

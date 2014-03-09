@@ -1,11 +1,16 @@
 #pragma once
 #include "Object.h"
+
+#ifdef CPP11
 #include <mutex>
+#endif
 #include <vector>
 //#include "scope.h"
 namespace lang
 {
+#ifdef CPP11
     typedef std::recursive_mutex GCmutex;
+#endif
     class scope;
     class GC
     {
@@ -14,8 +19,10 @@ namespace lang
         std::vector<Object*> erased;
         //bool NowAddObject;
         //bool NowAddRoot;
+#ifdef CPP11
         GCmutex ObjectMutex;
         GCmutex RootMutex;
+#endif
     public:
         std::vector<langObject> constroot;
         size_t objectCount;
