@@ -5,6 +5,11 @@ var form1 = new Window("Hello",256,128);
 var button1 = new Button(form1,"Button",0,0,128,24);
 var button2 = new Button(form1,"Click!",0,40,128,24);
 var label1 = new Label(form1,"Hello,World!!",0,24,128,16);
+var textbox1 = new TextBox(form1,"",0,64,256,192,true);
+var font = new Font("ÇlÇr ÉSÉVÉbÉN",10,true,true,true,true);
+textbox1.SetFont(font);
+//textbox1.SetMultiLine(false);
+var checkbox1 = new CheckBox(textbox1,"CheckBox",0,88,128,16);
 button2.SetOnClick(function(var btn){form1.MessageBox("Click!");});
 form1.Show();
 var window = OLRuntime::GUI::Window::Create("Hello",256,128);
@@ -88,6 +93,10 @@ namespace OL
 			{
 				OLRuntime::GUI::MessageBox(mes, this._window);
 			}
+			void SetFont(Font font)
+			{
+				OLRuntime::GUI::Window::SetFont(this._window, this.name, font.size, font.bold, font.italic, font.underline, font.strike);
+			}
 		}
 		class Button
 		{
@@ -102,6 +111,10 @@ namespace OL
 				this._OnClick = f;
 				OLRuntime::GUI::Window::SetOnClick(this._window, this._OnClick);
 			}
+			void SetFont(Font font)
+			{
+				OLRuntime::GUI::Window::SetFont(this._window, this.name, font.size, font.bold, font.italic, font.underline, font.strike);
+			}
 		}
 		class Label
 		{
@@ -115,6 +128,80 @@ namespace OL
 			{
 				this._OnClick = f;
 				OLRuntime::GUI::Window::SetOnClick(this._window, this._OnClick);
+			}
+			void SetFont(Font font)
+			{
+				OLRuntime::GUI::Window::SetFont(this._window, this.name, font.size, font.bold, font.italic, font.underline, font.strike);
+			}
+		}
+		class Font
+		{
+			Font(string _name, int _size,bool _bold,bool _italic,bool _underline,bool _strike)
+			{
+				this.name = _name;
+				this.size = _size;
+				this.bold = _bold;
+				this.italic = _italic;
+				this.underline = _underline;
+				this.strike = _strike;
+			}
+			string name;
+			int size;
+			bool bold;
+			bool italic;
+			bool underline;
+			bool strike;
+		}
+		class TextBox
+		{
+			var _window;
+			TextBox(Window window,string title, int X, int Y, int width, int height,bool multiline)
+			{
+				this._window = OLRuntime::GUI::TextBox::Create(window._window, title, X, Y, width, height,multiline);
+			}
+			var _OnClick;
+			void SetOnClick(func f)
+			{
+				this._OnClick = f;
+				OLRuntime::GUI::Window::SetOnClick(this._window, this._OnClick);
+			}
+			void SetReadOnly(bool f)
+			{
+				OLRuntime::GUI::TextBox::SetReadOnly(this._window,f);
+			}
+			void SetMultiLine(bool f)
+			{
+				OLRuntime::GUI::TextBox::SetMultiLine(this._window,f);
+			}
+			bool GetReadOnly()
+			{
+				return OLRuntime::GUI::TextBox::GetReadOnly(this._window);
+			}
+			bool GetMultiLine()
+			{
+				return OLRuntime::GUI::TextBox::GetMultiLine(this._window);
+			}
+			void SetFont(Font font)
+			{
+				OLRuntime::GUI::Window::SetFont(this._window, this.name, font.size, font.bold, font.italic, font.underline, font.strike);
+			}
+		}
+		class CheckBox
+		{
+			var _window;
+			CheckBox(Window window,string title, int X, int Y, int width, int height)
+			{
+				this._window = OLRuntime::GUI::CheckBox::Create(window._window, title, X, Y, width, height);
+			}
+			var _OnClick;
+			void SetOnClick(func f)
+			{
+				this._OnClick = f;
+				OLRuntime::GUI::Window::SetOnClick(this._window, this._OnClick);
+			}
+			void SetFont(Font font)
+			{
+				OLRuntime::GUI::Window::SetFont(this._window, this.name, font.size, font.bold, font.italic, font.underline, font.strike);
 			}
 		}
 	}

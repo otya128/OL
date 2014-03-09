@@ -181,6 +181,8 @@ namespace lang
         typedef ObjectWindow<OLWindow> ObjectWin;
         typedef ObjectWindow<Button> ObjectBtn;
         typedef ObjectWindow<Label> ObjectLabel;
+        typedef ObjectWindow<TextBox> ObjectTextBox;
+        typedef ObjectWindow<CheckBox> ObjectCheckBox;
         langObject window_create(std::vector<langObject> arg)
         {
             ObjectWin* a = new ObjectWin();
@@ -193,6 +195,7 @@ namespace lang
             delete buf;
             OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
+            a->win.SetFont(_T("MS UI Gothic"), 9);
             //
             return a;
         }
@@ -202,15 +205,15 @@ namespace lang
             a->win.Show();
             return a;
         }/*
-        class ObjectBtn : public ObjectWin
-        {
-        public:
-            ObjectBtn()
-            {
-                this->ptr = &win;
-            }
-            Button win;
-        };*/
+         class ObjectBtn : public ObjectWin
+         {
+         public:
+         ObjectBtn()
+         {
+         this->ptr = &win;
+         }
+         Button win;
+         };*/
         langObject button_create(std::vector<langObject> arg)
         {
             ObjectWin* parent = dynamic_cast<ObjectWin*>(arg[0]);
@@ -224,6 +227,7 @@ namespace lang
             delete buf;
             OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
+            a->win.SetFont(_T("MS UI Gothic"), 9);
             return a;
         }
         langObject label_create(std::vector<langObject> arg)
@@ -239,9 +243,64 @@ namespace lang
             delete buf;
             OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
+            a->win.SetFont(_T("MS UI Gothic"), 9);
             return a;
         }
-        
+        langObject textbox_create(std::vector<langObject> arg)
+        {
+            ObjectWin* parent = dynamic_cast<ObjectWin*>(arg[0]);
+            ObjectTextBox* a = new ObjectTextBox();
+            std::string str2 = arg[1]->toString();
+            int len = str2.length();
+            TCHAR* buf = new TCHAR[len * 2 + 1];
+            buf[len] = '\0';
+            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            a->win = TextBox(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]),Int::toInt(arg[6]));
+            delete buf;
+            OLWindow::windowmap[a->win.hWnd] = &a->win;
+            a->win.Tag = a;
+            a->win.SetFont(_T("MS UI Gothic"), 9);
+            return a;
+        }
+        langObject textbox_setreadonly(std::vector<langObject> arg)
+        {
+            ObjectTextBox* textbox = dynamic_cast<ObjectTextBox*>(arg[0]);
+            textbox->win.SetReadOnly(Int::toInt(arg[1]));
+            return NULLOBJECT;
+        }
+        langObject textbox_setmultiline(std::vector<langObject> arg)
+        {
+            ObjectTextBox* textbox = dynamic_cast<ObjectTextBox*>(arg[0]);
+            textbox->win.SetMultiLine(Int::toInt(arg[1]));
+            return NULLOBJECT;
+        }
+        langObject textbox_getreadonly(std::vector<langObject> arg)
+        {
+            ObjectTextBox* textbox = dynamic_cast<ObjectTextBox*>(arg[0]);
+            return newInt(textbox->win.GetReadOnly());
+        }
+        langObject textbox_getmultiline(std::vector<langObject> arg)
+        {
+            ObjectTextBox* textbox = dynamic_cast<ObjectTextBox*>(arg[0]);
+            return newInt(textbox->win.GetMultiLine());
+        }
+        langObject checkbox_create(std::vector<langObject> arg)
+        {
+            ObjectWin* parent = /*dynamic*/static_cast<ObjectWin*>(arg[0]);
+            ObjectCheckBox* a = new ObjectCheckBox();
+            std::string str2 = arg[1]->toString();
+            int len = str2.length();
+            TCHAR* buf = new TCHAR[len * 2];
+            buf[len] = '\0';
+            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            a->win = CheckBox(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
+            delete buf;
+            OLWindow::windowmap[a->win.hWnd] = &a->win;
+            a->win.Tag = a;
+            a->win.SetFont(_T("MS UI Gothic"), 9);
+            return a;
+        }
+
         langObject window_setonclick(std::vector<langObject> arg)
         {
             ObjectWin* a = (ObjectWin*)arg[0];//dynamic_cast<ObjectWin*>(arg[0]);
@@ -255,17 +314,29 @@ namespace lang
             };
             return a;
         }
+        langObject window_setfont(std::vector<langObject> arg)
+        {
+            ObjectWin* a = (ObjectWin*)arg[0];
+            std::string str2 = arg[1]->toString();
+            int len = str2.length();
+            TCHAR* buf = new TCHAR[len * 2];
+            buf[len] = '\0';
+            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            if(arg.size() == 2) a->win.SetFont(buf,Int::toInt(arg[1]));
+            else if(arg.size() == 7) a->win.SetFont(buf, Int::toInt(arg[2]), Int::toInt(arg[3]), Int::toInt(arg[4]), Int::toInt(arg[5]), Int::toInt(arg[6]));
+            return a;
+        }
         langObject messagebox(std::vector<langObject> arg)
         {
             if(arg.size() == 1)
                 MessageBoxA(NULL, arg[0]->toString().c_str(),"",MB_OK);
             else
-            if(arg.size() == 2)
-            {
-                ObjectWin* window = dynamic_cast<ObjectWin*>(arg[1]);
-                MessageBoxA(window->win.hWnd, arg[0]->toString().c_str(),"",MB_OK);
-            }
-            return NULLOBJECT;
+                if(arg.size() == 2)
+                {
+                    ObjectWin* window = dynamic_cast<ObjectWin*>(arg[1]);
+                    MessageBoxA(window->win.hWnd, arg[0]->toString().c_str(),"",MB_OK);
+                }
+                return NULLOBJECT;
         }
         langObject olruntime_gc_asyncgc(std::vector<langObject> arg)
         {
@@ -302,7 +373,14 @@ namespace lang
             Add("OLRuntime::GUI::Window::Show", window_show);
             Add("OLRuntime::GUI::Button::Create", button_create);
             Add("OLRuntime::GUI::Window::SetOnClick", window_setonclick);
+            Add("OLRuntime::GUI::Window::SetFont", window_setfont);
             Add("OLRuntime::GUI::Label::Create", label_create);
+            Add("OLRuntime::GUI::TextBox::Create", textbox_create);
+            Add("OLRuntime::GUI::TextBox::SetReadOnly", textbox_setreadonly);
+            Add("OLRuntime::GUI::TextBox::GetReadOnly", textbox_getreadonly);
+            Add("OLRuntime::GUI::TextBox::SetMultiLine", textbox_setmultiline);
+            Add("OLRuntime::GUI::TextBox::GetMultiLine", textbox_getmultiline);
+            Add("OLRuntime::GUI::CheckBox::Create", checkbox_create);
             Add("OLRuntime::GUI::MessageBox", messagebox);
         }
     }

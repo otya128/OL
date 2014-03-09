@@ -63,7 +63,9 @@ namespace lang
         void OLWindow::Add(OLWindow& wnd);
         void Show();
         void Close();
-        ~OLWindow(void);
+        virtual ~OLWindow(void);
+        void SetFont(TCHAR* name, int size);
+        void SetFont(TCHAR* name, int size,bool bold,bool italic,bool underline,bool strike);
         LONG GetWidth()
         {
             RECT rc;
@@ -103,6 +105,7 @@ namespace lang
             return buf;
         }
         void* Tag;
+        HFONT hFont;
     };
     class Button : public OLWindow
     {
@@ -113,7 +116,14 @@ namespace lang
         Button(){}
         Button(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
     };
-
+    
+    class CheckBox : public Button
+    {
+    public:
+       // Event<Button*,ButtonEventFunc> OnClick;
+        CheckBox(){}
+        CheckBox(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
+    };
     class TextBox : public OLWindow
     {
     public:
@@ -135,13 +145,14 @@ namespace lang
         void SetMultiLine(BOOL f)
         {
             auto result = GetWindowLongPtr(this->hWnd,GWL_STYLE);
-            if(f)result &= ES_MULTILINE;
+            if(f)
+                result = result | ES_MULTILINE | ES_WANTRETURN;
             else
                 result &= ~ES_MULTILINE;
             SetWindowLongPtr(this->hWnd,GWL_STYLE,result);
         }
         WNDPROC baseWndProc;
-        TextBox(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
+        TextBox(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight, bool multiline);
     };
     class OpenFileDialog
     {

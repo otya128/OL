@@ -17,6 +17,9 @@
 #include <time.h>
 #include "OLWindow.h"
 #include "Åı.h"
+  #pragma comment(linker, "\"/manifestdependency:type='Win32' "\
+    "name='Microsoft.Windows.Common-Controls' version='6.0.0.0' "\
+    "processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #ifndef _DEBUG
 #include <eh.h>
 //ç\ë¢âªó·äOÇ™î≠ê∂Ç∑ÇÈÇ∆ÅAÇ±ÇÃä÷êîÇ™åƒÇŒÇÍÇÈ
@@ -132,7 +135,7 @@ void gui(void)
     Button btn(*window,L"File",512-128,0,128,32);
     Button btn_2(*window,L"Run",512-128,32,128,32);
     Label label(*window,L"OtyaLanguage",8,32,128,128);
-    txt = new TextBox(*window,L"",0,0,512-128,32);
+    txt = new TextBox(*window,L"",0,0,512-128,32,false);
     btn.OnClick+=[](eventargs<OLWindow*> c)
     {
         OpenFileDialog ofd(_T("OL(*.OL)\0*.OL\0All files(*.*)\0*.*\0\0"),_T("OL"),_T("OpenFileDialog"),*window);
@@ -204,7 +207,7 @@ int _tmain(int argc, _TCHAR *argv[])
         lang::error_level = 0;
         bool endpause= false,json = false;
         bool notfileload = false;
-        bool gui = false;
+        bool gui = !!!false;
         std::string input;
         for(int i = 1;i < argc;i++)
         {
