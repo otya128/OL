@@ -189,8 +189,7 @@ namespace lang
             std::string str2 = arg[0]->toString();
             int len = str2.length();
             TCHAR* buf = new TCHAR[len * 2];
-            buf[len] = '\0';
-            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
             a->win = OLWindow(buf,Int::toInt(arg[1]),Int::toInt(arg[2]));
             delete buf;
             OLWindow::windowmap[a->win.hWnd] = &a->win;
@@ -221,8 +220,7 @@ namespace lang
             std::string str2 = arg[1]->toString();
             int len = str2.length();
             TCHAR* buf = new TCHAR[len * 2];
-            buf[len] = '\0';
-            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
             a->win = Button(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
             delete buf;
             OLWindow::windowmap[a->win.hWnd] = &a->win;
@@ -237,8 +235,7 @@ namespace lang
             std::string str2 = arg[1]->toString();
             int len = str2.length();
             TCHAR* buf = new TCHAR[len * 2];
-            buf[len] = '\0';
-            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
             a->win = Label(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
             delete buf;
             OLWindow::windowmap[a->win.hWnd] = &a->win;
@@ -253,8 +250,7 @@ namespace lang
             std::string str2 = arg[1]->toString();
             int len = str2.length();
             TCHAR* buf = new TCHAR[len * 2 + 1];
-            buf[len] = '\0';
-            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
             a->win = TextBox(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]),Int::toInt(arg[6]));
             delete buf;
             OLWindow::windowmap[a->win.hWnd] = &a->win;
@@ -291,8 +287,7 @@ namespace lang
             std::string str2 = arg[1]->toString();
             int len = str2.length();
             TCHAR* buf = new TCHAR[len * 2];
-            buf[len] = '\0';
-            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
             a->win = CheckBox(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
             delete buf;
             OLWindow::windowmap[a->win.hWnd] = &a->win;
@@ -320,8 +315,7 @@ namespace lang
             std::string str2 = arg[1]->toString();
             int len = str2.length();
             TCHAR* buf = new TCHAR[len * 2];
-            buf[len] = '\0';
-            MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2);
+            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
             if(arg.size() == 2) a->win.SetFont(buf,Int::toInt(arg[1]));
             else if(arg.size() == 7) a->win.SetFont(buf, Int::toInt(arg[2]), Int::toInt(arg[3]), Int::toInt(arg[4]), Int::toInt(arg[5]), Int::toInt(arg[6]));
             return a;

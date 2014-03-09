@@ -207,7 +207,7 @@ int _tmain(int argc, _TCHAR *argv[])
         lang::error_level = 0;
         bool endpause= false,json = false;
         bool notfileload = false;
-        bool gui = !!!false;
+        bool gui = false;
         std::string input;
         for(int i = 1;i < argc;i++)
         {
