@@ -134,6 +134,18 @@ namespace lang
     {
         SetParent(wnd.hWnd, this->hWnd);
     }
+    LRESULT ButtonProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+    {
+            Button* win = static_cast<Button*>(OLWindow::windowmap[hWnd]);
+            //存在チェックする必要がある
+            switch( msg )
+            {
+            case WM_LBUTTONUP:
+                win->OnClick(eventargs<OLWindow*>(win));
+                break;
+            }
+            return CallWindowProc( win->baseWndProc, hWnd, msg, wp, lp );
+    }
     Button::Button(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight) 
     {
 
@@ -151,7 +163,7 @@ namespace lang
             );
         baseWndProc = (WNDPROC)(LONG_PTR)GetWindowLong( hWnd, GWL_WNDPROC );
         OLWindow::windowmap[this->hWnd] = this;
-        auto proc = [] /*CALLBACK*/(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT
+        auto proc = ButtonProc/*[] /*CALLBACK*//*(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT
         {
             Button* win = static_cast<Button*>(OLWindow::windowmap[hWnd]);
             //存在チェックする必要がある
@@ -162,9 +174,21 @@ namespace lang
                 break;
             }
             return CallWindowProc( win->baseWndProc, hWnd, msg, wp, lp );
-        };
-        SetWindowLong( hWnd, GWL_WNDPROC, (LONG)(LONG_PTR)static_cast<WNDPROC>(proc) );
+        }*/;
+        SetWindowLong( hWnd, GWL_WNDPROC, (LONG)(LONG_PTR)(proc) );
         //ctor(title, X, Y, nWidth, nHeight,L"BUTTON",WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,parent.hWnd);
+    }
+    LRESULT CheckBoxProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+    {
+        Button* win = static_cast<Button*>(OLWindow::windowmap[hWnd]);
+        //存在チェックする必要がある
+        switch( msg )
+        {
+        case WM_LBUTTONUP:
+            win->OnClick(eventargs<OLWindow*>(win));
+            break;
+        }
+        return CallWindowProc( win->baseWndProc, hWnd, msg, wp, lp );
     }
     CheckBox::CheckBox(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight) 
     {
@@ -183,7 +207,7 @@ namespace lang
             );
         baseWndProc = (WNDPROC)(LONG_PTR)GetWindowLong( hWnd, GWL_WNDPROC );
         OLWindow::windowmap[this->hWnd] = this;
-        auto proc = [] /*CALLBACK*/(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT
+        auto proc = (WNDPROC)CheckBoxProc;/*[] (HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT
         {
             Button* win = static_cast<Button*>(OLWindow::windowmap[hWnd]);
             //存在チェックする必要がある
@@ -194,11 +218,26 @@ namespace lang
                 break;
             }
             return CallWindowProc( win->baseWndProc, hWnd, msg, wp, lp );
-        };
+        };*/
         SetWindowLong( hWnd, GWL_WNDPROC, (LONG)(LONG_PTR)static_cast<WNDPROC>(proc) );
         //ctor(title, X, Y, nWidth, nHeight,L"BUTTON",WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,parent.hWnd);
     }
-
+    
+    LRESULT TextBoxProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+    {
+            TextBox* win = static_cast<TextBox*>(OLWindow::windowmap[hWnd]);
+            //存在チェックする必要がある
+            switch( msg )
+            {
+            case WM_LBUTTONUP:
+                //win->OnClick(eventargs<Button*>(win));
+                break;
+            case WM_SIZING:
+                win->OnSizeChange(eventargs<OLWindow*>(win));
+                break;
+            }
+            return CallWindowProc( win->baseWndProc, hWnd, msg, wp, lp );
+    }
     TextBox::TextBox(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight, bool multiline) 
     {
 
@@ -234,7 +273,7 @@ namespace lang
             );
         baseWndProc = (WNDPROC)(LONG_PTR)GetWindowLong( hWnd, GWL_WNDPROC );
         OLWindow::windowmap[this->hWnd] = this;
-        auto proc = [] /*CALLBACK*/(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT
+        auto proc = TextBoxProc;/*[] /*CALLBACK*//*(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT
         {
             TextBox* win = static_cast<TextBox*>(OLWindow::windowmap[hWnd]);
             //存在チェックする必要がある
@@ -248,8 +287,8 @@ namespace lang
                 break;
             }
             return CallWindowProc( win->baseWndProc, hWnd, msg, wp, lp );
-        };
-        SetWindowLong( hWnd, GWL_WNDPROC, (LONG)(LONG_PTR)static_cast<WNDPROC>(proc) );
+        };*/
+        SetWindowLong( hWnd, GWL_WNDPROC, (LONG)(LONG_PTR)/*static_cast<WNDPROC>*/(proc) );
     }
     //copyhttp://d.hatena.ne.jp/yus_iri/20110911/1315730376
     BOOL SetClientSize(HWND hWnd, int width, int height)
@@ -287,7 +326,7 @@ namespace lang
         // ウィンドウクラスの情報を設定
 
         this->hWnd = CreateWindow(
-            _T("OLlabel"),                            // ウィンドウクラス名
+            _T("STATIC"),                            // ウィンドウクラス名
             title,                                // キャプション
             WS_CHILD | WS_VISIBLE,   // スタイル指定
             X, Y,                                  // 座標
@@ -299,34 +338,36 @@ namespace lang
             );
         OLWindow::windowmap[this->hWnd] = this;
     }
+    LRESULT OLWindowProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+    {
+        OLWindow* win = static_cast<OLWindow*>(OLWindow::windowmap[hWnd]);
+        switch( msg )
+        {
+        case WM_COMMAND:
+            std::cout<< OLWindow::windowmap[(HWND)lp]<<win;
+            break;
+        case WM_LBUTTONUP:
+            win->OnClick(eventargs<OLWindow*>(win));
+            break;
+        case WM_SIZING:
+            win->OnSizeChange(eventargs<OLWindow*>(win));
+            break;
+        case WM_DESTROY:  // ウィンドウを破棄するとき
+            PostQuitMessage( 0 );
+            return 0;
+        }
+
+        // 他のメッセージは、デフォルトの処理を行う
+        return DefWindowProc( hWnd, msg, wp, lp );
+    }
     BYTE WindowClassInit()
     {
         WNDCLASSEX wc;
         // ウィンドウクラスの情報を設定
         wc.cbSize = sizeof(wc);               // 構造体サイズ
         wc.style = CS_HREDRAW | CS_VREDRAW;   // スタイル
-        wc.lpfnWndProc = [] /*CALLBACK*/(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT{
-
-            OLWindow* win = static_cast<OLWindow*>(OLWindow::windowmap[hWnd]);
-            switch( msg )
-            {
-            case WM_COMMAND:
-                std::cout<< OLWindow::windowmap[(HWND)lp]<<win;
-                break;
-            case WM_LBUTTONUP:
-                win->OnClick(eventargs<OLWindow*>(win));
-                break;
-            case WM_SIZING:
-                win->OnSizeChange(eventargs<OLWindow*>(win));
-                break;
-            case WM_DESTROY:  // ウィンドウを破棄するとき
-                PostQuitMessage( 0 );
-                return 0;
-            }
-
-            // 他のメッセージは、デフォルトの処理を行う
-            return DefWindowProc( hWnd, msg, wp, lp );
-        };             // ウィンドウプロシージャ
+        wc.lpfnWndProc = (WNDPROC)OLWindowProc;/*[] /*CALLBACK*//*(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT{
+                                                                };*/
         wc.cbClsExtra = 0;                    // 拡張情報１
         wc.cbWndExtra = 0;                    // 拡張情報２
         wc.hInstance = GetModuleHandle(NULL);                 // インスタンスハンドル
@@ -339,12 +380,14 @@ namespace lang
             NULL, MAKEINTRESOURCE(IDC_ARROW), IMAGE_CURSOR,
             0, 0, LR_DEFAULTSIZE | LR_SHARED
             );
-        wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH); // ウィンドウ背景
+            //GetClassInfoEx(GetModuleHandle(NULL),_T("STATIC"),&wc);
+        wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE); //NULL;//GetSysColorBrush(COLOR_WINDOWFRAME);//(HBRUSH)GetStockObject(_BRUSH); // ウィンドウ背景
         wc.lpszMenuName = NULL;                     // メニュー名
         wc.lpszClassName = OLWindow::classname;// ウィンドウクラス名
 
         // ウィンドウクラスを登録する
         if( RegisterClassEx( &wc ) == 0 ){ throw GetLastError();}//return ; }
+#ifdef CPP11
         //================LABEL================
         wc.cbSize = sizeof(wc);               // 構造体サイズ
         wc.style = CS_HREDRAW | CS_VREDRAW;   // スタイル
@@ -402,6 +445,7 @@ namespace lang
 
         // ウィンドウクラスを登録する
         if( RegisterClassEx( &wc ) == 0 ){ throw GetLastError();}
+#endif
         return NULL;
     }
     BYTE Init = WindowClassInit();

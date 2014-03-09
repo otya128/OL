@@ -1,7 +1,13 @@
 #include <memory>
 #pragma once
-#define CPP11
+#define CPP11 1
+#ifdef CPP11
 #define ENUMCLASS enum class
+#define FOREACH(VAR,COR) for(auto VAR : COR){
+#else
+#define ENUMCLASS enum
+#define FOREACH(VAR,COR) for(auto it = (COR).begin(); it != (COR).end(); ++it ){auto VAR = *it;
+#endif
 namespace lang
 {
     extern bool ahogc,parserresult, leakcheck, pause;

@@ -8,6 +8,7 @@ namespace lang
         //õö
         õ::õ(std::vector<parseObj*>& p) : tokens(p)
         {
+        #ifdef CPP11
             auto old = tokens;//copy
             parseObj* shiftjisõ = nullptr;
             tokens.clear();
@@ -48,6 +49,7 @@ namespace lang
                         tokens.push_back(i);
                     }
             }
+        #endif
         }
 
 

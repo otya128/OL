@@ -101,7 +101,7 @@ vÅiÅfÉ÷ÅfÅjv
     }
     return input.substr(i + 1,j-i - 1);
 }
-enum class option
+ENUMCLASS option
 {
     none,errorlevel,
 };
@@ -129,6 +129,19 @@ void Window_OnSizeChange(eventargs<OLWindow*> arg)
 TCHAR filename_[MAX_PATH];
 _TCHAR*filename = L"";
 //å©Ç…Ç≠Ç¢Ç©ÇÁï™ÇØÇΩ
+void Button_OnClick(eventargs<OLWindow*> c)
+{
+    OpenFileDialog ofd(_T("OL(*.OL)\0*.OL\0All files(*.*)\0*.*\0\0"),_T("OL"),_T("OpenFileDialog"),*window);
+    ofd.Show();
+    lstrcpynW(filename_,ofd.GetFileName(),sizeof(filename_));
+    filename = filename_;
+    txt->SetText(ofd.GetFileName());
+}
+void Button2_OnClick(eventargs<OLWindow*> c)
+{
+    txt->GetText(filename_,sizeof(filename_));
+    window->Close();
+}
 void gui(void)
 {
 
@@ -138,19 +151,19 @@ void gui(void)
     Button btn_2(*window,L"Run",512-128,32,128,32);
     Label label(*window,L"OtyaLanguage",8,32,128,128);
     txt = new TextBox(*window,L"",0,0,512-128,32,false);
-    btn.OnClick+=[](eventargs<OLWindow*> c)
-    {
-        OpenFileDialog ofd(_T("OL(*.OL)\0*.OL\0All files(*.*)\0*.*\0\0"),_T("OL"),_T("OpenFileDialog"),*window);
-        ofd.Show();
-        lstrcpynW(filename_,ofd.GetFileName(),sizeof(filename_));
-        filename = filename_;
-        txt->SetText(ofd.GetFileName());
-    };
-    btn_2.OnClick+=[](eventargs<OLWindow*> c)
-    {
-        txt->GetText(filename_,sizeof(filename_));
-        window->Close();
-    };
+    btn.OnClick+=Button_OnClick/*[](eventargs<OLWindow*> c)
+                               {
+                               OpenFileDialog ofd(_T("OL(*.OL)\0*.OL\0All files(*.*)\0*.*\0\0"),_T("OL"),_T("OpenFileDialog"),*window);
+                               ofd.Show();
+                               lstrcpynW(filename_,ofd.GetFileName(),sizeof(filename_));
+                               filename = filename_;
+                               txt->SetText(ofd.GetFileName());
+                               }*/;
+    btn_2.OnClick+=Button2_OnClick/*[](eventargs<OLWindow*> c)
+                                  {
+                                  txt->GetText(filename_,sizeof(filename_));
+                                  window->Close();
+                                  }*/;
     window->Show();
     delete window;
     // delete txt;
@@ -329,100 +342,106 @@ http://0xbaadf00d/
             catch(lang::langRuntimeException ex)
             {
                 std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "èÍèä?:" << std::endl;
+#if CPP11
                 for(auto i : ex.stacktrace)
                 {
+#else
+                for( auto it = ex.stacktrace.begin(); it != ex.stacktrace.end(); ++it )
+                {
+                    auto i = *it;
+#endif
                     std::cout << ÇƒÇ©ÇkÇhÇmÇdÇ‚Ç¡ÇƒÇÈÅH(input,ex.tokens[i.second]->sourcestartindex);
                     //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
                     //break;
                 }
                 std::cout << "StackTrace" << std::endl;
-                for(auto i : ex.funcstacktrace)
-                {
+                FOREACH(i, ex.funcstacktrace)//for(auto i : ex.funcstacktrace)
+                    //{
                     std::cout << i << std::endl;
-                }
-                std::cout<<"àŸèÌèIóπ ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
-                std::getchar();
-                vÅiÅfÉ÷ÅfÅjv ;vÅiÅfÉ÷ÅfÅjv ;FAILEND;vÅiÅfÉ÷ÅfÅjv vÅiÅfÉ÷ÅfÅjv //continue;
             }
-            for(int i=0;i<pars->parsers.size();i++)
+            std::cout<<"àŸèÌèIóπ ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
+            std::getchar();
+            vÅiÅfÉ÷ÅfÅjv ;vÅiÅfÉ÷ÅfÅjv ;FAILEND;vÅiÅfÉ÷ÅfÅjv vÅiÅfÉ÷ÅfÅjv //continue;
+        }
+        for(int i=0;i<pars->parsers.size();i++)
+        {
+            if(pars->parsers[i]->ptr != nullptr)
             {
-                if(pars->parsers[i]->ptr != nullptr)
-                {
-                    lang::gc->constroot.push_back(pars->parsers[i]->ptr);
-                }
+                lang::gc->constroot.push_back(pars->parsers[i]->ptr);
             }
-            //out testobj=new lang::parseObj("hoge");//ÉAÉEÉg
-            //std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
-            int nest = 0;
-            if(json)
+        }
+        //out testobj=new lang::parseObj("hoge");//ÉAÉEÉg
+        //std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
+        int nest = 0;
+        if(json)
+        {
+            std::cout << "{\"parser\":[";
+            //                for(auto &&i : pars->parsers)
+            FOREACH(i,pars->parsers)//                {
+                std::cout << '{' << "\"name\":\"" << (i->name ? escape(*i->name) : "") << '\"' <<',' << "\"pEnum\":\"" << enumtable[i->pEnum] << '\"' << ',' << "\"ptr\":";
+            if(i->ptr)
             {
-                std::cout << "{\"parser\":[";
-                for(auto &&i : pars->parsers)
+                if(i->ptr is _Int)
                 {
-                    std::cout << '{' << "\"name\":\"" << (i->name ? escape(*i->name) : "") << '\"' <<',' << "\"pEnum\":\"" << enumtable[i->pEnum] << '\"' << ',' << "\"ptr\":";
-                    if(i->ptr)
-                    {
-                        if(i->ptr is _Int)
-                        {
-                            std::cout << *(int*)i->ptr->getPointer();
-                        }
-                        else
-                            if(i->ptr is _String)
-                            {
-                                std::cout << '\"' << escape(*(std::string*)i->ptr->getPointer()) << '\"';
-                            }
-                    }
-                    else
-                    {
-                        std::cout << "null";
-                    }
-                    std::cout << '}' << ',';
+                    std::cout << *(int*)i->ptr->getPointer();
                 }
-                std::cout << ']' << ',';
-                std::cout << '}';
-                exit(0);
+                else
+                    if(i->ptr is _String)
+                    {
+                        std::cout << '\"' << escape(*(std::string*)i->ptr->getPointer()) << '\"';
+                    }
             }
-            if(parserresult)
-                for(int i=0;i<pars->parsers.size();i++)
-                {
-                    if(pars->parsers[i]->pEnum == lang::blockend)nest--;
-                    if(pars->parsers[i]->pEnum == lang::rightparent)nest--;
-                    std::cout<<i<<"\t";
-                    for(int j=0;j<nest;j++)std::cout<<" ";
-                    std::cout<<input.substr(pars->parsers[i]->sourcestartindex, pars->parsers[i]->sourceendindex - pars->parsers[i]->sourcestartindex + 1)<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
-                    if(pars->parsers[i]->pEnum == lang::blockstart)nest++;
-                    if(pars->parsers[i]->pEnum == lang::leftparent)nest++;
-                }
-                try
-                {
-                    vÅiÅfÉ÷ÅfÅjv
-                        vÅiÅfÉ÷ÅfÅjv
-                        vÅiÅfÉ÷ÅfÅjv
-                        //#if AHO_GC //ÉXÉåÉbÉhÇ≈ìÆÇ´ë±ÇØÇÈÉAÉzÇ»GC
+            else
+            {
+                std::cout << "null";
+            }
+            std::cout << '}' << ',';
+        }
+        std::cout << ']' << ',';
+        std::cout << '}';
+        exit(0);
+    }
+    if(parserresult)
+        for(int i=0;i<pars->parsers.size();i++)
+        {
+            if(pars->parsers[i]->pEnum == lang::blockend)nest--;
+            if(pars->parsers[i]->pEnum == lang::rightparent)nest--;
+            std::cout<<i<<"\t";
+            for(int j=0;j<nest;j++)std::cout<<" ";
+            std::cout<<input.substr(pars->parsers[i]->sourcestartindex, pars->parsers[i]->sourceendindex - pars->parsers[i]->sourcestartindex + 1)<<"\t"<<parserEnumToString(pars->parsers[i]->pEnum)<<std::endl;
+            if(pars->parsers[i]->pEnum == lang::blockstart)nest++;
+            if(pars->parsers[i]->pEnum == lang::leftparent)nest++;
+        }
+        try
+        {
+            vÅiÅfÉ÷ÅfÅjv
+                vÅiÅfÉ÷ÅfÅjv
+                vÅiÅfÉ÷ÅfÅjv
+                //#if AHO_GC //ÉXÉåÉbÉhÇ≈ìÆÇ´ë±ÇØÇÈÉAÉzÇ»GC
 #ifdef CPP11
-                        if(ahogc)std::thread thd([]{ while (true) lang::gc->start();});
+                if(ahogc)std::thread thd([]{ while (true) lang::gc->start();});
 #endif
-                    //#endif
-                    // lang::NULLOBJECT = new lang::Object();
-                    running = true;
-                    pars->runner->run();
-                    std::cout<<"é¿çsèI ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
-                }
-                catch(lang::langRuntimeException ex)
-                {
-                    std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "èÍèä?:" << std::endl;
-                    for(auto i : ex.stacktrace)
-                    {
-                        std::cout << ÇƒÇ©ÇkÇhÇmÇdÇ‚Ç¡ÇƒÇÈÅH(input,ex.tokens[i.second]->sourcestartindex);
-                        //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
-                        //break;
-                    }
-                    std::cout << "StackTrace" << std::endl;
-                    for(auto i : ex.funcstacktrace)
-                    {
-                        std::cout << i << std::endl;
-                    }
-                    std::cout<<"àŸèÌèIóπ ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
+            //#endif
+            // lang::NULLOBJECT = new lang::Object();
+            running = true;
+            pars->runner->run();
+            std::cout<<"é¿çsèI ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
+        }
+        catch(lang::langRuntimeException ex)
+        {
+            std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "èÍèä?:" << std::endl;
+            //                    for(auto i : ex.stacktrace)
+            FOREACH(i,ex.stacktrace)//                    {
+                std::cout << ÇƒÇ©ÇkÇhÇmÇdÇ‚Ç¡ÇƒÇÈÅH(input,ex.tokens[i.second]->sourcestartindex);
+            //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
+            //break;
+        }
+        std::cout << "StackTrace" << std::endl;
+        FOREACH(i,ex.funcstacktrace)//                    for(auto i : ex.funcstacktrace)
+            //{
+            std::cout << i << std::endl;
+}
+std::cout<<"àŸèÌèIóπ ïœêîÇ‚íËêîÇçÌèú"<<std::endl;
                 }
 #if !defined(_DEBUG)//ÉfÉoÉbÉOÇ»ÇÁÉfÉoÉbÉKÇÃã@î\ÇóòópÇ∑ÇÈ
                 catch(std::exception ex)
@@ -441,8 +460,8 @@ http://0xbaadf00d/
                 clock_t start,end;
                 start = clock();
                 std::vector<lang::scope*> del;
-                for(auto i : lang::gc->roots)
-                {
+                //                for(auto i : lang::gc->roots)
+                FOREACH(i,lang::gc->roots)//                {
                     del.push_back(i.first);
                 }
                 lang::gc->roots.clear();

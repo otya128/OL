@@ -15,8 +15,14 @@ namespace lang
         this->index = index;
         this->member = member;
         this->finalize = nullptr;
+#if CPP11
         for(auto i : *member)
         {
+#else
+        for( auto it = member->begin(); it != member->end(); ++it )
+        {
+            auto i = *it;
+#endif
             if(i.first == "finalize")
             {
                 if(i.second is _Function)
@@ -26,11 +32,11 @@ namespace lang
                 }
             }
         }
-        
+
         thisscope = new lang::scope(this->scope->parsers, this->scope, nullptr);
         this->thisscope->refinc();
-        foreach_(var_ i in_ *staticmember)//C# style foreach
-        {
+FOREACH(i,*staticmember)//        foreach_(var_ i in_ *staticmember)//C# style foreach
+//        {
             if(i.second->type->TypeEnum == _Function)
             {
                 auto buf = new Function((langFunction)i.second,this->thisscope);
@@ -43,10 +49,10 @@ namespace lang
         /*
         if(this->finalize != nullptr)
         {
-            this->finalize = new Function((langFunction)this->finalize,this->thisscope);
-            this->finalize->scope = thisscope;
-            this->thisscope->variable.add("finalize", this->finalize);
-            lang::gc->uncontroll(this->finalize);
+        this->finalize = new Function((langFunction)this->finalize,this->thisscope);
+        this->finalize->scope = thisscope;
+        this->thisscope->variable.add("finalize", this->finalize);
+        lang::gc->uncontroll(this->finalize);
         }*/
         delete staticmember;
     }
@@ -80,8 +86,8 @@ namespace lang
         thisscope = new lang::scope(this->scope->parsers, this->scope,this);
         this->thisscope->refinc();
         this->type->TypeEnum = _ClassObject;
-        foreach_(var_ i in_ *this->member)//C# style foreach
-        {
+        FOREACH(i,*member)//foreach_(var_ i in_ *this->member)//C# style foreach
+        //{
             if(i.second->type->TypeEnum == _Function)
             {
                 auto buf = new Function((langFunction)i.second,this->thisscope);
@@ -108,18 +114,18 @@ namespace lang
             auto arg = std::vector<langObject>();//普通にローカル変数のポインタ私で良かった
             auto result = ((langFunction)this->thisscope->variable["ToString"])->call(&arg);
             return result->toString();
-        /*
+            /*
             auto arg = new std::vector<langObject>;//例外処理で逆に冗長になる例
             try
             {
-                auto result = ((langFunction)this->thisscope->variable["ToString"])->call(arg);
-                delete arg;
-                return result->toString();
+            auto result = ((langFunction)this->thisscope->variable["ToString"])->call(arg);
+            delete arg;
+            return result->toString();
             }
             catch(...)
             {
-                delete arg;
-                throw;
+            delete arg;
+            throw;
             }*/
         }
         return "ClassObject:" + this->name;//Class::toString();

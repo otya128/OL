@@ -7,7 +7,9 @@ namespace lang
 
     Function::Function(std::string name,std::vector<std::string>* argList,lang::scope* scope,int index)
     {
+#ifdef CPP11
         this->thread = nullptr;
+#endif
         this->type = new Type(PreType::_Function);
         this->name = name;
         this->argList = argList;
@@ -18,7 +20,9 @@ namespace lang
     }
     Function::Function(Function* f,lang::scope* this_scope)
     {
+#ifdef CPP11
         this->thread = nullptr;
+#endif
         //if(f is _Function){}
         this->type = new Type(f->type->TypeEnum,(char*)f->type->name);
         this->name = f->name; 
@@ -36,7 +40,7 @@ namespace lang
 #ifdef CPP11
         delete thread;
 #endif
-        
+
         if(this->scope != nullptr)this->scope->refdec();
         if(this->thisscope != nullptr)this->thisscope->refdec();
         //this->scope = nullptr;
@@ -44,13 +48,13 @@ namespace lang
 
         delete this->argList;
         //if(name != nullptr)
-        #if _DEBUG
+#if _DEBUG
         if(gc_view)
         {
             std::cout<<"‚ª‚×‚±‚ê’†..."<< name << this <<std::endl;
             //delete this->name;
         }
-        #endif
+#endif
         // else std::cout<<"‚ª‚×‚±‚ê’†...null"<<this<<std::endl;
     }
     std::string Function::toString(void)
@@ -148,12 +152,12 @@ namespace lang
             return newString(&bug->getString()->substr(Int::toInt(argList[0])));
         }
         else
-        if(argList.size() == 2 && obj is _String)
-        {
-            auto bug = (langString)obj;
-            return newString(&bug->getString()->substr(Int::toInt(argList[0]), Int::toInt(argList[1])));
-        }
-        throw lang::langRuntimeException("ˆø”‚Ì”‚ªˆê’v‚µ‚Ü‚¹‚ñ[String.Substring(,)]");
+            if(argList.size() == 2 && obj is _String)
+            {
+                auto bug = (langString)obj;
+                return newString(&bug->getString()->substr(Int::toInt(argList[0]), Int::toInt(argList[1])));
+            }
+            throw lang::langRuntimeException("ˆø”‚Ì”‚ªˆê’v‚µ‚Ü‚¹‚ñ[String.Substring(,)]");
     }
     typedef langObject (*BuiltFunc)(std::vector<langObject>);
     std::map<std::string,BuiltFunc>* BuiltFunction = new std::map<std::string,BuiltFunc>;

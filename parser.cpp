@@ -25,14 +25,14 @@ namespace lang
     ENUMCLASS parserStatus
     {
         None,
-        ReadIden,
-        ReadNum,
-        ReadStr,
-        ReadComment,
-        ReadBlockComment,
-        ReadEscapeString,
-        ReadChar,
-        ReadEscapeChar,
+            ReadIden,
+            ReadNum,
+            ReadStr,
+            ReadComment,
+            ReadBlockComment,
+            ReadEscapeString,
+            ReadChar,
+            ReadEscapeChar,
     };
     int error_level;
     //•¶Žš—ñ‚©‚ç’Pƒ‚Èhash‚ðì¬
@@ -82,12 +82,12 @@ namespace lang
     namespace
     ‚ð‰ðÍ‚·‚éB
     */
-    enum class sts
+    ENUMCLASS sts
     {
         Empty,      //   = 0,
-        Func,       //   = 1,
-        Class,      //   = 2,
-        NameSpace,  //   = 4,
+            Func,       //   = 1,
+            stsClass,      //   = 2,
+            NameSpace,  //   = 4,
     };
     struct BlockStruct
     {
@@ -161,15 +161,15 @@ namespace lang
                         namesp.clear();
                         auto cont = funcStack._Get_container();
                         //if( funcStack.size()>=2)for(size_t i = funcStack.size() - 2;i>=0;i--)
-                        
+
                         if(funcStack.size() >= 2)
-                         for(size_t i = funcStack.size() - 1;i>=0;i--){
-                            if(cont[i].type == sts::NameSpace)
-                            {
-                                namesp = cont[i].name;
-                                break;
+                            for(size_t i = funcStack.size() - 1;i>=0;i--){
+                                if(cont[i].type == sts::NameSpace)
+                                {
+                                    namesp = cont[i].name;
+                                    break;
+                                }
                             }
-                        }
                     }
                     if(funcStack.top().type == sts::Func) func--;
                     funcStack.pop();
@@ -261,7 +261,11 @@ namespace lang
                         if(isstatic)
                         {
                             staticmember->push_back(std::pair<std::string,langObject>(*token->name, NULLOBJECT));
+#ifdef CPP11
                             staticmemberevals.push_back(std::tuple<int,std::string&,std::string>(i + 2,*token->name,className));
+#else
+                            staticmemberevals.push_back(std::pair<int,std::pair<std::string&,std::string> >(i + 2,std::pair<std::string&,std::string>(*token->name,className)));
+#endif
                         }else
                             std::cout<<"–¢ŽÀ‘•"<<std::endl,member->push_back(std::pair<std::string,langObject>(*token->name, NULLOBJECT));
                         isstatic = false;
@@ -407,8 +411,14 @@ namespace lang
                     }
                     else
                     {
+#ifdef CPP11
                         for(auto i : this->usings)
                         {
+#else
+                        for( auto it = this->usings.begin(); it != this->usings.end(); ++it )
+                        {
+                            auto i = *it;
+#endif
                             //‘{‚·
                             auto name = i + "::" + *token->name;
                             if(DEFINEDSCPEVAR(this->runner, name))
@@ -445,15 +455,15 @@ namespace lang
                         namesp.clear();
                         auto cont = funcStack._Get_container();
                         if(funcStack.size() >= 2)
-                         for(size_t i = funcStack.size() - 1;i>=0;i--)
-                        //for(size_t i = 0;i<=funcStack.size() - 2;i++)
-                        {
-                            if(cont[i].type == sts::NameSpace)
+                            for(size_t i = funcStack.size() - 1;i>=0;i--)
+                                //for(size_t i = 0;i<=funcStack.size() - 2;i++)
                             {
-                                namesp = cont[i].name;
-                                break;
+                                if(cont[i].type == sts::NameSpace)
+                                {
+                                    namesp = cont[i].name;
+                                    break;
+                                }
                             }
-                        }
                     }
                     funcStack.pop();
                     break;
@@ -466,9 +476,19 @@ namespace lang
             int j = this->staticevals[i];
             this->runner->eval(this->parsers[j]->ptr,j);
         }
+#if CPP11
         foreach_(auto &&i in_ this->staticmemberevals)
         {
+#else
+        for( auto it = this->staticmemberevals.begin(); it != this->staticmemberevals.end(); ++it )
+        {
+            auto i = *it;
+#endif
+#if CPP11
             ((langClass)this->runner->variable[std::get<2>(i)])->thisscope->variable.set(std::get<1>(i),this->runner->eval(NULLOBJECT,std::get<0>(i)));
+#else
+            ((langClass)this->runner->variable[i.second.second])->thisscope->variable.set(i.second.first,this->runner->eval(NULLOBJECT,i.first));
+#endif
         }
     }
     void parser::staticparse()
@@ -539,7 +559,7 @@ namespace lang
 
                         if(prevtoken->pEnum == parserEnum::_class)
                         {
-                            funcStack.push(BlockStruct(sts::Class, *this->parsers[i - 1]->name));
+                            funcStack.push(BlockStruct(sts::stsClass, *this->parsers[i - 1]->name));
                         }
                         else funcStack.push(BlockStruct(sts::Empty, empty));
                 }else funcStack.push(BlockStruct(sts::Empty, empty));
@@ -552,16 +572,16 @@ namespace lang
                         namesp.clear();
                         auto cont = funcStack._Get_container();
                         //if( funcStack.size() >= 2)for(size_t i = funcStack.size() - 2;i>=0;i--)
-                        
+
                         if(funcStack.size() >= 2)
-                         for(size_t i = funcStack.size() - 1;i>=0;i--)
-                        {
-                            if(cont[i].type == sts::NameSpace)
+                            for(size_t i = funcStack.size() - 1;i>=0;i--)
                             {
-                                namesp = cont[i].name;
-                                break;
+                                if(cont[i].type == sts::NameSpace)
+                                {
+                                    namesp = cont[i].name;
+                                    break;
+                                }
                             }
-                        }
                     }
                     funcStack.pop();
                     break;

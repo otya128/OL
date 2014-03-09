@@ -6,8 +6,10 @@
 #include <map>
 #include <memory>
 #include <vector>
+#ifdef CPP11
 #include <thread>
 #include <mutex>
+#endif
 #include <sstream>
 #include <iosfwd>
 #include "Function.h"
@@ -23,15 +25,25 @@ namespace lang
     extern std::map<std::string,BuiltFunc>* BuiltFunction;
     namespace lib
     {
+#ifdef CPP11
         std::mutex printm;
+#endif
         ///thread safe?
         langObject print(std::vector<langObject> arg)
         {
             {
+#ifdef CPP11
                 std::lock_guard<std::mutex> lock(printm);//lock
+#endif
                 //if(locktst)while(locktst); locktst = true;
+#if CPP11
                 for (auto var : arg)
                 {
+#else
+                for( auto it = arg.begin(); it != arg.end(); ++it )
+                {
+                    auto var = *it;
+#endif
                     if(var != nullptr)std::cout<<var->toString(); else std::cout<< "nullptr";
                 }
                 //locktst = false;
@@ -54,16 +66,28 @@ namespace lang
         }
         langObject free(std::vector<langObject> arg)
         {
+#if CPP11
             foreach_(var_ i in_ arg)
             {
+#else
+            for( auto it = arg.begin(); it != arg.end(); ++it )
+            {
+                auto i = *it;
+#endif
                 gc->free_(i);
             }
             return NULLOBJECT;
         }
         langObject uncontrollGC(std::vector<langObject> arg)
         {
+#if CPP11
             foreach_(var_ i in_ arg)
             {
+#else
+            for( auto it = arg.begin(); it != arg.end(); ++it )
+            {
+                auto i = *it;
+#endif
                 gc->uncontroll(i);
             }
             return NULLOBJECT;
@@ -85,8 +109,9 @@ namespace lang
         }
         langObject sqrt(std::vector<langObject> arg)
         {
-            return /*std::make_shared<Int>*/newInt((int)std::sqrt<int>(lang::Int::toInt(arg[0])));
+            return /*std::make_shared<Int>*/newInt((int)std::sqrt((double)lang::Int::toInt(arg[0])));
         }
+#ifdef CPP11
         langObject thread(std::vector<langObject> arg)
         {
             langFunction threadFunc = new Function((langFunction)arg[0],((langFunction)arg[0])->thisscope);
@@ -128,6 +153,7 @@ namespace lang
             a<<std::this_thread::get_id();
             return newString(&a.str());
         }
+#endif
         langObject Fopen(std::vector<langObject> arg)
         {
             FILE* fp;
@@ -319,18 +345,24 @@ namespace lang
             a->win.SetFont(_T("MS UI Gothic"), 9);
             return a;
         }
-
+        void window_setonclick_event(eventargs<OLWindow*> v)
+        {
+                ObjectWin* a = static_cast<ObjectWin*>(v.Arg->Tag);
+                std::vector<langObject> arg;
+                arg.push_back(a);
+                a->Event["OnClick"]->call(&arg);
+        }
         langObject window_setonclick(std::vector<langObject> arg)
         {
             ObjectWin* a = (ObjectWin*)arg[0];//dynamic_cast<ObjectWin*>(arg[0]);
             a->Event["OnClick"] = (langFunction)arg[1];
-            a->win.OnClick += [](eventargs<OLWindow*> v)
+            a->win.OnClick += window_setonclick_event/*[](eventargs<OLWindow*> v)
             {
                 ObjectWin* a = static_cast<ObjectWin*>(v.Arg->Tag);
                 std::vector<langObject> arg;
                 arg.push_back(a);
                 a->Event["OnClick"]->call(&arg);
-            };
+            }*/;
             return a;
         }
         langObject window_setfont(std::vector<langObject> arg)
@@ -356,11 +388,13 @@ namespace lang
                 }
                 return NULLOBJECT;
         }
+#ifdef CPP11
         langObject olruntime_gc_asyncgc(std::vector<langObject> arg)
         {
             std::thread* thd = new std::thread([]{lang::gc->start();});
             return NULLOBJECT;
         }
+#endif
         void Add(std::string name, BuiltFunc func)
         {
             (*lang::BuiltFunction)[name] = func;
@@ -376,9 +410,11 @@ namespace lang
             Add("WriteMemory",  WriteMemory);
             Add("ReadMemoryInt",ReadMemoryInt);
             Add("sqrt",         sqrt);
+#ifdef CPP11
             Add("thread",       thread);
             Add("threadid",     threadid);
             Add("thread::join", thread_join);
+#endif
             Add("File::open",   Fopen);
             Add("File::close",  Fclose);
             Add("File::write",  Fwrite);
@@ -386,7 +422,9 @@ namespace lang
             Add("File::stdout", getstdout);
             Add("File::stderr", getstderr);
             Add("OLRuntime::GC::ObjectCount", olruntime_gc_objectcount);
+#ifdef CPP11
             Add("OLRuntime::GC::BackgroundGC", olruntime_gc_asyncgc);
+#endif
             Add("OLRuntime::GUI::Window::Create", window_create);
             Add("OLRuntime::GUI::Window::Show", window_show);
             Add("OLRuntime::GUI::Button::Create", button_create);

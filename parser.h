@@ -10,7 +10,11 @@ namespace lang
     {
     private:
         std::vector<int> staticevals;
-        std::vector<std::tuple<int,std::string&,std::string>> staticmemberevals;
+#ifdef CPP11
+        std::vector<std::tuple<int,std::string&,std::string> > staticmemberevals;
+#else
+        std::vector<std::pair<int,std::pair<std::string&,std::string> > > staticmemberevals;
+#endif
         void parser::function();
         void parser::namespaceparse();
         void parser::staticparse();

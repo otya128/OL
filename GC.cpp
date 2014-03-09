@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include <Windows.h>
+#ifdef CPP11
 #include <mutex>
+#endif
 //#include </>
 #include "GC.h"
 #include "scope.h"
@@ -22,7 +24,9 @@ namespace lang
     }
     void GC::addObject(Object* obj)
     {
+#ifdef CPP11
         std::lock_guard<GCmutex> lock(this->ObjectMutex);
+#endif
         objectCount++;
         if(objectCount>=GCtimig)
         {
@@ -55,29 +59,29 @@ namespace lang
             std::cout<<""
             ;
         // this->search(this->root);
-        for(auto root : this->roots)
-        {
+        FOREACH(root,this->roots)//for(auto root : this->roots)
+        //{
             this->search(root.first);
         }
-        for(auto o : this->constroot)
-        {
+        FOREACH(o,this->constroot)//for(auto o : this->constroot)
+        //{
             this->search(o);
         }
-        for(auto obj : this->object)
-        {
+        FOREACH(obj,this->object)//for(auto obj : this->object)
+        //{
             if(obj.second != count)
             {
                 obj.second = count;
                 erased.push_back(obj.first);
             }
         }
-        for(auto obj : erased)
-        {
+        FOREACH(obj,erased)//for(auto obj : erased)
+        //{
             if(this->object.find(obj) != this->object.end())
             {
                 if(obj is _Function && ((langFunction)obj)->working)
-                //マルチスレッドなどでどこからも参照されていないが動いている状態の時は開放しない
-                    ;
+                    //マルチスレッドなどでどこからも参照されていないが動いている状態の時は開放しない
+                        ;
                 else
                     object.erase(obj);
                 delete obj;
@@ -100,8 +104,8 @@ namespace lang
     }
     void GC::search(scope* root)
     {
-        for(auto obj : root->variable._variable)
-        {
+//        for(auto obj : root->variable._variable)
+FOREACH(obj,root->variable._variable)//        {
             if(obj.second->type->TypeEnum == PreType::_ClassObject)
             {
                 obj.second->type->TypeEnum = PreType::_ClassObject;
@@ -112,15 +116,16 @@ namespace lang
                 {
                 case lang::_Class://削除しない
                     //再帰する必要が
-                    foreach_(var_ i in_ *((langClass)obj.second)->member)
-                    {
+FOREACH(i,*((langClass)obj.second)->member)//                    foreach_(var_ i in_ *((langClass)obj.second)->member)
+//                    {
                         if(this->object[i.second] != count)
                         {
                             this->search(i.second);//
                         }
                     }
-                    if(((langClass)obj.second)->thisscope) foreach_(var_ i in_ ((langClass)obj.second)->thisscope->variable._variable)
-                    {
+                    if(((langClass)obj.second)->thisscope)
+                    FOREACH(i,((langClass)obj.second)->thisscope->variable._variable)// foreach_(var_ i in_ ((langClass)obj.second)->thisscope->variable._variable)
+                    //{
                         if(this->object[i.second] != count)
                         {
                             this->search(i.second);//
@@ -128,8 +133,8 @@ namespace lang
                     }
                     break;
                 case lang::_Array:
-                    foreach_(var_ i in_ ((langArray)obj.second)->ary)
-                    {
+//                    foreach_(var_ i in_ ((langArray)obj.second)->ary)
+FOREACH(i,((langArray)obj.second)->ary)//                    {
                         if(this->object[i] != count)
                         {
                             this->search(i);//
@@ -157,8 +162,8 @@ namespace lang
             this->object[object] = count;
             break;
         case lang::_Class:
-            foreach_(var_ i in_ *((langClass)object)->member)
-            {
+FOREACH(i,*((langClass)object)->member)//            foreach_(var_ i in_ *((langClass)object)->member)
+//            {
                 if(this->object[i.second] != count)
                 {
                     this->search(i.second);//
@@ -167,8 +172,8 @@ namespace lang
             break;
         case lang::_Array:
             this->object[object] = count;
-            foreach_(var_ i in_ ((langArray)object)->ary)
-            {
+FOREACH(i,((langArray)object)->ary)//            foreach_(var_ i in_ ((langArray)object)->ary)
+//            {
                 if(this->object[i] != count)
                 {
                     this->search(i);//
@@ -183,11 +188,13 @@ namespace lang
     void GC::search(langClassObject object)
     {
         if(this->object[object] == count) return;//mark
-        foreach_(var_ i in_ *object->member)
-        {
+        //foreach_(var_ i in_ *object->member)
+        //{
+        FOREACH(i, *object->member)
             if(this->object[i.second] == count) continue;//mark
-            for(auto root : this->roots)
-            {
+            //for(auto root : this->roots)
+            //{
+        FOREACH(root, this->roots)
                 this->search(i.second);
             }
         }
@@ -195,7 +202,9 @@ namespace lang
     //GCから削除してメモリから解放する
     void GC::free_(langObject object)
     {
+    #ifdef CPP11
         std::lock_guard<GCmutex> lock(this->RootMutex);
+    #endif
         if(this->object.find(object) != this->object.end())this->object.erase(object);
         delete object;
     }
@@ -203,7 +212,9 @@ namespace lang
     //責任
     void GC::uncontroll(langObject object)
     {
+    #ifdef CPP11
         std::lock_guard<GCmutex> lock(this->RootMutex);
+    #endif
         if(this->object.find(object) != this->object.end()) this->object.erase(object);
     }
     GC::~GC(void)
@@ -211,13 +222,17 @@ namespace lang
     }
     void GC::addRoot(scope* root)
     {
+    #ifdef CPP11
         std::lock_guard<GCmutex> lock(this->RootMutex);
+    #endif
         this->roots[root] = 0;
     }
     //既に無いのに削除したらfalse
     bool GC::removeRoot(scope* root)
     {
+    #ifdef CPP11
         std::lock_guard<GCmutex> lock(this->RootMutex);
+    #endif
         if(this->roots.find(root) != this->roots.end())
         {
             this->roots.erase(root);
