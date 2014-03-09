@@ -203,6 +203,30 @@ namespace lang
             ObjectWin* a = dynamic_cast<ObjectWin*>(arg[0]);
             a->win.Show();
             return a;
+        }
+        langObject window_gettext(std::vector<langObject> arg)
+        {
+            ObjectWin* a = static_cast<ObjectWin*>(arg[0]);
+            TCHAR* text = a->win.GetText();
+            langString result;
+            int len = _tcsclen(text);
+            char *mbs = new char[len * 2 + 2];
+            mbs[WideCharToMultiByte(CP_ACP,0,text,-1,mbs,len * 2 + 1,NULL,NULL)] = '\0';
+            result = newString(&std::string(mbs));
+            delete [] mbs;
+            delete [] text;
+            return result;
+        }
+        langObject window_settext(std::vector<langObject> arg)
+        {
+            ObjectWin* a = static_cast<ObjectWin*>(arg[0]);
+            std::string str2 = arg[1]->toString();
+            int len = str2.length();
+            TCHAR* buf = new TCHAR[len * 2 + 1];
+            buf[MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
+            a->win.SetText(buf);
+            delete buf;
+            return a;
         }/*
          class ObjectBtn : public ObjectWin
          {
@@ -368,6 +392,8 @@ namespace lang
             Add("OLRuntime::GUI::Button::Create", button_create);
             Add("OLRuntime::GUI::Window::SetOnClick", window_setonclick);
             Add("OLRuntime::GUI::Window::SetFont", window_setfont);
+            Add("OLRuntime::GUI::Window::GetText", window_gettext);
+            Add("OLRuntime::GUI::Window::SetText", window_settext);
             Add("OLRuntime::GUI::Label::Create", label_create);
             Add("OLRuntime::GUI::TextBox::Create", textbox_create);
             Add("OLRuntime::GUI::TextBox::SetReadOnly", textbox_setreadonly);

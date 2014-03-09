@@ -10,7 +10,8 @@ var font = new Font("‚l‚r –¾’©",10,true,true,true,true);
 textbox1.SetFont(font);
 //textbox1.SetMultiLine(false);
 var checkbox1 = new CheckBox(textbox1,"CheckBox",0,88,128,16);
-button2.SetOnClick(function(var btn){form1.MessageBox("Click!");});
+button2.SetOnClick(function(var btn){form1.MessageBox(textbox1.GetText());});
+button1.SetOnClick(function(var btn){textbox1.SetText(textbox1.GetText() + "!");});
 form1.Show();
 var window = OLRuntime::GUI::Window::Create("Hello",256,128);
 var button = OLRuntime::GUI::Button::Create(window,"Button",0,0,128,24);
@@ -97,6 +98,14 @@ namespace OL
 			{
 				OLRuntime::GUI::Window::SetFont(this._window, font.name, font.size, font.bold, font.italic, font.underline, font.strike);
 			}
+			string GetText()
+			{
+				return OLRuntime::GUI::Window::GetText(this._window);
+			}
+			string SetText(string text)
+			{
+				return OLRuntime::GUI::Window::SetText(this._window, text);
+			}
 		}
 		class Button
 		{
@@ -115,6 +124,14 @@ namespace OL
 			{
 				OLRuntime::GUI::Window::SetFont(this._window, font.name, font.size, font.bold, font.italic, font.underline, font.strike);
 			}
+			string GetText()
+			{
+				return OLRuntime::GUI::Window::GetText(this._window);
+			}
+			string SetText(string text)
+			{
+				return OLRuntime::GUI::Window::SetText(this._window, text);
+			}
 		}
 		class Label
 		{
@@ -132,6 +149,14 @@ namespace OL
 			void SetFont(Font font)
 			{
 				OLRuntime::GUI::Window::SetFont(this._window, font.name, font.size, font.bold, font.italic, font.underline, font.strike);
+			}
+			string GetText()
+			{
+				return OLRuntime::GUI::Window::GetText(this._window);
+			}
+			string SetText(string text)
+			{
+				return OLRuntime::GUI::Window::SetText(this._window, text);
 			}
 		}
 		class Font
@@ -185,6 +210,14 @@ namespace OL
 			{
 				OLRuntime::GUI::Window::SetFont(this._window, font.name, font.size, font.bold, font.italic, font.underline, font.strike);
 			}
+			string GetText()
+			{
+				return OLRuntime::GUI::Window::GetText(this._window);
+			}
+			string SetText(string text)
+			{
+				return OLRuntime::GUI::Window::SetText(this._window, text);
+			}
 		}
 		class CheckBox
 		{
@@ -202,6 +235,14 @@ namespace OL
 			void SetFont(Font font)
 			{
 				OLRuntime::GUI::Window::SetFont(this._window, font.name, font.size, font.bold, font.italic, font.underline, font.strike);
+			}
+			string GetText()
+			{
+				return OLRuntime::GUI::Window::GetText(this._window);
+			}
+			string SetText(string text)
+			{
+				return OLRuntime::GUI::Window::SetText(this._window, text);
 			}
 		}
 	}
