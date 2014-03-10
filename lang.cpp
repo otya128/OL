@@ -17,7 +17,6 @@
 #include <windows.h>
 #include "Function.h"
 #include <time.h>
-#include "OLWindow.h"
 #include "Åı.h"
 #pragma comment(linker, "\"/manifestdependency:type='Win32' "\
     "name='Microsoft.Windows.Common-Controls' version='6.0.0.0' "\
@@ -118,16 +117,18 @@ void narrow(const std::wstring &src, std::string &dest) {
     dest = mbs;
     delete [] mbs;
 }
-TextBox* txt;
+#include "GTKOLWindow.h"
 OLWindow* window;
+TCHAR filename_[MAX_PATH];
+_TCHAR*filename = L"";
+#ifndef OL_GTK
+TextBox* txt;
 void Window_OnSizeChange(eventargs<OLWindow*> arg)
 {
     std::cout<<arg.Arg->GetWidth()<<"\t"<<arg.Arg->GetHeight()<<std::endl;
     txt->SetHeight(arg.Arg->GetHeight());
     txt->SetWidth(arg.Arg->GetWidth());
 }
-TCHAR filename_[MAX_PATH];
-_TCHAR*filename = L"";
 //å©Ç…Ç≠Ç¢Ç©ÇÁï™ÇØÇΩ
 void Button_OnClick(eventargs<OLWindow*> c)
 {
@@ -168,6 +169,7 @@ void gui(void)
     delete window;
     // delete txt;
     return;
+#endif
 #ifndef vÅiÅfÉ÷ÅfÅjv
     //DEBUG
     window = new OLWindow(L"Hello",512,512);
@@ -192,6 +194,12 @@ void gui(void)
     window->Show();
     delete window;
     delete txt;
+#else
+void gui(void)
+{
+    window = new OLWindow("OtyaLanguage",512,128);
+    window->Show();
+    delete window;
 #endif
 }
 int _tmain(int argc, _TCHAR *argv[])

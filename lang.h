@@ -1,5 +1,6 @@
 #include <memory>
 #pragma once
+#define OL_GTK
 #define CPP11 1
 #ifdef CPP11
 #define ENUMCLASS enum class

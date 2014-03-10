@@ -1,6 +1,6 @@
 #include "stdafx.h"
+#if _WIN32
 #include "OLWindow.h"
-
 namespace lang
 {
     LPCWSTR OLWindow::classname = _T("OLWindow");
@@ -450,3 +450,4 @@ namespace lang
     }
     BYTE Init = WindowClassInit();
 }
+#endif

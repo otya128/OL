@@ -1,7 +1,9 @@
+#if _WIN32
 #pragma once
 #include <vector>
 #include <map>
 #include <Windows.h>
+#include "lang.h"
 namespace lang
 {
     template<class T = void*>
@@ -216,3 +218,4 @@ namespace lang
         Label(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
     };
 }
+#endif
