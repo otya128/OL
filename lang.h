@@ -15,7 +15,10 @@ namespace lang
     extern bool gc_view;
     extern int error_level;
     extern bool running;
-#define vifƒÖfjv //‚½‚µ‚©‚É~~~~~
+    #define v__  
+#define __v(x)  static_assert(x == 'ƒÖ', "KANI ERROR");
+#define v____v(x)  static_assert(x == 'ƒÖ', "KANI ERROR");
+//#define vifƒÖfjv //‚½‚µ‚©‚É~~~~~
 #define var_ auto
 #define in_ :
 #define foreach_ for

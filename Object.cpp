@@ -223,7 +223,7 @@ namespace lang
     }
     std::string WChar::toString()
     {
-        v（’ω’）v
+            __v('ω')
             //変換文字列格納バッファ
             /*char wStrC[3];
             size_t wLen = 0;

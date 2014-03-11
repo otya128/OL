@@ -24,8 +24,8 @@ namespace lang
     template<class T = void*, class EFunc = EventFunc>
     class Event
     {
-        std::vector<EFunc> even;
     public:
+        std::vector<EFunc> even;
         Event::Event()
         {
         }
@@ -59,6 +59,15 @@ namespace lang
         HWND hWnd;
         MSG msg;
         WNDPROC proc;
+        /*OLWindow(const OLWindow& copy)
+        {
+            windowmap[copy.hWnd] = this;
+        }*/
+        virtual void Copy(const OLWindow& copy)
+        {
+            windowmap[copy.hWnd] = this;
+            *this = copy;
+        }
         OLWindow(LPCWSTR title);
         OLWindow(LPCWSTR title,int nWidth,int nHeight);
         OLWindow(LPCWSTR title, int X,int Y,int nWidth,int nHeight);
@@ -109,19 +118,37 @@ namespace lang
         void* Tag;
         HFONT hFont;
     };
+
     class Button : public OLWindow
     {
         static LPCWSTR classname;
     public:
+        void Copy(const Button& copy)
+        {
+            windowmap[copy.hWnd] = this;
+            *this = copy;
+        }
+       // Button& operator=(const Button& copy);/*
+        /*{
+        }*/
+        /*Button& operator=(const Button& copy)
+        {
+            windowmap[copy.hWnd] = this;
+            return Button(copy);
+        }*/
        // Event<Button*,ButtonEventFunc> OnClick;
         WNDPROC baseWndProc;
         Button(){}
         Button(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
     };
-    
     class CheckBox : public Button
     {
     public:
+        void Copy(const CheckBox& copy)
+        {
+            windowmap[copy.hWnd] = this;
+            *this = copy;
+        }
        // Event<Button*,ButtonEventFunc> OnClick;
         CheckBox(){}
         CheckBox(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
@@ -129,6 +156,11 @@ namespace lang
     class TextBox : public OLWindow
     {
     public:
+        void Copy(const TextBox& copy)
+        {
+            windowmap[copy.hWnd] = this;
+            *this = copy;
+        }
         TextBox(){}
         BOOL SetReadOnly(BOOL fr)
         {

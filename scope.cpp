@@ -216,9 +216,9 @@ namespace lang
             int len = str2.length();
             TCHAR* buf = new TCHAR[len * 2];
             buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
-            a->win = OLWindow(buf,Int::toInt(arg[1]),Int::toInt(arg[2]));
+            a->win.Copy(OLWindow(buf,Int::toInt(arg[1]),Int::toInt(arg[2])));
             delete buf;
-            OLWindow::windowmap[a->win.hWnd] = &a->win;
+            //OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
             a->win.SetFont(_T("MS UI Gothic"), 9);
             //
@@ -271,9 +271,9 @@ namespace lang
             int len = str2.length();
             TCHAR* buf = new TCHAR[len * 2];
             buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
-            a->win = Button(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
+            a->win.Copy(Button(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5])));
             delete buf;
-            OLWindow::windowmap[a->win.hWnd] = &a->win;
+            //OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
             a->win.SetFont(_T("MS UI Gothic"), 9);
             return a;
@@ -288,7 +288,7 @@ namespace lang
             buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
             a->win = Label(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
             delete buf;
-            OLWindow::windowmap[a->win.hWnd] = &a->win;
+            //OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
             a->win.SetFont(_T("MS UI Gothic"), 9);
             return a;
@@ -301,9 +301,9 @@ namespace lang
             int len = str2.length();
             TCHAR* buf = new TCHAR[len * 2 + 1];
             buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
-            a->win = TextBox(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]),Int::toInt(arg[6]));
+            a->win.Copy(TextBox(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]),Int::toInt(arg[6])));
             delete buf;
-            OLWindow::windowmap[a->win.hWnd] = &a->win;
+            //OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
             a->win.SetFont(_T("MS UI Gothic"), 9);
             return a;
@@ -340,7 +340,7 @@ namespace lang
             buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
             a->win = CheckBox(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
             delete buf;
-            OLWindow::windowmap[a->win.hWnd] = &a->win;
+            //OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
             a->win.SetFont(_T("MS UI Gothic"), 9);
             return a;
@@ -1065,8 +1065,8 @@ namespace lang
                     //object = 
                     index = i;
                     binaryoperation = index + 1;
-                }
-                if(isBuilt)vifƒÖfjv
+                }__v('ƒÖ')v__
+                if(isBuilt)
                     i = index-1;
                 OP4
                     //if(this->parsers.size()>index+1&& Operator(this->parsers[index+1]->pEnum) >= thisop ||this->parsers[index+1]->pEnum==leftparent)
