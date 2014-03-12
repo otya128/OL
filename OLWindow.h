@@ -32,10 +32,10 @@ namespace lang
         void operator ()(eventargs<T> er)
         {
             if(even.size())
-            for(int i=0;i<even.size();i++)
-            {
-                even[i](er);
-            }
+                for(int i=0;i<even.size();i++)
+                {
+                    even[i](er);
+                }
         }
         EFunc operator += (EFunc e)
         {
@@ -48,9 +48,11 @@ namespace lang
     {
 
     protected:
-        void OLWindow::ctor(LPCWSTR title, int X,int Y,int nWidth,int nHeight, LPCWSTR ClassName,long style = WS_OVERLAPPEDWINDOW,HWND parent = NULL);
+        void ctor(LPCWSTR title, int X,int Y,int nWidth,int nHeight, LPCWSTR ClassName,long style = WS_OVERLAPPEDWINDOW,HWND parent = NULL);
+        void ctor(LPCSTR title, int X,int Y,int nWidth,int nHeight, LPCWSTR ClassName,long style = WS_OVERLAPPEDWINDOW,HWND parent = NULL);
     public:
         static LPCWSTR classname;
+        static LPCSTR classnameA;
         static std::map<HWND,OLWindow*> windowmap;
         WindowEvent OnClick;
         WindowEvent OnSizeChange;
@@ -61,7 +63,7 @@ namespace lang
         WNDPROC proc;
         /*OLWindow(const OLWindow& copy)
         {
-            windowmap[copy.hWnd] = this;
+        windowmap[copy.hWnd] = this;
         }*/
         virtual void Copy(const OLWindow& copy)
         {
@@ -71,12 +73,19 @@ namespace lang
         OLWindow(LPCWSTR title);
         OLWindow(LPCWSTR title,int nWidth,int nHeight);
         OLWindow(LPCWSTR title, int X,int Y,int nWidth,int nHeight);
+        OLWindow(LPCSTR title);
+        OLWindow(LPCSTR title,int nWidth,int nHeight);
+        OLWindow(LPCSTR title, int X,int Y,int nWidth,int nHeight);
         void OLWindow::Add(OLWindow& wnd);
         void Show();
         void Close();
         virtual ~OLWindow(void);
         void SetFont(TCHAR* name, int size);
         void SetFont(TCHAR* name, int size,bool bold,bool italic,bool underline,bool strike);
+#if _UNICODE
+        void SetFont(const char* name, int size);
+        void SetFont(const char* name, int size,bool bold,bool italic,bool underline,bool strike);
+#endif
         LONG GetWidth()
         {
             RECT rc;
@@ -107,12 +116,28 @@ namespace lang
         {
             return GetWindowText(hWnd,text,bufsiz);
         }
+        void SetText(const char* text)
+        {
+            SetWindowTextA(hWnd, text);
+        }
+        int GetText(char* text,size_t bufsiz)
+        {
+            return GetWindowTextA(hWnd,text,bufsiz);
+        }
         //deleteïKê{
-        TCHAR* GetText()
+        TCHAR* GetTextW()
         {
             int size = SendMessage(hWnd,WM_GETTEXTLENGTH,0,0);
             TCHAR* buf = new TCHAR[size + 2];//îOÇÃÇΩÇﬂ+2
             GetWindowText(hWnd,buf,size + 1);
+            return buf;
+        }
+        //deleteïKê{
+        char* GetText()
+        {
+            int size = SendMessageA(hWnd,WM_GETTEXTLENGTH,0,0);
+            char* buf = new char[size + 2];//îOÇÃÇΩÇﬂ+2
+            GetWindowTextA(hWnd,buf,size + 1);
             return buf;
         }
         void* Tag;
@@ -122,24 +147,26 @@ namespace lang
     class Button : public OLWindow
     {
         static LPCWSTR classname;
+        static LPCSTR classnameA;
     public:
         void Copy(const Button& copy)
         {
             windowmap[copy.hWnd] = this;
             *this = copy;
         }
-       // Button& operator=(const Button& copy);/*
+        // Button& operator=(const Button& copy);/*
         /*{
         }*/
         /*Button& operator=(const Button& copy)
         {
-            windowmap[copy.hWnd] = this;
-            return Button(copy);
+        windowmap[copy.hWnd] = this;
+        return Button(copy);
         }*/
-       // Event<Button*,ButtonEventFunc> OnClick;
+        // Event<Button*,ButtonEventFunc> OnClick;
         WNDPROC baseWndProc;
         Button(){}
         Button(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
+        Button(OLWindow& parent,LPCSTR title, int X,int Y,int nWidth,int nHeight);
     };
     class CheckBox : public Button
     {
@@ -149,9 +176,10 @@ namespace lang
             windowmap[copy.hWnd] = this;
             *this = copy;
         }
-       // Event<Button*,ButtonEventFunc> OnClick;
+        // Event<Button*,ButtonEventFunc> OnClick;
         CheckBox(){}
         CheckBox(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
+        CheckBox(OLWindow& parent,LPCSTR title, int X,int Y,int nWidth,int nHeight);
     };
     class TextBox : public OLWindow
     {
@@ -187,6 +215,7 @@ namespace lang
         }
         WNDPROC baseWndProc;
         TextBox(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight, bool multiline);
+        TextBox(OLWindow& parent,LPCSTR title, int X,int Y,int nWidth,int nHeight, bool multiline);
     };
     class OpenFileDialog
     {
@@ -245,9 +274,19 @@ namespace lang
     };
     class Label : public OLWindow
     {
-        public:
+    public:
+        void Copy(const Label& copy)
+        {
+            windowmap[copy.hWnd] = this;
+            *this = copy;
+        }
         Label(){}
         Label(OLWindow& parent,LPCWSTR title, int X,int Y,int nWidth,int nHeight);
+        Label(OLWindow& parent,LPCSTR title, int X,int Y,int nWidth,int nHeight);
     };
+    void __MessageBox(const char* message);
+    void __MessageBox(OLWindow &parent,const char* message);
+    void __MessageBox(const wchar_t* message);
+    void __MessageBox(OLWindow &parent,const wchar_t* message);
 }
 #endif

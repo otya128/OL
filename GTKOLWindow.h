@@ -1,14 +1,14 @@
-
 #pragma comment(lib, "C:/GTK/LIB/glib-2.0.lib")
 #pragma comment(lib, "C:/GTK/LIB/gobject-2.0.lib")
 #pragma comment(lib, "C:/GTK/LIB/gtk-win32-2.0.lib")
+#pragma comment(lib, "C:/gTK/LIB/pango-1.0.lib")
 #include <vector>
 #include <map>
 #define GTK_ENABLE_BROKEN
-#include <gtk/gtk.h> 
+#include <gtk/gtk.h>
 #include "lang.h"
 //__v('KANI')v__//Ç±ÇÍÇæÇ∆KANI ERROR
-__v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v__
+//__v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v__
     namespace lang
 {
     namespace gtk
@@ -55,6 +55,12 @@ __v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷'
         {
             void OLWindow::ctor(const gchar* title, int nWidth,int nHeight);
         public:
+            static std::map<GtkWidget*,OLWindow*> windowmap;
+            virtual void Copy(const OLWindow& copy)
+            {
+                windowmap[copy.window] = this;
+                *this = copy;
+            }
             WindowEvent OnClick;
             WindowEvent OnSizeChange;
             GtkWidget* window;
@@ -65,8 +71,8 @@ __v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷'
             //OLWindow(const char* title, int X,int Y,int nWidth,int nHeight);
             void OLWindow::Show();
             virtual ~OLWindow(void);
-            void SetFont(TCHAR* name, int size);
-            void SetFont(TCHAR* name, int size,bool bold,bool italic,bool underline,bool strike);
+            virtual void SetFont(const gchar* name, int size);
+            virtual void SetFont(const gchar* name, int size,bool bold,bool italic,bool underline,bool strike);
             void Close()
             {
                 gtk_main_quit( ) ;
@@ -112,10 +118,6 @@ __v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷'
                 gchar* copy = new gchar[len + 1];
                 strcpy_s(copy, len, text);
                 return copy;
-                //int size = SendMessage(hWnd,WM_GETTEXTLENGTH,0,0);
-                //TCHAR* buf = new TCHAR[size + 2];//îOÇÃÇΩÇﬂ+2
-                //GetWindowText(hWnd,buf,size + 1);
-                //return buf;
             }
             void* Tag;
         };
@@ -123,6 +125,11 @@ __v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷'
         {
             void ctor(OLWindow& parent, const gchar* title, int X, int Y, int nWidth,int nHeight);
         public:
+            void Copy(const Button& copy)
+            {
+                windowmap[copy.window] = this;
+                *this = copy;
+            }
             Button(void);
             Button(OLWindow& parent, const gchar* title, int X, int Y, int width, int height);
         };
@@ -130,14 +137,25 @@ __v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷'
         {
             void ctor(OLWindow& parent, const gchar* title, int X, int Y, int nWidth,int nHeight);
         public:
+            void Copy(const CheckBox& copy)
+            {
+                windowmap[copy.window] = this;
+                *this = copy;
+            }
             CheckBox();
             CheckBox(OLWindow& parent,const gchar* title, int X,int Y,int nWidth,int nHeight);
         };
         class TextBox : public OLWindow
         {
+            gboolean _editable;
             void ctor(OLWindow& parent, const gchar* title, int X, int Y, int nWidth,int nHeight, gboolean multiline);
         public:
-            virtual void SetText(gchar* text)
+            void Copy(const TextBox& copy)
+            {
+                windowmap[copy.window] = this;
+                *this = copy;
+            }
+            virtual void SetText(const gchar* text)
             {
                 if(GTK_IS_ENTRY(window))
                 {
@@ -169,7 +187,7 @@ __v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷'
                     int len = strlen(refe);//GTK_TEXT_VIEW(window)->text_length;
                     gchar* ret = new gchar[len + 1];
                     ret[len] = '\0';
-                    strncpy_s(ret, len, refe, len);
+                    memcpy(ret, refe, len);//strcpy/*_s*/(ret/*, len*/, refe/*, len*/);
                     return ret;
                 }
             }
@@ -189,13 +207,43 @@ __v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷'
                     gtk_text_buffer_get_end_iter(buffer,&enditer);
                     gtk_text_buffer_get_start_iter(buffer,&startiter);
                     const gchar* refe = gtk_text_buffer_get_text(buffer, &startiter, &enditer, TRUE);
-                    strcpy_s(buf, bufsiz, refe);
+                    memcpy(buf, refe, bufsiz);
                     buf[bufsiz - 1] = '\0';
                     return;
                 }
             }
             TextBox(void);
             TextBox(OLWindow& parent, const gchar* title, int X, int Y, int width, int height, gboolean multiline);
+            gboolean SetReadOnly(gboolean fr)
+            {
+                if(GTK_IS_ENTRY(window))
+                {
+                    _editable = fr;
+                    gtk_entry_set_editable(GTK_ENTRY(window), fr);
+                }
+                else
+                {
+                    _editable = fr;
+                    gtk_text_view_set_editable(GTK_TEXT_VIEW(window), fr);
+                }
+                return fr;
+            }
+            gboolean GetReadOnly()
+            {
+                if(GTK_IS_TEXT_VIEW(window))
+                {
+                    return gtk_text_view_get_editable(GTK_TEXT_VIEW(window));
+                }
+                return _editable;
+            }
+            gboolean GetMultiLine()
+            {
+                return GTK_IS_TEXT_VIEW(window);
+            }
+            void SetMultiLine(gboolean fr)
+            {
+
+            }
         };
         class OpenFileDialog
         {
@@ -246,10 +294,16 @@ __v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷')v____v('É÷'
         class Label : public OLWindow
         {
         public:
+            void Copy(const Label& copy)
+            {
+                windowmap[copy.window] = this;
+                *this = copy;
+            }
             Label(){}
             Label(OLWindow& parent,const gchar* title, int X,int Y,int nWidth,int nHeight);
         };
-
+        void __MessageBox(const gchar* message);
+        void __MessageBox(OLWindow &parent,const gchar* message);
     }
 }
 using namespace lang::gtk;

@@ -4,9 +4,10 @@ namespace lang
 {
     namespace gtk
     {
-        std::map<GtkWidget*,OLWindow*> windowmap;
+        std::map<GtkWidget*,OLWindow*> OLWindow::windowmap;
         OLWindow::OLWindow()
         {
+            fixed = NULL;
         }
         OLWindow::OLWindow(const gchar* title,int nWidth,int nHeight)
         {
@@ -38,7 +39,8 @@ namespace lang
         }
         void onclick_callback( GtkWidget *widget, gpointer data)
         {
-            ((OLWindow*)data)->OnClick((OLWindow*)data);
+            auto win = OLWindow::windowmap[widget];
+            (win)->OnClick(win);
         }
         void Button::ctor(OLWindow& parent, const gchar* title, int X, int Y, int nWidth,int nHeight)
         {
@@ -78,6 +80,11 @@ namespace lang
         {
             window = gtk_check_button_new_with_label(title);
             gtk_widget_set_size_request(window, nWidth, nHeight);
+            if(!parent.fixed)
+            {
+                parent.fixed = (GtkFixed*)gtk_fixed_new();
+                gtk_container_add(GTK_CONTAINER(window), (GtkWidget*)parent.fixed);
+            }
             gtk_fixed_put(parent.fixed, window, X, Y);
             windowmap[window] = this;
             gtk_signal_connect (GTK_OBJECT (window), "clicked",
@@ -124,6 +131,95 @@ namespace lang
             gtk_widget_set_size_request(window, nWidth, nHeight);
             gtk_fixed_put(parent.fixed, window, X, Y);
             windowmap[window] = this;
+        }
+    }
+}
+#include <sstream>
+#ifdef _WIN32
+#include <windows.h>
+#define ConvSJistoUtf8_FREE(pDist) delete [] pDist
+#else
+#define ConvSJistoUtf8_FREE(pDist) 
+#endif
+namespace lang
+{
+    namespace gtk
+    {
+        //copypaste http://www.lab.its55.com/?p=32
+        int ConvSJistoUtf8(const char* pSource, char*& pDist )
+        {
+            #ifndef _WIN32
+                pDist = pSource;
+                return TRUE;
+            #endif
+            int pSize = 0;
+
+            //ShiftJIS‚©‚çUTF-16‚Ö•ÏŠ·
+            const int nSize = ::MultiByteToWideChar( CP_ACP, 0, (char*)
+                pSource, -1, NULL, 0 );
+
+            char* buffUtf16 = new char[ nSize * 2 + 2 ];
+            ::MultiByteToWideChar( CP_ACP, 0, (char*)pSource, -1, (wchar_t*)
+                buffUtf16, nSize );
+
+            //UTF-16‚©‚çShift-JIS‚Ö•ÏŠ·
+            const int nSizeUtf8 = ::WideCharToMultiByte( CP_UTF8, 0, (wchar_t*)
+                buffUtf16, -1, NULL, 0, NULL, NULL );
+            //if( !pDist ){
+                pSize = nSizeUtf8;
+                pDist = new char[pSize + 1];
+                //delete buffUtf16;
+                //return TRUE;
+            //}
+
+            char* buffUtf8 = new char[ nSizeUtf8 * 2 ];
+            memset( buffUtf8, 0, nSizeUtf8 * 2 );
+            ::WideCharToMultiByte( CP_UTF8, 0, (wchar_t*)buffUtf16, -1, (LPSTR)
+                buffUtf8, nSizeUtf8, NULL, NULL );
+
+            pSize = strlen( (char*)buffUtf8 );
+            memcpy( pDist, buffUtf8, pSize );
+            pDist[pSize] = '\0';
+            delete buffUtf16;
+            delete buffUtf8;
+
+            return TRUE;
+        }
+        void OLWindow::SetFont(const gchar* name, int size)
+        {
+            //__v(L'ƒÖ')v__;
+            std::stringstream fontname;
+            fontname << name << ' ' << size;
+            gtk_widget_modify_font(window, pango_font_description_from_string(fontname.str().c_str()));
+        }
+        void OLWindow::SetFont(const gchar* name, int size,bool bold,bool italic,bool underline,bool strike)
+        {
+            //__v(L'ƒÖ')v__;
+            std::stringstream fontname;
+            gchar* utf8;
+            ConvSJistoUtf8(name, utf8);
+            fontname << utf8 << ' ' << size;
+            if(underline)fontname << ' ' << "Underline";
+            if(strike)fontname << ' ' << "Strike";
+            auto font = pango_font_description_from_string(fontname.str().c_str());
+            pango_font_description_set_style(font, italic ? PangoStyle::PANGO_STYLE_ITALIC : PangoStyle::PANGO_STYLE_NORMAL);
+            pango_font_description_set_weight(font, bold ? PangoWeight::PANGO_WEIGHT_BOLD : PangoWeight::PANGO_WEIGHT_NORMAL);
+            //pango_font_description_set_under
+            //pango_font_description_set //PangoAttrType::PANGO_ATTR_UNDERLINE
+            gtk_widget_modify_font(window, font);
+            ConvSJistoUtf8_FREE(utf8);
+        }
+        void __MessageBox(const gchar* message)
+        {
+            auto dialog = gtk_message_dialog_new(NULL, GtkDialogFlags::GTK_DIALOG_MODAL, GtkMessageType::GTK_MESSAGE_INFO, GtkButtonsType::GTK_BUTTONS_OK, message);
+            gtk_dialog_run((GtkDialog*)dialog);
+            gtk_widget_destroy(dialog);
+        }
+        void __MessageBox(OLWindow &parent,const gchar* message)
+        {
+            auto dialog = gtk_message_dialog_new((GtkWindow*)(parent.window), GtkDialogFlags::GTK_DIALOG_MODAL, GtkMessageType::GTK_MESSAGE_INFO, GtkButtonsType::GTK_BUTTONS_OK, message);
+            gtk_dialog_run((GtkDialog*)dialog);
+            gtk_widget_destroy(dialog);
         }
     }
 }

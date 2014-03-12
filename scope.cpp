@@ -18,7 +18,7 @@
 #include "lang.h"
 #include "Class.h"
 #include "Array.h"
-#include "OLWindow.h"
+#include "GTKOLWindow.h"
 namespace lang
 {//VisualStadio
     typedef langObject (*BuiltFunc)(std::vector<langObject>);
@@ -212,15 +212,15 @@ namespace lang
         langObject window_create(std::vector<langObject> arg)
         {
             ObjectWin* a = new ObjectWin();
-            std::string str2 = arg[0]->toString();
-            int len = str2.length();
-            TCHAR* buf = new TCHAR[len * 2];
-            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
-            a->win.Copy(OLWindow(buf,Int::toInt(arg[1]),Int::toInt(arg[2])));
-            delete buf;
+            std::string& str2 = arg[0]->toString();
+            //int len = str2.length();
+            //TCHAR* buf = new TCHAR[len * 2];
+            //buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
+            a->win.Copy(OLWindow(str2.c_str()/*buf*/,Int::toInt(arg[1]),Int::toInt(arg[2])));
+            //delete buf;
             //OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
-            a->win.SetFont(_T("MS UI Gothic"), 9);
+            a->win.SetFont("MS UI Gothic", 9);
             //
             return a;
         }
@@ -233,25 +233,26 @@ namespace lang
         langObject window_gettext(std::vector<langObject> arg)
         {
             ObjectWin* a = static_cast<ObjectWin*>(arg[0]);
-            TCHAR* text = a->win.GetText();
+            //TCHAR* text = a->win.GetText();
             langString result;
-            int len = _tcsclen(text);
-            char *mbs = new char[len * 2 + 2];
-            mbs[WideCharToMultiByte(CP_ACP,0,text,-1,mbs,len * 2 + 1,NULL,NULL)] = '\0';
-            result = newString(&std::string(mbs));
-            delete [] mbs;
-            delete [] text;
+            //int len = _tcsclen(text);
+            //char *mbs = new char[len * 2 + 2];
+            //mbs[WideCharToMultiByte(CP_ACP,0,text,-1,mbs,len * 2 + 1,NULL,NULL)] = '\0';
+            //result = newString(&std::string(mbs));
+            //delete [] mbs;
+            //delete [] text;
+            result = newString(&std::string(a->win.GetText()));
             return result;
         }
         langObject window_settext(std::vector<langObject> arg)
         {
             ObjectWin* a = static_cast<ObjectWin*>(arg[0]);
-            std::string str2 = arg[1]->toString();
-            int len = str2.length();
-            TCHAR* buf = new TCHAR[len * 2 + 1];
-            buf[MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
-            a->win.SetText(buf);
-            delete buf;
+            std::string& str2 = arg[1]->toString();
+            //int len = str2.length();
+            //TCHAR* buf = new TCHAR[len * 2 + 1];
+            //buf[MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
+            a->win.SetText(str2.c_str());
+            //delete buf;
             return a;
         }/*
          class ObjectBtn : public ObjectWin
@@ -267,45 +268,45 @@ namespace lang
         {
             ObjectWin* parent = dynamic_cast<ObjectWin*>(arg[0]);
             ObjectBtn* a = new ObjectBtn();
-            std::string str2 = arg[1]->toString();
-            int len = str2.length();
-            TCHAR* buf = new TCHAR[len * 2];
-            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
-            a->win.Copy(Button(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5])));
-            delete buf;
+            std::string& str2 = arg[1]->toString();
+            //int len = str2.length();
+            //TCHAR* buf = new TCHAR[len * 2];
+            //buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
+            a->win.Copy(Button(parent->win,str2.c_str(),Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5])));
+            //delete buf;
             //OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
-            a->win.SetFont(_T("MS UI Gothic"), 9);
+            a->win.SetFont("MS UI Gothic", 9);
             return a;
         }
         langObject label_create(std::vector<langObject> arg)
         {
             ObjectWin* parent = dynamic_cast<ObjectWin*>(arg[0]);
             ObjectLabel* a = new ObjectLabel();
-            std::string str2 = arg[1]->toString();
-            int len = str2.length();
-            TCHAR* buf = new TCHAR[len * 2];
-            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
-            a->win = Label(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
-            delete buf;
+            std::string& str2 = arg[1]->toString();
+            //int len = str2.length();
+            //TCHAR* buf = new TCHAR[len * 2];
+            //buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
+            a->win.Copy(Label(parent->win,str2.c_str(),Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5])));
+            //delete buf;
             //OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
-            a->win.SetFont(_T("MS UI Gothic"), 9);
+            a->win.SetFont("MS UI Gothic", 9);
             return a;
         }
         langObject textbox_create(std::vector<langObject> arg)
         {
             ObjectWin* parent = dynamic_cast<ObjectWin*>(arg[0]);
             ObjectTextBox* a = new ObjectTextBox();
-            std::string str2 = arg[1]->toString();
-            int len = str2.length();
-            TCHAR* buf = new TCHAR[len * 2 + 1];
-            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
-            a->win.Copy(TextBox(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]),Int::toInt(arg[6])));
-            delete buf;
+            std::string& str2 = arg[1]->toString();
+            //int len = str2.length();
+            //TCHAR* buf = new TCHAR[len * 2 + 1];
+            //buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
+            a->win.Copy(TextBox(parent->win,str2.c_str(),Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]),Int::toInt(arg[6])));
+            //delete buf;
             //OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
-            a->win.SetFont(_T("MS UI Gothic"), 9);
+            a->win.SetFont("MS UI Gothic", 9);
             return a;
         }
         langObject textbox_setreadonly(std::vector<langObject> arg)
@@ -334,15 +335,15 @@ namespace lang
         {
             ObjectWin* parent = /*dynamic*/static_cast<ObjectWin*>(arg[0]);
             ObjectCheckBox* a = new ObjectCheckBox();
-            std::string str2 = arg[1]->toString();
-            int len = str2.length();
-            TCHAR* buf = new TCHAR[len * 2];
-            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
-            a->win = CheckBox(parent->win,buf,Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5]));
-            delete buf;
+            std::string &str2 = arg[1]->toString();
+            //int len = str2.length();
+            //TCHAR* buf = new TCHAR[len * 2];
+            //buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
+            a->win.Copy(CheckBox(parent->win,str2.c_str(),Int::toInt(arg[2]),Int::toInt(arg[3]),Int::toInt(arg[4]),Int::toInt(arg[5])));
+            //delete buf;
             //OLWindow::windowmap[a->win.hWnd] = &a->win;
             a->win.Tag = a;
-            a->win.SetFont(_T("MS UI Gothic"), 9);
+            a->win.SetFont("MS UI Gothic", 9);
             return a;
         }
         void window_setonclick_event(eventargs<OLWindow*> v)
@@ -368,23 +369,23 @@ namespace lang
         langObject window_setfont(std::vector<langObject> arg)
         {
             ObjectWin* a = (ObjectWin*)arg[0];
-            std::string str2 = arg[1]->toString();
-            int len = str2.length();
-            TCHAR* buf = new TCHAR[len * 2];
-            buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
-            if(arg.size() == 2) a->win.SetFont(buf,Int::toInt(arg[1]));
-            else if(arg.size() == 7) a->win.SetFont(buf, Int::toInt(arg[2]), Int::toInt(arg[3]), Int::toInt(arg[4]), Int::toInt(arg[5]), Int::toInt(arg[6]));
+            std::string& str2 = arg[1]->toString();
+            //int len = str2.length();
+            //TCHAR* buf = new TCHAR[len * 2];
+            //buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
+            if(arg.size() == 2) a->win.SetFont(str2.c_str(),Int::toInt(arg[1]));
+            else if(arg.size() == 7) a->win.SetFont(str2.c_str(), Int::toInt(arg[2]), Int::toInt(arg[3]), Int::toInt(arg[4]), Int::toInt(arg[5]), Int::toInt(arg[6]));
             return a;
         }
         langObject messagebox(std::vector<langObject> arg)
         {
             if(arg.size() == 1)
-                MessageBoxA(NULL, arg[0]->toString().c_str(),"",MB_OK);
+                __MessageBox(arg[0]->toString().c_str());//MessageBoxA(NULL, arg[0]->toString().c_str(),"",MB_OK);
             else
                 if(arg.size() == 2)
                 {
                     ObjectWin* window = dynamic_cast<ObjectWin*>(arg[1]);
-                    MessageBoxA(window->win.hWnd, arg[0]->toString().c_str(),"",MB_OK);
+                    __MessageBox(window->win, arg[0]->toString().c_str());//MessageBoxA(window->win.hWnd, arg[0]->toString().c_str(),"",MB_OK);
                 }
                 return NULLOBJECT;
         }

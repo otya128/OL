@@ -6,7 +6,7 @@ var button1 = new Button(form1,"Button",0,0,128,24);
 var button2 = new Button(form1,"Click!",0,40,128,24);
 var label1 = new Label(form1,"Hello,World!!",0,24,128,16);
 var textbox1 = new TextBox(form1,"",0,64,256,192,true);
-var font = new Font("‚l‚r –¾’©",10,true,true,true,true);
+var font = new Font("‚l‚r ƒSƒVƒbƒN",20,true,true,true,true);
 textbox1.SetFont(font);
 //textbox1.SetMultiLine(false);
 var checkbox1 = new CheckBox(textbox1,"CheckBox",0,88,128,16);

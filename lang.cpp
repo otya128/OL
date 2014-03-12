@@ -210,12 +210,13 @@ void gui(void)
 #else
     void gui(void)
     {
-        window = new OLWindow("OtyaLanguage日本語",512,128);
+        window = new OLWindow("OtyaLanguage",512,128);
         window->SetResize(FALSE);
         Button btn(*window,"File",512-128,0,128,32);
         Button btn_2(*window,"Run",512-128,32,128,32);
         txt = new TextBox(*window,_OLT(""),0,0,512-128,32, false);
-        Label label(*window,_OLT("OtyaLanguage日本語"),8,32,128,128);
+        Label label(*window,_OLT("OtyaLanguage"),8,32,128,128);
+        label.SetFont("Meiryo UI", 20);
         btn.OnClick+=Button_OnClick;
         btn_2.OnClick+=Button2_OnClick;
         window->Show();
@@ -223,8 +224,15 @@ void gui(void)
         delete txt;
 #endif
     }
+#include <commctrl.h>
+#pragma comment(lib, "comctl32.lib")
     int main(int argc, char *argv[])
     {
+        INITCOMMONCONTROLSEX    stICCEx;
+        stICCEx.dwSize = sizeof ( INITCOMMONCONTROLSEX );
+        stICCEx.dwICC  = INT_MAX;//ICC_WIN95_CLASSES;                                // ICC_STANDARD_CLASSES
+        //InitCommonControlsEx
+        InitCommonControlsEx ( & stICCEx );
         //    _CrtSetBreakAlloc(155);
         int result = 0;
         {
