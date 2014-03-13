@@ -163,7 +163,12 @@ namespace lang
                         //if( funcStack.size()>=2)for(size_t i = funcStack.size() - 2;i>=0;i--)
 
                         if(funcStack.size() >= 2)
-                            for(size_t i = funcStack.size() - 1;i>=0;i--){
+#if _MSC_VER >=1800
+						for (size_t i = 0; i < funcStack.size() - 1; i++)
+#else
+						for (size_t i = funcStack.size() - 1; i >= 0; i--)
+#endif//for(size_t i = funcStack.size() - 1;i>=0;i--){
+						{
                                 if(cont[i].type == sts::NameSpace)
                                 {
                                     namesp = cont[i].name;
@@ -455,7 +460,11 @@ namespace lang
                         namesp.clear();
                         auto cont = funcStack._Get_container();
                         if(funcStack.size() >= 2)
+#if _MSC_VER >=1800
+						for (size_t i = 0; i < funcStack.size() - 1; i++)
+#else
                             for(size_t i = funcStack.size() - 1;i>=0;i--)
+#endif
                                 //for(size_t i = 0;i<=funcStack.size() - 2;i++)
                             {
                                 if(cont[i].type == sts::NameSpace)
@@ -574,7 +583,12 @@ namespace lang
                         //if( funcStack.size() >= 2)for(size_t i = funcStack.size() - 2;i>=0;i--)
 
                         if(funcStack.size() >= 2)
-                            for(size_t i = funcStack.size() - 1;i>=0;i--)
+							//VS2013‚©‚çŽd—l•Ï‚í‚Á‚Ä‚¢‚éH
+#if _MSC_VER >=1800
+						for (size_t i = 0; i < funcStack.size() - 1; i++)
+#else
+						for (size_t i = funcStack.size() - 1; i >= 0; i--)
+#endif
                             {
                                 if(cont[i].type == sts::NameSpace)
                                 {

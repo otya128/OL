@@ -245,7 +245,7 @@ void gui(void)
 	}
     void gui(void)
     {
-		ehatest();
+		//ehatest();
         window = new OLWindow("OtyaLanguage",512,128);
         window->SetResize(FALSE);
         Button btn(*window,"File",512-128,0,128,32);
