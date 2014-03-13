@@ -10,6 +10,7 @@ namespace lang
     LPCWSTR Button::classname = _T("BUTTON");
     LPCSTR OLWindow::classnameA = "OLWindow";
     LPCSTR Button::classnameA = "BUTTON";
+    //GWLP_USERDATA使えばいい！！！！！！！！！！！！！
     std::map<HWND,OLWindow*> Button::windowmap;
     OLWindow::OLWindow(){}
     OLWindow::OLWindow(LPCWSTR title)

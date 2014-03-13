@@ -24,12 +24,14 @@
     "name='Microsoft.Windows.Common-Controls' version='6.0.0.0' "\
     "processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #ifndef _DEBUG
+#ifndef _WIN32
 #include <eh.h>
 //構造化例外が発生すると、この関数が呼ばれる
 void se_translator_function(unsigned int code, struct _EXCEPTION_POINTERS* ep)
 {
     throw ep; //標準C++の例外を発生させる
 }
+#endif
 #endif
 #define END goto theend
 #define FAILEND result = 1;goto theend
@@ -90,7 +92,7 @@ __v('ω')__v('ω')__v('ω')
     //v（’ω’）v
     //    v（’ω’）v
     //    v（’ω’）v
-    std::string てかＬＩＮＥやってる？(std::string input,int index)
+    std::string getlinestring(std::string input,int index)
 {
     int i, j;
     for(i = index;i>0;i--)
@@ -208,8 +210,42 @@ void gui(void)
     delete window;
     delete txt;
 #else
+	LONG dump_exception(_EXCEPTION_POINTERS *ep)
+	{
+		PEXCEPTION_RECORD rec = ep->ExceptionRecord;
+
+		TCHAR buf[1024];
+		wsprintf(buf, TEXT("code:%x flag:%x addr:%p params:%d\n"),
+			rec->ExceptionCode,
+			rec->ExceptionFlags,
+			rec->ExceptionAddress,
+			rec->NumberParameters
+			);
+		::OutputDebugString(buf);
+
+		for (DWORD i = 0; i < rec->NumberParameters; i++){
+			wsprintf(buf, TEXT("param[%d]:%x\n"),
+				i,
+				rec->ExceptionInformation[i]
+				);
+			::OutputDebugString(buf);
+		}
+
+		return EXCEPTION_EXECUTE_HANDLER;
+	}
+	void ehatest(void)
+	{
+		__try
+		{
+			*((int*)10) = 0;
+		}
+		__except (dump_exception(GetExceptionInformation()))
+		{
+		}
+	}
     void gui(void)
     {
+		ehatest();
         window = new OLWindow("OtyaLanguage",512,128);
         window->SetResize(FALSE);
         Button btn(*window,"File",512-128,0,128,32);
@@ -409,7 +445,7 @@ http://0xbaadf00d/
                     {
                         auto i = *it;
 #endif
-                        std::cout << てかＬＩＮＥやってる？(input,ex.tokens[i.second]->sourcestartindex);
+                        std::cout << getlinestring(input,ex.tokens[i.second]->sourcestartindex);
                         //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
                         //break;
                     }
@@ -491,7 +527,7 @@ http://0xbaadf00d/
                 std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "場所?:" << std::endl;
                 //                    for(auto i : ex.stacktrace)
                 FOREACH(i,ex.stacktrace)//                    {
-                    std::cout << てかＬＩＮＥやってる？(input,ex.tokens[i.second]->sourcestartindex);
+                    std::cout << getlinestring(input,ex.tokens[i.second]->sourcestartindex);
                 //std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
                 //break;
             }

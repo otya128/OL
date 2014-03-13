@@ -9,7 +9,7 @@
 #include "õ.h"
 //#include "parserEnum.h"
 #define newFunction(a,a1,a2,a3) new Function(a,a1,a2,a3)
-std::string ‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(std::string input,int index);
+std::string getlinestring(std::string input,int index);
 namespace lang
 {
 #define HASHCLASS   1107
@@ -123,7 +123,7 @@ namespace lang
             {
             case 1:
                 if(token->pEnum != parserEnum::identifier)
-                    ERROR(("namespace‚Ì–¼‘O‚ªŽ¯•ÊŽq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ"+‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex)).c_str());
+                    ERROR(("namespace‚Ì–¼‘O‚ªŽ¯•ÊŽq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ"+getlinestring(this->program,token->sourcestartindex)).c_str());
                 //BUG!!
                 //if(!namesp.empty())namesp += "::";//æ“ª‚É‚à::‚ª•t‚­
                 namesp += *token->name;
@@ -198,15 +198,15 @@ namespace lang
                 if(token->pEnum == _class)
                 {
                     if(funcRead != 0)
-                        ERROR((‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex) + "ŠÖ”‰ðÍ’†‚ÌƒNƒ‰ƒX").c_str());// WARNING("ŠÖ”‰ðÍ’†‚ÌƒNƒ‰ƒX");
+                        ERROR((getlinestring(this->program,token->sourcestartindex) + "ŠÖ”‰ðÍ’†‚ÌƒNƒ‰ƒX").c_str());// WARNING("ŠÖ”‰ðÍ’†‚ÌƒNƒ‰ƒX");
                     if(funcStack.size() !=0 && funcStack.top().type == sts::Empty)
-                        ERROR((‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex) + "ƒlƒXƒg‚³‚ê‚½ƒNƒ‰ƒX").c_str());
+                        ERROR((getlinestring(this->program,token->sourcestartindex) + "ƒlƒXƒg‚³‚ê‚½ƒNƒ‰ƒX").c_str());
                     classRead++;
                 }
                 break;
             case 1:
                 if(token->pEnum != identifier)
-                    ERROR(("ƒNƒ‰ƒX‚Ì–¼‘O‚ªŽ¯•ÊŽq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ"+‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex)).c_str());
+                    ERROR(("ƒNƒ‰ƒX‚Ì–¼‘O‚ªŽ¯•ÊŽq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ"+getlinestring(this->program,token->sourcestartindex)).c_str());
                 className = namesp + *token->name;
                 if(member == nullptr)member = new membertype_();else delete member;
                 if(staticmember == nullptr)staticmember = new membertype_();else delete staticmember;
@@ -214,7 +214,7 @@ namespace lang
                 break;
             case 2:
                 if(token->pEnum != blockstart)
-                    ERROR(("class " + className + "{‚ÅéŒ¾‚·‚é•K—v‚ª‚ ‚è‚Ü‚·B"+‚Ä‚©‚k‚h‚m‚d‚â‚Á‚Ä‚éH(this->program,token->sourcestartindex)).c_str());
+                    ERROR(("class " + className + "{‚ÅéŒ¾‚·‚é•K—v‚ª‚ ‚è‚Ü‚·B"+getlinestring(this->program,token->sourcestartindex)).c_str());
                 classRead++;
                 class_read_stack_index = funcStack.size();
                 break;
