@@ -22,7 +22,7 @@ namespace lang
 		scope* runner;
 		std::vector<parseObj*> parsers;
 		std::vector<std::string> usings;
-		std::vector < std::pair<std::string, langClass>> extendslist;
+		std::vector < std::pair<int, langClass>> extendslist;
 		std::string program;
 		parser(std::string);
 		~parser(void);

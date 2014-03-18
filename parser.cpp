@@ -121,7 +121,7 @@ namespace lang
 		int func = 0, parent = 0, bracket = 0;
 		size_t class_read_stack_index = 0;
 		std::string namesp; int namespread(0);
-		std::string extendname;
+		int extendname;
 		membertype member = nullptr;
 		membertype staticmember = nullptr;
 		bool isstatic = false;
@@ -225,7 +225,7 @@ namespace lang
 					if (member == nullptr)member = new membertype_(); else delete member;
 					if (staticmember == nullptr)staticmember = new membertype_(); else delete staticmember;
 					classRead++;
-					extendname.clear();
+					extendname = -1;
 					break;
 				case 2:
 					if (token->pEnum == colon)
@@ -260,7 +260,7 @@ namespace lang
 					if (token->pEnum == blockend)
 					{
 						auto classs = newClass(className, 0, member, this->runner, staticmember);
-						if (extendname.size())this->extendslist.push_back(std::pair<std::string, langClass>(extendname, classs));
+						if (extendname != -1)this->extendslist.push_back(std::pair<int, langClass>(extendname, classs));
 						this->runner->variable.add(className, classs);
 						member = nullptr;
 						staticmember = nullptr;
@@ -313,7 +313,7 @@ namespace lang
 					break;
 					//extends
 				case 5:
-					extendname = *token->name;
+					extendname = i;//*token->name;
 					classRead = 2;
 					break;
 			}
@@ -514,7 +514,7 @@ namespace lang
 		for (int i = 0; i < this->extendslist.size(); i++)
 		{
 			auto&& j = this->extendslist[i];
-			j.second->base = (langClass)this->runner->variable[j.first];
+			j.second->base = (langClass)this->runner->variable[*this->parsers[j.first]->name];
 		}
 #if CPP11
 		foreach_(auto &&i in_ this->staticmemberevals)

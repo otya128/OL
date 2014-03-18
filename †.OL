@@ -1,3 +1,4 @@
+//HiddenFaxWindow????????????????????????????
 //ADD char,wchar type
 if(true)
 {
@@ -176,17 +177,9 @@ namespace OL
 	{
 	//îqèä
 	//åpè≥ó~ÇµÇ¢
-		class Window
+		class Control
 		{
 			var _window;
-			Window(var title, var width, var height)
-			{
-				this._window = OLRuntime::GUI::Window::Create(title, width, height);
-			}
-			void Show()
-			{
-				OLRuntime::GUI::Window::Show(this._window);
-			}
 			var _OnClick;
 			void SetOnClick(func f)
 			{
@@ -210,30 +203,23 @@ namespace OL
 				return OLRuntime::GUI::Window::SetText(this._window, text);
 			}
 		}
-		class Button
+		class Window : Control
 		{
-			var _window;
+			//var _window;
+			Window(var title, var width, var height)
+			{
+				this._window = OLRuntime::GUI::Window::Create(title, width, height);
+			}
+			void Show()
+			{
+				OLRuntime::GUI::Window::Show(this._window);
+			}
+		}
+		class Button : Control
+		{
 			Button(Window window,string title, int X, int Y, int width, int height)
 			{
 				this._window = OLRuntime::GUI::Button::Create(window._window, title, X, Y, width, height);
-			}
-			var _OnClick;
-			void SetOnClick(func f)
-			{
-				this._OnClick = f;
-				OLRuntime::GUI::Window::SetOnClick(this._window, this._OnClick);
-			}
-			void SetFont(Font font)
-			{
-				OLRuntime::GUI::Window::SetFont(this._window, font.name, font.size, font.bold, font.italic, font.underline, font.strike);
-			}
-			string GetText()
-			{
-				return OLRuntime::GUI::Window::GetText(this._window);
-			}
-			string SetText(string text)
-			{
-				return OLRuntime::GUI::Window::SetText(this._window, text);
 			}
 		}
 		class Label
@@ -280,18 +266,12 @@ namespace OL
 			bool underline;
 			bool strike;
 		}
-		class TextBox
+		class TextBox : Control
 		{
-			var _window;
+			//var _window;
 			TextBox(Window window,string title, int X, int Y, int width, int height,bool multiline)
 			{
 				this._window = OLRuntime::GUI::TextBox::Create(window._window, title, X, Y, width, height,multiline);
-			}
-			var _OnClick;
-			void SetOnClick(func f)
-			{
-				this._OnClick = f;
-				OLRuntime::GUI::Window::SetOnClick(this._window, this._OnClick);
 			}
 			void SetReadOnly(bool f)
 			{
@@ -309,43 +289,12 @@ namespace OL
 			{
 				return OLRuntime::GUI::TextBox::GetMultiLine(this._window);
 			}
-			void SetFont(Font font)
-			{
-				OLRuntime::GUI::Window::SetFont(this._window, font.name, font.size, font.bold, font.italic, font.underline, font.strike);
-			}
-			string GetText()
-			{
-				return OLRuntime::GUI::Window::GetText(this._window);
-			}
-			string SetText(string text)
-			{
-				return OLRuntime::GUI::Window::SetText(this._window, text);
-			}
 		}
-		class CheckBox
+		class CheckBox : Control
 		{
-			var _window;
 			CheckBox(Window window,string title, int X, int Y, int width, int height)
 			{
 				this._window = OLRuntime::GUI::CheckBox::Create(window._window, title, X, Y, width, height);
-			}
-			var _OnClick;
-			void SetOnClick(func f)
-			{
-				this._OnClick = f;
-				OLRuntime::GUI::Window::SetOnClick(this._window, this._OnClick);
-			}
-			void SetFont(Font font)
-			{
-				OLRuntime::GUI::Window::SetFont(this._window, font.name, font.size, font.bold, font.italic, font.underline, font.strike);
-			}
-			string GetText()
-			{
-				return OLRuntime::GUI::Window::GetText(this._window);
-			}
-			string SetText(string text)
-			{
-				return OLRuntime::GUI::Window::SetText(this._window, text);
 			}
 		}
 	}
