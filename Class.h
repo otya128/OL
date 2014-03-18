@@ -22,7 +22,10 @@ namespace lang
         int index;
         virtual std::string toString();
         //スコープ
-        lang::scope* thisscope;
+		lang::scope* thisscope;
+		Class* base;
+		virtual langObject getMember(std::string& name);
+		virtual langObject setMember(std::string& name, langObject obj);
     };
     class ClassObject : public Class
     {

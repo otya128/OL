@@ -13,6 +13,7 @@ namespace lang
         Array(std::vector<langObject>&a);
         virtual ~Array(void);
         virtual std::string toString(void);
+		virtual langObject getMember(std::string &name);
     };
 }
 

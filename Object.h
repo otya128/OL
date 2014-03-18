@@ -46,31 +46,37 @@ namespace lang
         }
     };
     extern Type* ObjectType;
-    class Object
-    {
-    protected:
-        void* ptr;
-    public:
-        Type* type;
-        void* getPointer();
-        void setPointer(void* ptr);
-        virtual std::string toString();
-        virtual langObject getMember(std::string& name);
-        Object(void* ptr);
-        Object(void);
-        virtual ~Object(void);
-        static langObject inc(langObject obj1);
-        static langObject plus(langObject obj1,langObject obj2);
-        static langObject multiply(langObject obj1,langObject obj2);
-        static langObject greater(langObject obj1,langObject obj2);
-        static langObject less(langObject obj1,langObject obj2);
-        static langObject greaterEqual(langObject obj1,langObject obj2);
-        static langObject lessEqual(langObject obj1,langObject obj2);
-        static langObject modulo(langObject obj1,langObject obj2);
-        static langObject equal(langObject obj1,langObject obj2);
-        static langObject leftShift(langObject obj1,langObject obj2);
-        static langObject rightShift(langObject obj1,langObject obj2);
-    };
+	class Object
+	{
+	protected:
+		void* ptr;
+	public:
+		Type* type;
+		void* getPointer();
+		void setPointer(void* ptr);
+		virtual std::string toString();
+		virtual langObject getMember(std::string& name);
+		virtual langObject setMember(std::string& name, langObject obj);
+		Object(void* ptr);
+		Object(void);
+		virtual ~Object(void);
+		static langObject inc(langObject obj1);
+		static langObject bracket(langObject obj1, langObject obj2);
+		static langObject bracketequal(langObject obj1, langObject obj2, langObject obj3);
+		static langObject bracket(langObject obj1, std::vector<langObject> obj2);
+		static langObject bracketequal(langObject obj1, std::vector<langObject> obj2);
+		static langObject plus(langObject obj1, langObject obj2);
+		static langObject minus(langObject obj1, langObject obj2);
+		static langObject multiply(langObject obj1, langObject obj2);
+		static langObject greater(langObject obj1, langObject obj2);
+		static langObject less(langObject obj1, langObject obj2);
+		static langObject greaterEqual(langObject obj1, langObject obj2);
+		static langObject lessEqual(langObject obj1, langObject obj2);
+		static langObject modulo(langObject obj1, langObject obj2);
+		static langObject equal(langObject obj1, langObject obj2);
+		static langObject leftShift(langObject obj1, langObject obj2);
+		static langObject rightShift(langObject obj1, langObject obj2);
+	};
     extern SpecialFunction* object_tostr;
     extern SpecialFunction* string_substr;
     //typedef langObject langObject;

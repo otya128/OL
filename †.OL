@@ -1,5 +1,48 @@
 //ADD char,wchar type
-
+if(true)
+{
+var test = new child;
+test.hage();
+while(false)
+{
+print("true");
+break;
+}
+//new OL::Thread(function(){while(true){print(OL::Thread.ID())}}).Start();
+}
+else
+{
+print("ここは実行されない");
+}
+var list = new OL::List();
+for(int i=0;i<32;i++)
+{
+	list.Add(i);
+}
+list[0];
+for(int i=0;i<32;i++)
+{
+	list[i] = i*2;
+	print(list[i],"\t");
+	//for(;;){}
+}
+for(int i=1;i<10;i++)
+{
+	if(i%2)
+	{
+		print("continue");
+		continue;
+	}
+	else
+	{
+		print(i);
+	}
+	if(i > 5)
+	{
+		print("break!");
+		break;
+	}
+}
 //using OL::GUI;
 var form1 = new OL::GUI::Window("Hello",256,128);
 var button1 = new OL::GUI::Button(form1,"Button",0,0,128,24);
@@ -67,8 +110,68 @@ thread(function(){for(;1;){print("hello!",threadid(),"\n");}});
 for(;1;){print("hi",threadid(),"\n");}
 thread(function(){for(;1;){print("thread:",threadid());}});*/
 for(;1;){print("thread:",threadid(),"\n");}
+class child : parent
+{
+	int hage()
+	{
+		print("this is ",this);
+		print("\nbase is ",base );
+		this.base.hage();//親クラスの関数を呼び出す
+	}
+}
+
+class parent
+{
+	int hage()
+	{
+		print("\nthis is ",this);
+		print("\nbase  is ",base );
+	}
+}
+
 namespace OL
 {
+	class List
+	{
+		private _array;
+		private _arraysize;
+		private _length;
+		List()
+		{
+			this._array = new Array(16);
+			this._length = 0;
+			this._arraysize = 16;
+		}
+		int Count()
+		{
+			return this._length;
+		}
+		void Add(var item)
+		{
+			this._length=this._length+1;
+			if(this._arraysize < this._length)
+			{
+				var resize = new Array(this._arraysize*2);
+				//var index = 0;
+				for(int index = 0;index < this._arraysize;index++)
+				{
+					resize[index] = this._array[index];
+				}
+				this._array = resize;
+				this._arraysize = this._arraysize * 2;
+			}
+			this._array[this._length - 1] = item;		
+		}
+		var bracket(int index)
+		{
+			return this._array[index];
+		}
+		var bracketequal(int index, var item)
+		{
+			return this._array[index] = item;
+		}
+	}
+
 	namespace GUI
 	{
 	//拝所

@@ -28,11 +28,11 @@ namespace lang
     {
         enum scopeStatus
         {
-            none,iden,var,_for,_if
+            none,iden,var,_for,_if,_while
         };
         enum returnStatus
         {
-            none_,_return,_break
+            none_,_return,_break,_continue
         };
         enum scopeType
         {
@@ -64,10 +64,12 @@ ENUMCLASS evals
         en::returnStatus status;
         variable variable;
         scope(std::vector<parseObj*>& v);
-        scope(std::vector<parseObj*>& v,scope* parent,langClassObject _this);
+		scope(std::vector<parseObj*>& v, scope* parent, langClassObject _this);
+		void statement(void);
         langObject run(void);
         ~scope(void);
-        int parentSkip(int index);
+		int parentSkip(int index);
+		int bracketSkip(int index);
         int blockSkip(int index,int j=0);
         langObject eval(langObject object,int& index,int opera = 17,evals ev = (evals)0);
         langFunction anonymousFunction(int& index);

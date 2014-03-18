@@ -67,7 +67,16 @@ char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightpar
     "_static",
     "_true",
     "_false",
-    "_null",
+	"_null",
+	"_break",
+	"_continue",
+	"_else",
+	"_while",
+	"_for",
+	"_if",
+	"_return",
+	"base",
+	"colon",
 };
 
 char* parserEnumToString(lang::parserEnum i)
@@ -151,7 +160,7 @@ void Button2_OnClick(eventargs<OLWindow*> c)
     window->Close();
     SETUTF8;
 }
-#ifndef OL_GTK
+#ifdef qOL_GTK
 void Window_OnSizeChange(eventargs<OLWindow*> arg)
 {
     std::cout<<arg.Arg->GetWidth()<<"\t"<<arg.Arg->GetHeight()<<std::endl;
@@ -263,7 +272,7 @@ void gui(void)
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
     int main(int argc, char *argv[])
-    {
+	{
         INITCOMMONCONTROLSEX    stICCEx;
         stICCEx.dwSize = sizeof ( INITCOMMONCONTROLSEX );
         stICCEx.dwICC  = INT_MAX;//ICC_WIN95_CLASSES;                                // ICC_STANDARD_CLASSES
@@ -296,8 +305,9 @@ void gui(void)
             lang::error_level = 0;
             bool endpause= false,json = false;
             bool notfileload = false;
-            bool gui = !!!false;
+            bool gui = !!!!false;
             std::string input;
+#pragma region command line
             for(int i = 1;i < argc;i++)
             {
                 switch (o)
@@ -366,6 +376,7 @@ void gui(void)
                     break;
                 }
             }
+#pragma endregion
             if(gui)
             {
                 ::gui();

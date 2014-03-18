@@ -8,6 +8,7 @@ namespace lang
 {
     Class::Class(std::string name,int index,membertype member,lang::scope* scope,membertype staticmember)
     {
+		this->base = nullptr;
         this->scope = scope;
         this->scope->refinc();
         this->type = new Type(PreType::_Class, (char*)"class");
@@ -57,7 +58,8 @@ FOREACH(i,*staticmember)//        foreach_(var_ i in_ *staticmember)//C# style f
         delete staticmember;
     }
     Class::Class(Class* clas)
-    {
+	{
+		this->base = clas->base;
         this->type = new Type(PreType::_Class, (char*)"class");
         this->name  = clas->name;
         this->index = clas->index;
@@ -80,8 +82,35 @@ FOREACH(i,*staticmember)//        foreach_(var_ i in_ *staticmember)//C# style f
         this->thisscope->refdec();
         //delete this->type->name;
     }
+	langObject Class::getMember(std::string& name)
+	{
+		if (this->thisscope->variable.definedVar(name))
+		{
+			return this->thisscope->variable[name];
+		}
+		else
+		{
+			if (this->base)return this->base->getMember(name);
+			return NULLOBJECT;
+		}
+	}
+	langObject Class::setMember(std::string& name, langObject obj)
+	{
+		if (this->thisscope->variable.definedVar(name))
+		{
+			return this->thisscope->variable.set(name, obj);
+		}
+		else
+		{
+			return this->base->setMember(name, obj);
+		}
+	}
     ClassObject::ClassObject(Class* type) : Class(type) , staticClass(type)//type->name,type->index,type->member,type->scope)
     {
+		if (type->base)
+		{
+			this->base = new ClassObject(type->base);
+		}
         this->scope = type->scope;
         thisscope = new lang::scope(this->scope->parsers, this->scope,this);
         this->thisscope->refinc();
@@ -143,4 +172,39 @@ FOREACH(i,*staticmember)//        foreach_(var_ i in_ *staticmember)//C# style f
         }
         //this->scope->refdec();//scope‚¶‚á‚È‚­‚Äthisscope‚Å‚Í
     }
+
+	langObject Object::bracket(langObject obj1, std::vector<langObject> obj2)
+	{
+		switch (obj1->type->TypeEnum)
+		{
+			case PreType::_ClassObject:
+				if (((langClass)obj1)->thisscope->variable.definedVar("bracket"))
+				{
+					auto func = (langFunction)((langClass)obj1)->thisscope->variable["bracket"];
+					if (func is _Function)
+					{
+						return func->call(&obj2);
+					}
+				}
+					break;
+		}
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]o—ˆ‚È‚¢").c_str());
+	}
+	langObject Object::bracketequal(langObject obj1, std::vector<langObject> obj2)
+	{
+		switch (obj1->type->TypeEnum)
+		{
+			case PreType::_ClassObject:
+				if (((langClass)obj1)->thisscope->variable.definedVar("bracketequal"))
+				{
+					auto func = (langFunction)((langClass)obj1)->thisscope->variable["bracketequal"];
+					if (func is _Function)
+					{
+						return func->call(&obj2);
+					}
+				}
+				break;
+		}
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]="+"o—ˆ‚È‚¢").c_str());
+	}
 }

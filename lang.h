@@ -1,7 +1,8 @@
 #include <memory>
 #pragma once
-#define OL_GTK
-#define CPP11 1
+//#define OL_GTK
+//#define CPP11 1
+#define ENDFOREACH }
 #ifdef CPP11
 #define ENUMCLASS enum class
 #define FOREACH(VAR,COR) for(auto VAR : COR){

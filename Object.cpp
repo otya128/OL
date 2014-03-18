@@ -8,6 +8,7 @@
 #include "Function.h"
 #include "Class.h"
 #include "langException.h"
+#include "Array.h"
 #define newInt(a) new Int(a)
 #define newString(a) new String(a)
 /*#define langObject langObject
@@ -74,7 +75,12 @@ namespace lang
     langObject Object::getMember(std::string& name)
     {
         return object_tostr;
-    }
+	}
+	langObject Object::setMember(std::string& name, langObject obj)
+	{
+		//設定できるメンバなんてない
+		return nullptr;
+	}
     void* Object::getPointer(void)
     {
         return this->ptr;
@@ -303,6 +309,28 @@ namespace lang
     else
     throw langRuntimeException((std::string("関数")+name+"が定義されていません").c_str());}
     */
+	langObject Object::bracket(langObject obj1, langObject obj2)
+	{
+		switch (obj1->type->TypeEnum)
+		{
+			case PreType::_Array:
+				return ((langArray)obj1)->ary[Int::toInt(obj2)];
+				break;
+		}
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + obj2->type->name + "]出来ない").c_str());
+		//変換不可
+	}
+	langObject Object::bracketequal(langObject obj1, langObject obj2, langObject obj3)
+	{
+		switch (obj1->type->TypeEnum)
+		{
+			case PreType::_Array:
+				return ((langArray)obj1)->ary[Int::toInt(obj2)] = obj3;
+				break;
+		}
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + obj2->type->name + "]出来ない").c_str());
+		//変換不可
+	}
     langObject Object::plus(langObject obj1,langObject obj2)
     {
         switch (obj1->type->TypeEnum)
@@ -336,7 +364,19 @@ namespace lang
         }
         throw langRuntimeException((std::string(obj1->type->name) + "+" + obj2->type->name + "出来ない").c_str());
         //変換不可
-    }
+	}
+	langObject Object::minus(langObject obj1, langObject obj2)
+	{
+		switch (obj1->type->TypeEnum)
+		{
+			case PreType::_Int:
+				return newInt(Int::toInt(obj1) - Int::toInt(obj2));
+			case PreType::_ClassObject:
+				OPERA2ARG("minus")
+		}
+		throw langRuntimeException((std::string(obj1->type->name) + "-" + obj2->type->name + "出来ない").c_str());
+		//変換不可
+	}
     langObject Object::multiply(langObject obj1,langObject obj2)
     {
         switch (obj1->type->TypeEnum)
