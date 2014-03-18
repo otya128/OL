@@ -29,6 +29,8 @@ namespace lang
 #define HASHIF      102
 #define HASHRETURN  1690
 #define HASHBASE    630
+#define HASHFOREACH 2149
+#define HASHIN      110
 #define ERROR(a) WARNING(a,0)//langObject NULLOBJECT = newObject(nullptr);
 	ENUMCLASS parserStatus
 	{
@@ -844,6 +846,12 @@ namespace lang
 									break;
 								case HASHBASE:
 									if (*iden == "base"){ this->parsers.push_back(new parseObj(parserEnum::base, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									break;
+								case HASHFOREACH:
+									if (*iden == "foreach"){ this->parsers.push_back(new parseObj(parserEnum::_foreach, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									break;
+								case HASHIN:
+									if (*iden == "in"){ this->parsers.push_back(new parseObj(parserEnum::_in, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
 									break;
 							}
 							if (!ok) this->parsers.push_back(new parseObj(parserEnum::identifier, iden, startindex, i - 1));

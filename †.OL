@@ -16,17 +16,32 @@ else
 print("‚±‚±‚ÍÀs‚³‚ê‚È‚¢");
 }
 var list = new OL::List();
-for(int i=0;i<32;i++)
+for(int i=0;i<31;i++)
 {
 	list.Add(i);
 }
-list[0];
-for(int i=0;i<32;i++)
+var enumr = list.GetEnumerator();
+foreach(var a in list)
+{
+	print(a);
+}
+//scope add(a)
+//scope::run local langFunction runenum
+//list.defined && is Func GetEnumerator
+//.enum = list.call(GetEnumerator)
+//
+
+while(enumr.MoveNext())
+{
+	print(enumr.Current(),"\t")
+}
+/*
+for(int i=0;i<31;i++)
 {
 	list[i] = i*2;
 	print(list[i],"\t");
 	//for(;;){}
-}
+}*/
 for(int i=1;i<10;i++)
 {
 	if(i%2)
@@ -132,7 +147,7 @@ class parent
 
 namespace OL
 {
-	class List
+	class List : Enumerable
 	{
 		private _array;
 		private _arraysize;
@@ -171,8 +186,36 @@ namespace OL
 		{
 			return this._array[index] = item;
 		}
+		var GetEnumerator()
+		{
+			return new ListEnumerator(this);
+		}
 	}
-
+	class ListEnumerator : Enumerator
+	{
+		ListEnumerator(var list)
+		{
+			this._list = list;
+			this._index = 0;
+		}
+		var _list;
+		var _index;
+		var _current;
+		var Current()
+		{
+			return _current;
+		}
+		int MoveNext()
+		{
+			if(_index > this._list.Count())
+			{
+				return false;
+			}
+			this._current = this._list[_index];
+			_index = _index + 1;
+			return (_index) <= this._list.Count();
+		}
+	}
 	namespace GUI
 	{
 	//”qŠ

@@ -77,6 +77,8 @@ char* enumtable[]={"identifier","num","doublequote","str","leftparent","rightpar
 	"_return",
 	"base",
 	"colon",
+	"_foreach",
+	"_in",
 };
 
 char* parserEnumToString(lang::parserEnum i)
@@ -273,8 +275,6 @@ void gui(void)
 #pragma comment(lib, "comctl32.lib")
     int main(int argc, char *argv[])
 	{
-		SetWindowTextA((HWND)filename, "A");
-		GetWindowTextA((HWND)filename, filename_, MAX_PATH);
         INITCOMMONCONTROLSEX    stICCEx;
         stICCEx.dwSize = sizeof ( INITCOMMONCONTROLSEX );
         stICCEx.dwICC  = INT_MAX;//ICC_WIN95_CLASSES;                                // ICC_STANDARD_CLASSES

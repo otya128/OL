@@ -217,7 +217,12 @@ namespace lang
 		auto status = en::scopeStatus::none;
 		/*std::shared_ptr<scope>*/scope* forscope = 0;
 		scope* whilescope = 0;
-		int forindex[3] = { -1, -1, -1 }, findex = -1, whileindex = -1, whileflag = 0;
+		scope* foreachscope = 0;
+		int forindex[3] = { -1, -1, -1 }, findex = -1, whileindex = -1, whileflag = 0,
+			foreahflag = 0;
+		std::string* foreach_var = 0;
+		langObject foreach_object = 0;
+		langFunction Current = 0, MoveNext = 0;
 		try
 		{
 			for (this->index = this->startIndex; index < parsers.size(); index++)
@@ -263,6 +268,10 @@ namespace lang
 								break;
 							case parserEnum::_while:
 								status = en::_while;
+								break;
+							case parserEnum::_foreach:
+								status = en::_foreach;
+								foreahflag = 0;
 								break;
 							case parserEnum::_return:
 								//こう自動成形されるのはバグ？
@@ -344,91 +353,91 @@ namespace lang
 					case en::_for:
 						__v('ω')v__
 #pragma region for文
-						switch (findex)
+							switch (findex)
 						{
-							case 4:
-							case 3:
-								switch (j->pEnum)
-								{
-									case parserEnum::blockstart:
-										if (findex == 3)
-										{
-											forscope = /*std::make_shared<scope>*/new scope(this->parsers, this, this->_this);
-											forscope->refinc();
-											forscope->startIndex = this->index + 1;
-											forscope->index = forindex[0];
-											forscope->statement();//forscope->eval(NULLOBJECT, forscope->index);
-										}
-										forscope->index = forindex[1];
-										//  for(;;)で無限ループにする
-										if (forindex[1] + 1 == forindex[2] ||
-											Int::toInt(forscope->eval(NULLOBJECT, forscope->index)))
-										{
-											auto buf = forscope->run();
-											if (forscope->status == en::returnStatus::_return)
+								case 4:
+								case 3:
+									switch (j->pEnum)
+									{
+										case parserEnum::blockstart:
+											if (findex == 3)
 											{
-												this->status = forscope->status;
-												//delete forscope;
-												forscope->refdec();
-												return buf;
+												forscope = /*std::make_shared<scope>*/new scope(this->parsers, this, this->_this);
+												forscope->refinc();
+												forscope->startIndex = this->index + 1;
+												forscope->index = forindex[0];
+												forscope->statement();//forscope->eval(NULLOBJECT, forscope->index);
+											}
+											forscope->index = forindex[1];
+											//  for(;;)で無限ループにする
+											if (forindex[1] + 1 == forindex[2] ||
+												Int::toInt(forscope->eval(NULLOBJECT, forscope->index)))
+											{
+												auto buf = forscope->run();
+												if (forscope->status == en::returnStatus::_return)
+												{
+													this->status = forscope->status;
+													//delete forscope;
+													forscope->refdec();
+													return buf;
+												}
+												else
+												if (forscope->status == en::returnStatus::_break)
+												{
+													this->index = this->blockSkip(this->index);
+													status = en::none;
+													findex = -1;
+													forscope->refdec();
+													continue;
+												}
+												else
+												if (forscope->status != en::returnStatus::_continue && forscope->status != en::returnStatus::none_)
+												{
+													this->status = forscope->status;
+													return buf;
+												}
+												this->index--;//this->index = forscope->index;
+												findex = 4;
+												forscope->index = forindex[2];
+												forscope->eval(NULLOBJECT, forscope->index);
 											}
 											else
-											if (forscope->status == en::returnStatus::_break)
 											{
 												this->index = this->blockSkip(this->index);
 												status = en::none;
 												findex = -1;
 												forscope->refdec();
-												continue;
+												//delete forscope;
 											}
-											else
-											if (forscope->status != en::returnStatus::_continue && forscope->status != en::returnStatus::none_)
-											{
-												this->status = forscope->status;
-												return buf;
-											}
-											this->index--;//this->index = forscope->index;
-											findex = 4;
-											forscope->index = forindex[2];
-											forscope->eval(NULLOBJECT, forscope->index);
-										}
-										else
-										{
-											this->index = this->blockSkip(this->index);
-											status = en::none;
-											findex = -1;
-											forscope->refdec();
-											//delete forscope;
-										}
-										break;
-								}
-								break;
-							case 2:
-								switch (j->pEnum)
-								{
-									case semicolon:
-										forindex[2] = index + 1;
-										findex = 3;
-										break;
-								}
-								break;
-							case 1:
-								switch (j->pEnum)
-								{
-									case semicolon:
-										forindex[1] = index + 1;
-										findex = 2;
-										break;
-								}
-								break;
-							case -1:
-								if (j->pEnum == parserEnum::leftparent)
-								{
-									forindex[0] = index + 1;
-									findex = 1;
-								}
-								else throw "forの後には(が必要";
-								break;
+											break;
+									}
+									break;
+								case 2:
+									switch (j->pEnum)
+									{
+										case semicolon:
+											forindex[2] = index + 1;
+											findex = 3;
+											break;
+									}
+									break;
+								case 1:
+									switch (j->pEnum)
+									{
+										case semicolon:
+											forindex[1] = index + 1;
+											findex = 2;
+											break;
+									}
+									break;
+								case -1:
+									if (j->pEnum == parserEnum::leftparent)
+									{
+										forindex[0] = index + 1;
+										findex = 1;
+									}
+									else throw "forの後には(が必要";
+									break;
 						}
 						break;
 #pragma endregion
@@ -507,6 +516,7 @@ namespace lang
 										if (whilescope->status != en::returnStatus::_continue && whilescope->status != en::returnStatus::none_)
 										{
 											this->status = whilescope->status;
+											whilescope->refdec();
 											return buf;
 										}
 										this->index--;
@@ -523,6 +533,164 @@ namespace lang
 						}
 #pragma endregion
 						break;
+#pragma region for each
+					case en::_foreach:
+						//酷いコードだ...
+						//先読みでmatchしたほうが良かったかも
+						//this->match(parserEnum::leftparent,parserEnum::identifier,...);
+						switch (foreahflag)
+						{
+							case 0:
+								if (this->parsers[index]->pEnum == parserEnum::leftparent)
+								{
+									foreahflag++;
+								}
+								else
+								{
+									throw langRuntimeException("構文エラーforeach");
+								}
+								break;
+							case 1:
+								if (this->parsers[index]->pEnum == parserEnum::identifier)
+								{
+									foreahflag++;
+								}
+								else
+								{
+									throw langRuntimeException("構文エラーforeach");
+								}
+								break;
+							case 2:
+								if (this->parsers[index]->pEnum == parserEnum::identifier)
+								{
+									foreahflag++;
+									foreach_var = this->parsers[index]->name;
+								}
+								else
+								{
+									throw langRuntimeException("構文エラーforeach");
+								}
+								break;
+							case 3:
+								if (this->parsers[index]->pEnum == parserEnum::_in)
+								{
+									foreahflag++;
+								}
+								else
+								{
+									throw langRuntimeException("構文エラーforeach");
+								}
+								break;
+							case 4:
+								foreach_object = eval(NULLOBJECT, index);
+								foreahflag++;
+								break;
+							case 5:
+								if (this->parsers[index]->pEnum == parserEnum::rightparent)
+								{
+									foreahflag++;
+								}
+								else
+								{
+									throw langRuntimeException("構文エラーforeach");
+								}
+								break;
+							case 6:
+								if (this->parsers[index]->pEnum == parserEnum::blockstart)
+								{
+									if (foreach_object is _ClassObject)
+									{
+										auto instance = (langClassObject)foreach_object;
+										if (instance->thisscope->variable.definedVar("GetEnumerator"))
+										{
+											auto e = instance->thisscope->variable["GetEnumerator"];
+											if (e is _Function)
+											{
+												auto en = (langClassObject)((langFunction)e)->call(&std::vector<langObject>());
+												if (en is _ClassObject)
+												{
+													Current = (langFunction)(en->thisscope->variable["Current"]);
+													MoveNext = (langFunction)(en->thisscope->variable["MoveNext"]);
+													if (!(MoveNext is _Function))
+													{
+														throw langRuntimeException("MoveNextは関数である必要があります。");
+													}
+													if (!(Current is _Function))
+													{
+														throw langRuntimeException("Currentは関数である必要があります。");
+													}
+												}
+												else
+												{
+													throw langRuntimeException("GetEnumeratorの返り値はClassObjectである必要があります。");
+												}
+											}
+											else
+											{
+												throw langRuntimeException("GetEnumeratorは関数である必要があります。");
+											}
+										}
+										else
+										{
+											throw langRuntimeException("foreachの対象となる変数はEnumerableである必要があります。");
+										}
+									}
+									foreahflag++;
+									foreachscope = new scope(this->parsers, this, this->_this);
+									foreachscope->startIndex = this->index + 1;
+									foreachscope->refinc();
+									foreachscope->variable.add(*foreach_var, NULLOBJECT);
+									goto _foreach_7;
+								}
+								else
+								{
+									throw langRuntimeException("構文エラーforeach");
+								}
+								break;
+							case 7:
+							_foreach_7 :
+							{
+										   int result = Int::toInt(MoveNext->call(&std::vector<langObject>()));
+										   if (result)
+										   {
+											   foreachscope->variable.add(*foreach_var, Current->call(&std::vector<langObject>()));
+											   auto buf = foreachscope->run();
+											   if (foreachscope->status == en::returnStatus::_return)
+											   {
+												   this->status = foreachscope->status;
+												   foreachscope->refdec();
+												   return buf;
+											   }
+											   else
+											   if (foreachscope->status == en::returnStatus::_break)
+											   {
+												   this->index = this->blockSkip(this->index);
+												   status = en::none;
+												   foreachscope->refdec();
+												   foreahflag = 0;
+												   continue;
+											   }
+											   else
+											   if (foreachscope->status != en::returnStatus::_continue && foreachscope->status != en::returnStatus::none_)
+											   {
+												   this->status = foreachscope->status;
+												   foreachscope->refdec();
+												   return buf;
+											   }
+											   this->index--;
+										   }
+										   else
+										   {
+											   this->index = this->blockSkip(this->index);
+											   status = en::none;
+											   foreachscope->refdec();
+											   foreahflag = 0;
+										   }
+										   break;
+							}
+									   break;
+						}
+#pragma endregion
 				}
 			}
 		}
@@ -928,7 +1096,7 @@ namespace lang
 							}
 							object = ((langArray)ob)->ary[Int::toInt(buf)];
 						}
-						else 
+						else
 						if (object is _ClassObject)
 						{
 							j = index/* - 3*/;
@@ -949,7 +1117,8 @@ namespace lang
 							}
 							else
 								object = Object::bracket(object, arg);
-						}else
+						}
+						else
 							throw langRuntimeException("[]を使えない");
 					}
 					OP5

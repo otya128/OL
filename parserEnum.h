@@ -77,6 +77,8 @@ namespace lang
 		_return,
 		base,
 		colon,
+		_foreach,
+		_in,
     };
 }
 #endif

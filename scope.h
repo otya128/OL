@@ -26,10 +26,10 @@ namespace lang
     };*/
     namespace en
     {
-        enum scopeStatus
-        {
-            none,iden,var,_for,_if,_while
-        };
+		enum scopeStatus
+		{
+			none, iden, var, _for, _if, _while, _foreach
+		};
         enum returnStatus
         {
             none_,_return,_break,_continue
