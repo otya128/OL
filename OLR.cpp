@@ -390,5 +390,12 @@ namespace lang
 			return NULLOBJECT;
 		}
 #endif
+		langObject exit(std::vector<langObject> arg)
+		{
+			if (arg.size())
+				::exit(Int::toInt(arg[0]));
+			else
+				::exit(0);
+		}
 	}
 }

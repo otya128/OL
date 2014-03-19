@@ -365,10 +365,11 @@ void gui(void)
 			//_CrtSetBreakAlloc(218);
 			option o = option::none;
 			lang::error_level = 0;
-			bool endpause = false, json = false;
+			bool endpause = false, json = false, nologo = false;
 			bool notfileload = true;
 			bool gui = !!!!false;
 			std::string input;
+			std::vector<char*> files;
 #pragma region command line
 			for (int i = 1; i < argc; i++)
 			{
@@ -432,9 +433,15 @@ void gui(void)
 							notfileload = true;
 						}
 						else
+						if (!strcmp(argv[i], _OLT("-nologo")))
 						{
-							filename = argv[i];
+							nologo = true;
+						}
+						else
+						{
+							//filename = argv[i];
 							notfileload = false;
+							files.push_back(argv[i]);
 						}
 						break;
 					case option::errorlevel:
@@ -454,7 +461,7 @@ void gui(void)
 			{
 				::gui();
 			}
-			if (!json)
+			if (!json && !nologo)
 #if _DEBUG
 				std::cout << "OtyaLanguage DEBUG build" << std::endl;
 #else
@@ -478,36 +485,40 @@ void gui(void)
 				//std::getline(std::cin,input);
 				if (!notfileload)
 				{
+					for (int i = 0; i < files.size(); i++)
+					{
+						filename = files[i];
 #if _WIN32
-					if (UTF8)
-					{
-						int len = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)filename, -1, NULL, 0);
-						char* utf16 = new char[len * 2 + 2];
-						MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)filename, -1, (LPWSTR)utf16, len);
-						int sjislen = WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)utf16, -1, NULL, 0, NULL, NULL);
-						char* buffSJis = new char[sjislen * 2];
-						ZeroMemory(buffSJis, sjislen * 2);
-						WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)utf16, -1, (LPSTR)buffSJis, sjislen, NULL, NULL);
-						delete utf16;
-						ifs = std::ifstream(buffSJis);
-						delete buffSJis;
-					}
-					else
-					{
-						ifs = std::ifstream(filename);
-					}
+						if (UTF8)
+						{
+							int len = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)filename, -1, NULL, 0);
+							char* utf16 = new char[len * 2 + 2];
+							MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)filename, -1, (LPWSTR)utf16, len);
+							int sjislen = WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)utf16, -1, NULL, 0, NULL, NULL);
+							char* buffSJis = new char[sjislen * 2];
+							ZeroMemory(buffSJis, sjislen * 2);
+							WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)utf16, -1, (LPSTR)buffSJis, sjislen, NULL, NULL);
+							delete utf16;
+							ifs = std::ifstream(buffSJis);
+							delete buffSJis;
+						}
+						else
+						{
+							ifs = std::ifstream(filename);
+						}
 #else
-					ifs = std::ifstream(filename);
+						ifs = std::ifstream(filename);
 #endif
-					if (ifs.fail())
-					{
-						/*_tc*/printf(_OLT("file:%sを開けません\n"), filename);//std::cout<<"file:"<<filename<<"を開けません"<<std::endl;
-						__v('ω')__v('ω')FAILEND; __v('ω')__v('ω')
+						if (ifs.fail())
+						{
+							/*_tc*/printf(_OLT("file:%sを開けません\n"), filename);//std::cout<<"file:"<<filename<<"を開けません"<<std::endl;
+							__v('ω')__v('ω')FAILEND; __v('ω')__v('ω')
+						}
+						while (ifs && getline(ifs, input)) {
+							ss << input << '\n';
+						}
+						input = ss.str();
 					}
-					while (ifs && getline(ifs, input)) {
-						ss << input << '\n';
-					}
-					input = ss.str();
 				}
 				else
 				if (lang::prompt)
