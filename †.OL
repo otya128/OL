@@ -15,6 +15,7 @@ else
 {
 print("‚±‚±‚ÍÀs‚³‚ê‚È‚¢");
 }
+print("\n",OL::List);
 var list = new OL::List();
 for(int i=0;i<31;i++)
 {

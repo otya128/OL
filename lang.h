@@ -12,7 +12,7 @@
 #endif
 namespace lang
 {
-    extern bool ahogc,parserresult, leakcheck, pause;
+	extern bool ahogc, parserresult, leakcheck, pause, prompt;
     extern bool gc_view;
     extern int error_level;
     extern bool running;

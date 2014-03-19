@@ -213,6 +213,7 @@ namespace lang
 	}
 	langObject scope::run(void)
 	{
+		langObject result = NULLOBJECT;
 		this->index = this->startIndex;
 		auto status = en::scopeStatus::none;
 		/*std::shared_ptr<scope>*/scope* forscope = 0;
@@ -234,12 +235,15 @@ namespace lang
 						switch (j->pEnum)
 						{
 							case _class:
-								index = this->blockSkip(index);
+								index = this->blockSkip(index, -1);
 								break;
+							case parserEnum::num:
+							case parserEnum::chr:
+							case parserEnum::str:
 							case parserEnum::_this:
 							case parserEnum::base:
 							case parserEnum::_new:
-								eval(this->parsers[this->index]->ptr, this->index);
+								result = eval(this->parsers[this->index]->ptr, this->index);
 								break;
 							case parserEnum::identifier:
 								/*if(*j->name == "for")
@@ -292,20 +296,27 @@ namespace lang
 								if (this->type == en::ctor)return this->_this;
 								return NULLOBJECT;
 							case parserEnum::blockstart:
-								auto sc = /*std::make_shared<scope>*/new scope(this->parsers, this, this->_this);
-								sc->refinc();
-								sc->startIndex = this->index + 1;
-								auto buf = sc->run();
-								this->index = sc->index;
-								if (sc->status != en::returnStatus::none_)
-								{
-									this->status = sc->status;
-									sc->refdec();
-									//delete sc;
-									return /*langObject*/(buf);
-								}
-								//delete sc;
-								sc->refdec();
+							{
+														   auto sc = /*std::make_shared<scope>*/new scope(this->parsers, this, this->_this);
+														   sc->refinc();
+														   sc->startIndex = this->index + 1;
+														   auto buf = sc->run();
+														   this->index = sc->index;
+														   if (sc->status != en::returnStatus::none_)
+														   {
+															   this->status = sc->status;
+															   sc->refdec();
+															   //delete sc;
+															   return /*langObject*/(buf);
+														   }
+														   //delete sc;
+														   sc->refdec();
+							}
+								break;
+							default:
+								result = eval(this->parsers[this->index]->ptr, this->index);
+								break;
+							case none:
 								break;
 						}
 						break;
@@ -317,7 +328,7 @@ namespace lang
 								break;
 							default:
 								int i = index - 1;
-								langObject buf = eval(this->parsers[this->index - 1]->ptr, i);
+								result = eval(this->parsers[this->index - 1]->ptr, i);
 								index = i; status = en::none;
 								//if(buf!=nullptr)std::cout<<"result:"<<(buf)->toString()<<std::endl;
 								break;
@@ -331,7 +342,7 @@ namespace lang
 													  int i = index - 1;
 													  this->variable.add(*this->parsers[this->index - 1]->name, NULLOBJECT);
 													  //this->variable[*this->parsers[this->index-1]->name]=
-													  eval(this->parsers[this->index - 1]->ptr, i);
+													  result = eval(this->parsers[this->index - 1]->ptr, i);
 													  status = en::none; index = i;
 							}
 
@@ -343,7 +354,7 @@ namespace lang
 							default:
 							{
 									   int i = index - 2;
-									   langObject buf = eval(this->parsers[i]->ptr, i);
+									   result = eval(this->parsers[i]->ptr, i);
 									   index = i; status = en::none;
 									   //if(buf!=nullptr)std::cout<<"result:"<<(buf)->toString()<<std::endl;
 							}
@@ -698,7 +709,7 @@ namespace lang
 		{
 			throw langRuntimeException(ex.what(), startIndex, index, this->parsers, ex.stacktrace, ex.funcstacktrace);
 		}
-		return NULLOBJECT;
+		return result;
 		//auto buf = eval(this->parsers[0]->ptr,this->index);
 		//if(buf!=nullptr)std::cout<<"result:"<<(buf)->toString()<<std::endl;
 		//delete buf;
@@ -780,7 +791,7 @@ namespace lang
 #define OP if (opera <= thisop) break
 #define OP2 i = index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop) object = eval(object,i,17,evals::isbinaryoperation),index = i;
 #define OP3 i=index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2
-#define OP4 if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
+#define OP4 if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 #define OP5 i = index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop||this->parsers[index+1]->pEnum==leftbracket) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 	langObject scope::eval(langObject object, int& index, int opera, evals ev)
 	{

@@ -246,6 +246,10 @@ namespace lang
         ss<<mbs;
         return (ss.str());
     }
+#define LANG_OPERA_DEBUG_CHECK 
+#if _DEBUG
+#define LANG_OPERA_DEBUG_CHECK if (!obj1 || !obj2)throw langRuntimeException(__FUNCTION__"式がありません。");
+#endif
 #define OPERA2ARG(name) {auto clas = (langClassObject)obj1;\
     auto func = (langFunction)clas->thisscope->variable[name];\
     if(func != nullptr && func is _Function)\
@@ -311,6 +315,7 @@ namespace lang
     */
 	langObject Object::bracket(langObject obj1, langObject obj2)
 	{
+		LANG_OPERA_DEBUG_CHECK
 		switch (obj1->type->TypeEnum)
 		{
 			case PreType::_Array:
@@ -322,6 +327,7 @@ namespace lang
 	}
 	langObject Object::bracketequal(langObject obj1, langObject obj2, langObject obj3)
 	{
+		LANG_OPERA_DEBUG_CHECK
 		switch (obj1->type->TypeEnum)
 		{
 			case PreType::_Array:
@@ -332,7 +338,8 @@ namespace lang
 		//変換不可
 	}
     langObject Object::plus(langObject obj1,langObject obj2)
-    {
+	{
+		LANG_OPERA_DEBUG_CHECK
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
@@ -367,6 +374,7 @@ namespace lang
 	}
 	langObject Object::minus(langObject obj1, langObject obj2)
 	{
+		LANG_OPERA_DEBUG_CHECK
 		switch (obj1->type->TypeEnum)
 		{
 			case PreType::_Int:
@@ -379,6 +387,7 @@ namespace lang
 	}
     langObject Object::multiply(langObject obj1,langObject obj2)
     {
+		LANG_OPERA_DEBUG_CHECK
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
@@ -390,7 +399,8 @@ namespace lang
         //変換不可
     }
     langObject Object::greater(langObject obj1,langObject obj2)
-    {
+	{
+		LANG_OPERA_DEBUG_CHECK
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
@@ -403,7 +413,8 @@ namespace lang
         //変換不可
     }
     langObject Object::less(langObject obj1,langObject obj2)
-    {
+	{
+		LANG_OPERA_DEBUG_CHECK
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
@@ -416,7 +427,8 @@ namespace lang
         //変換不可
     }
     langObject Object::greaterEqual(langObject obj1,langObject obj2)
-    {
+	{
+		LANG_OPERA_DEBUG_CHECK
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
@@ -428,7 +440,8 @@ namespace lang
         throw langRuntimeException((std::string(obj1->type->name) + ">=" + obj2->type->name + "出来ない").c_str());
     }
     langObject Object::lessEqual(langObject obj1,langObject obj2)
-    {
+	{
+		LANG_OPERA_DEBUG_CHECK
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
@@ -440,7 +453,8 @@ namespace lang
         throw langRuntimeException((std::string(obj1->type->name) + "[" + obj1->toString() + "]<=[" + obj2->toString() + "]" + obj2->type->name + "出来ない").c_str());
     }
     langObject Object::equal(langObject obj1,langObject obj2)
-    {
+	{
+		LANG_OPERA_DEBUG_CHECK
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
@@ -475,7 +489,8 @@ namespace lang
         }
     }
     langObject Object::modulo(langObject obj1,langObject obj2)
-    {
+	{
+		LANG_OPERA_DEBUG_CHECK
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
@@ -486,7 +501,8 @@ namespace lang
         throw langRuntimeException((std::string(obj1->type->name) + "%" + obj2->type->name + "出来ない").c_str());
     }
     langObject Object::leftShift(langObject obj1,langObject obj2)
-    {
+	{
+		LANG_OPERA_DEBUG_CHECK
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
@@ -545,7 +561,8 @@ namespace lang
         throw langRuntimeException((std::string(obj1->type->name) + "[" + obj1->toString() + "]<<[" + obj2->toString() + "]" + obj2->type->name + "出来ない").c_str());
     }
     langObject Object::rightShift(langObject obj1,langObject obj2)
-    {
+	{
+		LANG_OPERA_DEBUG_CHECK
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
@@ -557,7 +574,7 @@ namespace lang
     }
 
     langObject Object::inc(langObject obj1)
-    {
+	{
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:

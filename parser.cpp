@@ -57,9 +57,9 @@ namespace lang
 		}
 		return r;
 	}
-	bool isIden(unsigned char c)
+	bool isIden(unsigned char c, unsigned char nc)
 	{
-		return (c >= 'A'&&c <= 'Z') || (c >= 'a'&&c <= 'z') || (c >= '0'&&c <= '9') || (c == '_') || c == ':';//namespace
+		return (c >= 'A'&&c <= 'Z') || (c >= 'a'&&c <= 'z') || (c >= '0'&&c <= '9') || (c == '_') || (c==':');//namespace
 	}
 	bool isIdenShiftJIS(unsigned char c)
 	{
@@ -405,7 +405,7 @@ namespace lang
 		{
 			WARNING("ˆê’v‚µ‚È‚¢Š‡ŒÊ[");
 		}
-		std::cout << std::endl;
+		if(parserresult)std::cout << std::endl;
 	}
 	void parser::namespaceparse()
 	{
@@ -517,6 +517,10 @@ namespace lang
 		{
 			auto&& j = this->extendslist[i];
 			j.second->base = (langClass)this->runner->variable[*this->parsers[j.first]->name];
+			if (j.second->base == NULLOBJECT)
+			{
+				WARNINGS(0, "Œp³Œ³‚É‚È‚é%sƒNƒ‰ƒX‚ª‘¶İ‚µ‚Ü‚¹‚ñB", this->parsers[j.first]->name->c_str())
+			}
 		}
 #if CPP11
 		foreach_(auto &&i in_ this->staticmemberevals)
@@ -657,7 +661,7 @@ namespace lang
 			bool islast = i >= input.size() - 1;
 			bool isfast = i == 0;
 			auto chr = input[i];
-			char nextchr;
+			char nextchr = 0;
 			char prevchr;
 			if (!islast)nextchr = input[i + 1];
 			if (!isfast)prevchr = input[i - 1];
@@ -769,7 +773,7 @@ namespace lang
 								goto ReadNum;
 							}
 							else
-							if (isIden(chr))
+							if (isIden(chr, nextchr))
 							{
 								startindex = i;
 								sts = parserStatus::ReadIden;
@@ -788,7 +792,7 @@ namespace lang
 					break;
 				case parserStatus::ReadIden:
 				ReadIden :
-					if (!isIden(chr))
+					if (!isIden(chr,nextchr))
 					{
 						if (!(shiftJis && isIdenShiftJIS(chr)))
 						if (!shiftJis || !isIdenShiftJIS1(prevchr))
@@ -802,7 +806,7 @@ namespace lang
 									if (*iden == "class"){ this->parsers.push_back(new parseObj(parserEnum::_class, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHNEW:
-									if (*iden == "for"){ this->parsers.push_back(new parseObj(parserEnum::_for, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									if (*iden == "for"){ this->parsers.push_back(new parseObj(parserEnum::_for, iden, startindex, i - 1)); ok = true; }
 									if (*iden == "new"){ this->parsers.push_back(new parseObj(parserEnum::_new, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHTHIS:
@@ -827,31 +831,31 @@ namespace lang
 									if (*iden == "null"){ this->parsers.push_back(new parseObj(parserEnum::_null, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
 									break;
 								case HASHBREAK:
-									if (*iden == "break"){ this->parsers.push_back(new parseObj(parserEnum::_break, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									if (*iden == "break"){ this->parsers.push_back(new parseObj(parserEnum::_break, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHCONTINUE:
-									if (*iden == "continue"){ this->parsers.push_back(new parseObj(parserEnum::_continue, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									if (*iden == "continue"){ this->parsers.push_back(new parseObj(parserEnum::_continue, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHELSE:
-									if (*iden == "else"){ this->parsers.push_back(new parseObj(parserEnum::_else, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									if (*iden == "else"){ this->parsers.push_back(new parseObj(parserEnum::_else, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHWHILE:
-									if (*iden == "while"){ this->parsers.push_back(new parseObj(parserEnum::_while, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									if (*iden == "while"){ this->parsers.push_back(new parseObj(parserEnum::_while, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHIF:
-									if (*iden == "if"){ this->parsers.push_back(new parseObj(parserEnum::_if, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									if (*iden == "if"){ this->parsers.push_back(new parseObj(parserEnum::_if, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHRETURN:
-									if (*iden == "return"){ this->parsers.push_back(new parseObj(parserEnum::_return, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									if (*iden == "return"){ this->parsers.push_back(new parseObj(parserEnum::_return, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHBASE:
-									if (*iden == "base"){ this->parsers.push_back(new parseObj(parserEnum::base, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									if (*iden == "base"){ this->parsers.push_back(new parseObj(parserEnum::base, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHFOREACH:
-									if (*iden == "foreach"){ this->parsers.push_back(new parseObj(parserEnum::_foreach, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									if (*iden == "foreach"){ this->parsers.push_back(new parseObj(parserEnum::_foreach, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHIN:
-									if (*iden == "in"){ this->parsers.push_back(new parseObj(parserEnum::_in, iden, startindex, i - 1, NULLOBJECT)); ok = true; }
+									if (*iden == "in"){ this->parsers.push_back(new parseObj(parserEnum::_in, iden, startindex, i - 1)); ok = true; }
 									break;
 							}
 							if (!ok) this->parsers.push_back(new parseObj(parserEnum::identifier, iden, startindex, i - 1));
