@@ -299,16 +299,16 @@ namespace lang
 								if (this->type == en::ctor)return this->_this;
 								/*if (result)
 								{
-									auto parent = this->parent;
-									while (parent)
-									{
-										if (parent->type == en::_function)
-										{
-											this->status = en::_return;
-											return result;
-										}
-											parent = parent->parent;
-									}
+								auto parent = this->parent;
+								while (parent)
+								{
+								if (parent->type == en::_function)
+								{
+								this->status = en::_return;
+								return result;
+								}
+								parent = parent->parent;
+								}
 								}*/
 								LANG_SCOPE_RUN_RET;
 							case parserEnum::semicolon:
@@ -749,6 +749,23 @@ namespace lang
 	const int ArrayPrece = 2;//2;
 	const int IncrementPrece = 2;
 	const int PointerPrece = 3;
+	int UnaryOperator(parserEnum op)
+	{
+		switch (op)
+		{
+			case parserEnum::minusminus:
+			case parserEnum::plusplus:
+			case parserEnum::notnot:
+			case parserEnum::not:
+			case parserEnum::plus:
+			case parserEnum::minus:
+			case parserEnum::and:
+			case parserEnum::multiply:
+			case parserEnum::_new:
+				return 3;
+		}
+		return 0;
+	}
 	int Operator(parserEnum op)
 	{
 		switch (op)
@@ -806,7 +823,7 @@ namespace lang
 		}
 	}
 #endif
-#define OP if (opera <= thisop) break
+#define OP if (opera </*=*/ thisop) break
 #define OP2 i = index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop) object = eval(object,i,17,evals::isbinaryoperation),index = i;
 #define OP3 i=index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2
 #define OP4 if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
@@ -817,8 +834,11 @@ namespace lang
 		int binaryoperation = index + 1;
 		int i, j;
 		bool isbinaryoperation = (bool)((int)ev & 1);
+		langObject buf;
 		if (!isbinaryoperation)
 		{
+			int thisop = UnaryOperator(this->parsers[index]->pEnum);
+			i = index + 1;
 			switch (this->parsers[index]->pEnum)
 			{
 				case parserEnum::identifier:
@@ -918,6 +938,20 @@ namespace lang
 						}
 					}
 					break;
+				case parserEnum::minus:
+					OP;
+					buf = eval(object, i, thisop);
+					object = (Object::unaryminus(buf));
+					index = i; binaryoperation = index + 1;
+					OP2
+						break;
+				case parserEnum::plus:
+					OP;
+					buf = eval(object, i, thisop);
+					object = (Object::unaryplus(buf));
+					index = i; binaryoperation = index + 1;
+					OP2
+						break;
 				case parserEnum::_this:
 					object = _this;
 					if (this->isClass())
@@ -950,7 +984,6 @@ namespace lang
 		}
 		if (this->parsers.size() > binaryoperation)
 		{
-			langObject buf;
 			int i = index + 2;
 			int thisop = Operator(this->parsers[binaryoperation]->pEnum);
 			bool isBuilt = true;

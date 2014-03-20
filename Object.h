@@ -67,6 +67,8 @@ namespace lang
 		static langObject bracketequal(langObject obj1, std::vector<langObject> obj2);
 		static langObject plus(langObject obj1, langObject obj2);
 		static langObject minus(langObject obj1, langObject obj2);
+		static langObject unaryplus(langObject obj1);
+		static langObject unaryminus(langObject obj1);
 		static langObject multiply(langObject obj1, langObject obj2);
 		static langObject division(langObject obj1, langObject obj2);
 		static langObject greater(langObject obj1, langObject obj2);
