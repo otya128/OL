@@ -32,7 +32,7 @@ void se_translator_function(unsigned int code, struct _EXCEPTION_POINTERS* ep)
 	throw ep; //標準C++の例外を発生させる
 }
 //copy http://www.ne.jp/asahi/hishidama/home/tech/vcpp/seh.html
-LONG dump_exception(_EXCEPTION_POINTERS *ep,char*& a)
+LONG dump_exception(_EXCEPTION_POINTERS *ep, char*& a)
 {
 	PEXCEPTION_RECORD rec = ep->ExceptionRecord;
 
@@ -50,7 +50,7 @@ LONG dump_exception(_EXCEPTION_POINTERS *ep,char*& a)
 			i,
 			rec->ExceptionInformation[i]
 			);
-		/*::OutputDebugString*/std::wcout<<(buf);
+		/*::OutputDebugString*/std::wcout << (buf);
 	}
 	a = "?";
 	switch (rec->ExceptionCode)
@@ -201,7 +201,7 @@ std::string getlinestring(std::string input, int index)
 }
 ENUMCLASS option
 {
-	none, errorlevel,
+	none, errorlevel, std_out, chdir
 };
 int hook(int a1, char *a2, int *a3)
 {
@@ -308,7 +308,7 @@ void gui(void)
 	{
 		/*__try
 		{
-			*((int*)10) = 0;
+		*((int*)10) = 0;
 		}
 		__except (dump_exception(GetExceptionInformation()))
 		{
@@ -332,6 +332,9 @@ void gui(void)
 #endif
 	}
 #include <commctrl.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #pragma comment(lib, "comctl32.lib")
 	int main(int argc, char *argv[])
 	{
@@ -438,6 +441,16 @@ void gui(void)
 							nologo = true;
 						}
 						else
+						if (!strcmp(argv[i], _OLT("-stdout")))
+						{
+							o = option::std_out;
+						}
+						else
+						if (!strcmp(argv[i], _OLT("-chdir")))
+						{
+							o = option::chdir;
+						}
+						else
 						{
 							//filename = argv[i];
 							notfileload = false;
@@ -446,6 +459,25 @@ void gui(void)
 						break;
 					case option::errorlevel:
 						lang::error_level = /*_ttoi*/atoi(argv[i]);
+						o = option::none;
+						break;
+					case option::std_out:
+					{
+											auto s = stdout;
+											freopen_s(&s, argv[i], "w+", stdout);
+											/*
+											auto s = stdout;
+											fopen_s(&s, argv[i], "w+");*/
+											o = option::none;
+					}
+						break;
+					case option::chdir:
+#ifndef _WIN32
+						chdir(argv[i]);
+#endif
+#ifdef _WIN32
+						SetCurrentDirectoryA(argv[i]);
+#endif
 						o = option::none;
 						break;
 					default:
@@ -558,12 +590,12 @@ void gui(void)
 				}
 				catch (lang::langParseException ex)
 				{
-					std::cout << std::endl << "lang::langParseException - lang::parser" << std::endl << ex.what();
+					std::cerr << std::endl << "lang::langParseException - lang::parser" << std::endl << ex.what();
 					continue;
 				}
 				catch (lang::langRuntimeException ex)
 				{
-					std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "場所?:" << std::endl;
+					std::cerr << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "場所?:" << std::endl;
 #if CPP11
 					for (auto i : ex.stacktrace)
 					{
@@ -576,179 +608,179 @@ void gui(void)
 						//std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
 						//break;
 					}
-					std::cout << "StackTrace" << std::endl;
+					std::cerr << "StackTrace" << std::endl;
 					FOREACH(i, ex.funcstacktrace)//for(auto i : ex.funcstacktrace)
 						//{
-						std::cout << i << std::endl;
+						std::cerr << i << std::endl;
+					ENDFOREACH
+					if (lang::gc_view)std::cerr << "異常終了 変数や定数を削除" << std::endl;
+					//std::getchar();
+					__v('ω')__v('ω')FAILEND; __v('ω')__v('ω') //continue;
 				}
-				std::cout << "異常終了 変数や定数を削除" << std::endl;
-				std::getchar();
-				__v('ω')__v('ω')FAILEND; __v('ω')__v('ω') //continue;
-			}
-			for (int i = 0; i < pars->parsers.size(); i++)
-			{
-				if (pars->parsers[i]->ptr != nullptr)
+				for (int i = 0; i < pars->parsers.size(); i++)
 				{
-					lang::gc->constroot.push_back(pars->parsers[i]->ptr);
-				}
-			}
-			//out testobj=new lang::parseObj("hoge");//アウト
-			//std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
-			int nest = 0;
-			if (json)
-			{
-				std::cout << "{\"parser\":[";
-				//                for(auto &&i : pars->parsers)
-				FOREACH(i, pars->parsers)//                {
-					std::cout << '{' << "\"name\":\"" << (i->name ? escape(*i->name) : "") << '\"' << ',' << "\"pEnum\":\"" << enumtable[i->pEnum] << '\"' << ',' << "\"ptr\":";
-				if (i->ptr)
-				{
-					if (i->ptr is _Int)
+					if (pars->parsers[i]->ptr != nullptr)
 					{
-						std::cout << *(int*)i->ptr->getPointer();
+						lang::gc->constroot.push_back(pars->parsers[i]->ptr);
+					}
+				}
+				//out testobj=new lang::parseObj("hoge");//アウト
+				//std::cout<<pars->program<<std::endl<<testobj->getString()<<std::endl;*pars->parsers[i]->toString()*/
+				int nest = 0;
+				if (json)
+				{
+					std::cout << "{\"parser\":[";
+					//                for(auto &&i : pars->parsers)
+					FOREACH(i, pars->parsers)//                {
+						std::cout << '{' << "\"name\":\"" << (i->name ? escape(*i->name) : "") << '\"' << ',' << "\"pEnum\":\"" << enumtable[i->pEnum] << '\"' << ',' << "\"ptr\":";
+					if (i->ptr)
+					{
+						if (i->ptr is _Int)
+						{
+							std::cout << *(int*)i->ptr->getPointer();
+						}
+						else
+						if (i->ptr is _String)
+						{
+							std::cout << '\"' << escape(*(std::string*)i->ptr->getPointer()) << '\"';
+						}
 					}
 					else
-					if (i->ptr is _String)
 					{
-						std::cout << '\"' << escape(*(std::string*)i->ptr->getPointer()) << '\"';
+						std::cout << "null";
 					}
+					std::cout << '}' << ',';
+					ENDFOREACH
+						std::cout << ']' << ',';
+					std::cout << '}';
+					exit(0);
 				}
-				else
+				if (parserresult)
+				for (int i = 0; i < pars->parsers.size(); i++)
 				{
-					std::cout << "null";
+					if (pars->parsers[i]->pEnum == lang::blockend)nest--;
+					if (pars->parsers[i]->pEnum == lang::rightparent)nest--;
+					std::cout << i << "\t";
+					for (int j = 0; j < nest; j++)std::cout << " ";
+					std::cout << input.substr(pars->parsers[i]->sourcestartindex, pars->parsers[i]->sourceendindex - pars->parsers[i]->sourcestartindex + 1) << "\t" << parserEnumToString(pars->parsers[i]->pEnum) << std::endl;
+					if (pars->parsers[i]->pEnum == lang::blockstart)nest++;
+					if (pars->parsers[i]->pEnum == lang::leftparent)nest++;
 				}
-				std::cout << '}' << ',';
-				ENDFOREACH
-					std::cout << ']' << ',';
-				std::cout << '}';
-				exit(0);
+				try
+				{
+					__v('ω')v__
+						__v('ω')v__
+						__v('ω')v__
+						//#if AHO_GC //スレッドで動き続けるアホなGC
+#ifdef CPP11
+					if (ahogc)std::thread thd([]{ while (true) lang::gc->start(); });
+#endif
+					//#endif
+					// lang::NULLOBJECT = new lang::Object();
+					running = true;
+					auto result = pars->runner->run();
+					if (result && result != NULLOBJECT) std::cout << result->toString();// << std::endl;
+					if (lang::gc_view)std::cout << "実行終 変数や定数を削除" << std::endl;
+				}
+				catch (lang::langRuntimeException ex)
+				{
+					std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "場所?:" << std::endl;
+					//                    for(auto i : ex.stacktrace)
+					FOREACH(i, ex.stacktrace)//                    {
+						std::cout << getlinestring(input, ex.tokens[i.second]->sourcestartindex);
+					//std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
+					//break;
+				}
+				std::cerr << "StackTrace" << std::endl;
+				FOREACH(i, ex.funcstacktrace)//                    for(auto i : ex.funcstacktrace)
+					//{
+					std::cerr << i << std::endl;
+				ENDFOREACH//}
+				if (lang::gc_view)std::cerr << "異常終了 変数や定数を削除" << std::endl;
 			}
-			if (parserresult)
+#if !defined(_DEBUG)//デバッグならデバッガの機能を利用する
+			catch (std::exception ex)
+			{
+				std::cerr << "BUG!!!" << ex.what() << std::endl;
+				std::cerr << "異常終了 変数や定数を削除" << std::endl;
+			}
+			catch (struct _EXCEPTION_POINTERS* ep)
+			{
+				std::cerr << "WIN32 EXCEPTION!" << std::endl;
+				char* codestring;
+				dump_exception(ep, codestring);
+				std::cerr << codestring << std::endl;
+				if (lang::gc_view)std::cerr << "異常終了 変数や定数を削除" << std::endl;
+			}
+			catch (...)
+			{
+				std::cerr << "BUG!!!!!!!!!!!!!!!!!!" << std::endl;
+				if (lang::gc_view)std::cerr << "異常終了 変数や定数を削除" << std::endl;
+			}
+#endif
+			running = false;
+			if (endpause)std::getchar();
+			clock_t start, end;
+			start = clock();
+			std::vector<lang::scope*> del;
+			//                for(auto i : lang::gc->roots)
+			FOREACH(i, lang::gc->roots)//                {
+				del.push_back(i.first);
+			ENDFOREACH
+				lang::gc->roots.clear();
+			//lang::gc->root->variable._variable.clear();
+			lang::gc->start();
+
+			end = clock();
+			if (lang::gc_view)std::cout << (double)(end - start) / CLOCKS_PER_SEC << "秒" << std::endl;
+			for (int i = 0; i < del.size(); i++)
+			{
+				delete del[i];
+			}
+			if (lang::gc_view)std::cout << "定数の削除" << std::endl;
 			for (int i = 0; i < pars->parsers.size(); i++)
 			{
-				if (pars->parsers[i]->pEnum == lang::blockend)nest--;
-				if (pars->parsers[i]->pEnum == lang::rightparent)nest--;
-				std::cout << i << "\t";
-				for (int j = 0; j < nest; j++)std::cout << " ";
-				std::cout << input.substr(pars->parsers[i]->sourcestartindex, pars->parsers[i]->sourceendindex - pars->parsers[i]->sourcestartindex + 1) << "\t" << parserEnumToString(pars->parsers[i]->pEnum) << std::endl;
-				if (pars->parsers[i]->pEnum == lang::blockstart)nest++;
-				if (pars->parsers[i]->pEnum == lang::leftparent)nest++;
+				// delete pars->parsers[i]->ptr;
+				delete pars->parsers[i];
 			}
-			try
-			{
-				__v('ω')v__
-					__v('ω')v__
-					__v('ω')v__
-					//#if AHO_GC //スレッドで動き続けるアホなGC
-#ifdef CPP11
-				if (ahogc)std::thread thd([]{ while (true) lang::gc->start(); });
-#endif
-				//#endif
-				// lang::NULLOBJECT = new lang::Object();
-				running = true;
-				auto result = pars->runner->run();
-				if (result && result != NULLOBJECT) std::cout << result->toString();// << std::endl;
-				if(lang::gc_view)std::cout << "実行終 変数や定数を削除" << std::endl;
-			}
-			catch (lang::langRuntimeException ex)
-			{
-				std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "場所?:" << std::endl;
-				//                    for(auto i : ex.stacktrace)
-				FOREACH(i, ex.stacktrace)//                    {
-					std::cout << getlinestring(input, ex.tokens[i.second]->sourcestartindex);
-				//std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
-				//break;
-			}
-			std::cout << "StackTrace" << std::endl;
-			FOREACH(i, ex.funcstacktrace)//                    for(auto i : ex.funcstacktrace)
-				//{
-				std::cout << i << std::endl;
-			ENDFOREACH//}
-				std::cout << "異常終了 変数や定数を削除" << std::endl;
+			delete pars;
+			if (prompt)std::cout << std::endl;
+			//(new lang::scope(pars->parsers))->run();
+			//}
+			//catch(char* ex)
+			//{
+			//    std::cout<< ex<<std::endl;3333
+			//}
+			//delete pars;
+			//break;
 		}
-#if !defined(_DEBUG)//デバッグならデバッガの機能を利用する
-		catch(std::exception ex)
-		{
-			std::cout<<"BUG!!!"<<ex.what()<<std::endl;
-			std::cout<<"異常終了 変数や定数を削除"<<std::endl;
-		}
-		catch (struct _EXCEPTION_POINTERS* ep)
-		{
-			std::cout << "WIN32 EXCEPTION!" << std::endl;
-			char* codestring;
-			dump_exception(ep, codestring);
-			std::cout << codestring << std::endl;
-			std::cout << "異常終了 変数や定数を削除" << std::endl;
-		}
-		catch (...)
-		{
-			std::cout << "BUG!!!!!!!!!!!!!!!!!!" << std::endl;
-			std::cout << "異常終了 変数や定数を削除" << std::endl;
-		}
-#endif
-		running = false;
-		if (endpause)std::getchar();
-		clock_t start, end;
-		start = clock();
-		std::vector<lang::scope*> del;
-		//                for(auto i : lang::gc->roots)
-		FOREACH(i, lang::gc->roots)//                {
-			del.push_back(i.first);
-		ENDFOREACH
-			lang::gc->roots.clear();
-		//lang::gc->root->variable._variable.clear();
-		lang::gc->start();
-
-		end = clock();
-		if (lang::gc_view)std::cout << (double)(end - start) / CLOCKS_PER_SEC << "秒" << std::endl;
-		for (int i = 0; i < del.size(); i++)
-		{
-			delete del[i];
-		}
-		if (lang::gc_view)std::cout << "定数の削除" << std::endl;
-		for (int i = 0; i < pars->parsers.size(); i++)
-		{
-			// delete pars->parsers[i]->ptr;
-			delete pars->parsers[i];
-		}
-		delete pars;
-		if (prompt)std::cout << std::endl;
-		//(new lang::scope(pars->parsers))->run();
-		//}
-		//catch(char* ex)
-		//{
-		//    std::cout<< ex<<std::endl;3333
-		//}
-		//delete pars;
-		//break;
-	}
-	while (prompt);
-theend:
+		while (prompt);
+	theend:
 #if _DEBUG
-	BreakPoint.~vector();
+		BreakPoint.~vector();
 #endif
-	delete BuiltFunction;
-	delete lang::NULLOBJECT;
-	delete lang::TRUEOBJECT;
-	delete lang::FALSEOBJECT;
-	delete lang::ObjectType;
-	delete lang::object_tostr;
-	delete lang::string_substr;
-}
-if (leakcheck)
-{
-	_CrtDumpMemoryLeaks();
-}
-if (pause)
+		delete BuiltFunction;
+		delete lang::NULLOBJECT;
+		delete lang::TRUEOBJECT;
+		delete lang::FALSEOBJECT;
+		delete lang::ObjectType;
+		delete lang::object_tostr;
+		delete lang::string_substr;
+	}
+	if (leakcheck)
+	{
+		_CrtDumpMemoryLeaks();
+	}
+	if (pause)
 #if defined(_WIN32)
 #if _DEBUG
-std::getchar();
+		std::getchar();
 #endif
 #if !defined(_DEBUG)
-system("PAUSE");//WINDOWSならこっちの方が親切だから使う
+	system("PAUSE");//WINDOWSならこっちの方が親切だから使う
 #endif
 #else
-std::getchar();
+		std::getchar();
 #endif
-return result;
+	return result;
 }

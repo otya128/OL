@@ -79,7 +79,7 @@ namespace lang
 	{
 		if (level <= error_level)
 		{
-			std::cout << "[ERROR]" << param << std::endl;
+			std::cerr << "[ERROR]" << param << std::endl;
 		}
 		else
 		{
