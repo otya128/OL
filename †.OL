@@ -1,4 +1,5 @@
-new hoge();exit();class hoge : OL::GUI::Window{hoge(){base.ctor(this,512,512)base.Show()}}
+print(OL::Math.cos(1));
+//new hoge();exit();class hoge : OL::GUI::Window{hoge(){base.ctor(this,512,512)base.Show()}}
 //HiddenFaxWindow????????????????????????????
 //ADD char,wchar type
 if(true)

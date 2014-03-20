@@ -1,6 +1,10 @@
 
 namespace OL
 {
+	class Math
+	{
+		static double cos(r r){r x=r*r; return ((((((0.000000002087675699)*x -0.00000027557319223989)*x +0.00024801587301587)*x -0.0013888888888888889)*x +0.041666666666666666)*x -0.5)*x +1.0;}
+	}
 	class List : Enumerable
 	{
 		private _array;
