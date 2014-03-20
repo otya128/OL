@@ -58,6 +58,7 @@ namespace lang
 	}
 	scope::scope(std::vector<parseObj*>& v) :parsers(v)
 	{
+		parent = nullptr;
 		this->isClass() = nullptr;
 		refcount = 0;
 		//this->variable = lang::variable();
@@ -73,6 +74,7 @@ namespace lang
 	}
 	scope::scope(std::vector<parseObj*>& v, scope* parent, langClassObject _this) :parsers(v)
 	{
+		this->parent = parent;
 		this->isClass() = isClass();
 		gc->addRoot(this);//gc->roots[this] = 0;
 		refcount = 0;
@@ -211,9 +213,10 @@ namespace lang
 			}
 		}
 	}
+#define LANG_SCOPE_RUN_RET return result ? result : NULLOBJECT
 	langObject scope::run(void)
 	{
-		langObject result = NULLOBJECT;
+		langObject result = nullptr;
 		this->index = this->startIndex;
 		auto status = en::scopeStatus::none;
 		/*std::shared_ptr<scope>*/scope* forscope = 0;
@@ -288,13 +291,28 @@ namespace lang
 								break;
 							case parserEnum::_break:
 								this->status = en::_break;
-								return NULLOBJECT;
+								LANG_SCOPE_RUN_RET;
 							case parserEnum::_continue:
 								this->status = en::_continue;
-								return NULLOBJECT;
+								LANG_SCOPE_RUN_RET;
 							case parserEnum::blockend:
 								if (this->type == en::ctor)return this->_this;
-								return NULLOBJECT;
+								/*if (result)
+								{
+									auto parent = this->parent;
+									while (parent)
+									{
+										if (parent->type == en::_function)
+										{
+											this->status = en::_return;
+											return result;
+										}
+											parent = parent->parent;
+									}
+								}*/
+								LANG_SCOPE_RUN_RET;
+							case parserEnum::semicolon:
+								break;
 							case parserEnum::blockstart:
 							{
 														   auto sc = /*std::make_shared<scope>*/new scope(this->parsers, this, this->_this);
@@ -709,7 +727,7 @@ namespace lang
 		{
 			throw langRuntimeException(ex.what(), startIndex, index, this->parsers, ex.stacktrace, ex.funcstacktrace);
 		}
-		return result;
+		LANG_SCOPE_RUN_RET;
 		//auto buf = eval(this->parsers[0]->ptr,this->index);
 		//if(buf!=nullptr)std::cout<<"result:"<<(buf)->toString()<<std::endl;
 		//delete buf;
@@ -999,6 +1017,13 @@ namespace lang
 					OP;
 					buf = eval(object, i, thisop);
 					object = (Object::multiply(object, buf));
+					index = i;
+					OP2
+						break;
+				case parserEnum::division:
+					OP;
+					buf = eval(object, i, thisop);
+					object = (Object::division(object, buf));
 					index = i;
 					OP2
 						break;

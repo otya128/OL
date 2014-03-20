@@ -167,7 +167,9 @@ namespace lang
     int Int::toInt(langObject obj)
     {
         if(obj->type->TypeEnum == PreType::_Int)
-            return (static_cast<Int*>(obj))->getInt();
+			return (static_cast<Int*>(obj))->getInt();
+		if (obj->type->TypeEnum == PreType::_Double)
+			return (static_cast<Double*>(obj))->getDouble();
         return 0;//変換不可
     }
     char Char::toChar(langObject obj)
@@ -245,7 +247,41 @@ namespace lang
         std::stringstream ss;
         ss<<mbs;
         return (ss.str());
-    }
+	}
+	double Double::toDouble(langObject obj)
+	{
+		if (obj->type->TypeEnum == PreType::_Double)
+			return (static_cast<Double*>(obj))->getDouble();
+		if (obj->type->TypeEnum == PreType::_Int)
+			return (static_cast<Int*>(obj))->getInt();
+		return 0;//変換不可
+	}
+	Double::Double(double i)
+	{
+		this->type = new Type(PreType::_Double);
+		this->dbl = i;
+		this->ptr = &this->dbl;//(void*)new char(i);
+	}
+	Double::~Double(void)
+	{
+	}
+	double Double::getDouble(void)
+	{
+		return this->dbl;
+	}
+	void Double::setDouble(double i)
+	{
+		this->dbl = i;
+		this->ptr = &this->dbl;
+		return;
+	}
+	std::string Double::toString()
+	{
+		std::stringstream ss;
+		ss << this->getDouble();
+		return (ss.str());
+	}
+
 #define LANG_OPERA_DEBUG_CHECK 
 #if _DEBUG
 #define LANG_OPERA_DEBUG_CHECK if (!obj1 || !obj2)throw langRuntimeException(__FUNCTION__"式がありません。");
@@ -343,7 +379,9 @@ namespace lang
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
-            return newInt(Int::toInt(obj1) + Int::toInt(obj2));
+			return newInt(Int::toInt(obj1) + Int::toInt(obj2));
+		case PreType::_Double:
+			return newDouble(Double::toDouble(obj1) + Double::toDouble(obj2));
         case _String:
             return newString(&(obj1->toString() + obj2->toString()));
         case PreType::_ClassObject:
@@ -379,6 +417,8 @@ namespace lang
 		{
 			case PreType::_Int:
 				return newInt(Int::toInt(obj1) - Int::toInt(obj2));
+			case PreType::_Double:
+				return newDouble(Double::toDouble(obj1) - Double::toDouble(obj2));
 			case PreType::_ClassObject:
 				OPERA2ARG("minus")
 		}
@@ -391,13 +431,30 @@ namespace lang
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
-            return newInt(Int::toInt(obj1) * Int::toInt(obj2));
+			return newInt(Int::toInt(obj1) * Int::toInt(obj2));
+		case PreType::_Double:
+			return newDouble(Double::toDouble(obj1) * Double::toDouble(obj2));
         case PreType::_ClassObject:
             OPERA2ARG("multiply")
         }
         throw langRuntimeException((std::string(obj1->type->name) + "*" + obj2->type->name + "出来ない").c_str());
         //変換不可
-    }
+	}
+	langObject Object::division(langObject obj1, langObject obj2)
+	{
+		LANG_OPERA_DEBUG_CHECK
+			switch (obj1->type->TypeEnum)
+		{
+				case PreType::_Int:
+					return newInt(Int::toInt(obj1) / Int::toInt(obj2));
+				case PreType::_Double:
+					return newDouble(Double::toDouble(obj1) / Double::toDouble(obj2));
+				case PreType::_ClassObject:
+					OPERA2ARG("multiply")
+		}
+		throw langRuntimeException((std::string(obj1->type->name) + "/" + obj2->type->name + "出来ない").c_str());
+		//変換不可
+	}
     langObject Object::greater(langObject obj1,langObject obj2)
 	{
 		LANG_OPERA_DEBUG_CHECK
@@ -405,7 +462,10 @@ namespace lang
         {
         case PreType::_Int:
             if(obj2 is _Int)return newInt(Int::toInt(obj1) > Int::toInt(obj2));
-            else return newInt(obj1->getPointer() > obj2->getPointer());
+			else return newInt(obj1->getPointer() > obj2->getPointer());
+		case PreType::_Double:
+			if (obj2 is _Double)return newInt(Double::toDouble(obj1) > Double::toDouble(obj2));
+			else return newInt(obj1->getPointer() > obj2->getPointer());
         case PreType::_ClassObject:
             OPERA2ARG("greater")
         }
@@ -419,7 +479,10 @@ namespace lang
         {
         case PreType::_Int:
             if(obj2 is _Int)return newInt(Int::toInt(obj1) < Int::toInt(obj2));
-            else return newInt(obj1->getPointer() < obj2->getPointer());
+			else return newInt(obj1->getPointer() < obj2->getPointer());
+		case PreType::_Double:
+			if (obj2 is _Double)return newInt(Double::toDouble(obj1) < Double::toDouble(obj2));
+			else return newInt(obj1->getPointer() < obj2->getPointer());
         case PreType::_ClassObject:
             OPERA2ARG("less")
         }
@@ -433,7 +496,10 @@ namespace lang
         {
         case PreType::_Int:
             if(obj2 is _Int)return newInt(Int::toInt(obj1) >= Int::toInt(obj2));
-            else return newInt(obj1->getPointer() >= obj2->getPointer());
+			else return newInt(obj1->getPointer() >= obj2->getPointer());
+		case PreType::_Double:
+			if (obj2 is _Double)return newInt(Double::toDouble(obj1) >= Double::toDouble(obj2));
+			else return newInt(obj1->getPointer() >= obj2->getPointer());
         case PreType::_ClassObject:
             OPERA2ARG("greaterEqual")
         }
@@ -446,7 +512,10 @@ namespace lang
         {
         case PreType::_Int:
             if(obj2 is _Int)return newInt(Int::toInt(obj1) <= Int::toInt(obj2));
-            else return newInt(obj1->getPointer() <= obj2->getPointer());
+			else return newInt(obj1->getPointer() <= obj2->getPointer());
+		case PreType::_Double:
+			if (obj2 is _Double)return newInt(Double::toDouble(obj1) <= Double::toDouble(obj2));
+			else return newInt(obj1->getPointer() <= obj2->getPointer());
         case PreType::_ClassObject:
             OPERA2ARG("lessEqual")
         }
@@ -459,7 +528,10 @@ namespace lang
         {
         case PreType::_Int:
             if(obj2 is _Int)return newInt(Int::toInt(obj1) == Int::toInt(obj2));
-            else return newInt(obj1->getPointer() == obj2->getPointer());
+			else return newInt(obj1->getPointer() == obj2->getPointer());
+		case PreType::_Double:
+			if (obj2 is _Double)return newInt(Double::toDouble(obj1) == Double::toDouble(obj2));
+			else return newInt(obj1->getPointer() == obj2->getPointer());
         case PreType::_ClassObject:
             {
                 auto clas = (langClassObject)obj1;
@@ -494,7 +566,7 @@ namespace lang
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
-            return newInt(Int::toInt(obj1) % Int::toInt(obj2));
+			return newInt(Int::toInt(obj1) % Int::toInt(obj2));
         case PreType::_ClassObject:
             OPERA2ARG("modulo")
         }
@@ -566,7 +638,7 @@ namespace lang
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
-            return newInt(Int::toInt(obj1) >> Int::toInt(obj2));
+			return newInt(Int::toInt(obj1) >> Int::toInt(obj2));
         case PreType::_ClassObject:
             OPERA2ARG("rightShift")
         }
@@ -578,7 +650,9 @@ namespace lang
         switch (obj1->type->TypeEnum)
         {
         case PreType::_Int:
-            return newInt(Int::toInt(obj1) + 1);
+			return newInt(Int::toInt(obj1) + 1);
+		case PreType::_Double:
+			return newDouble(Double::toDouble(obj1) + 1.0);
             //case PreType::_ClassObject:
             //    OPERA2ARG("inc")
         }

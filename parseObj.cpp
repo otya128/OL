@@ -30,8 +30,8 @@ namespace lang
     {
         this->sourceendindex = j;
         this->sourcestartindex = i;
-        //this->ptr=new double(obj);
-        //this->pEnum=parserEnum::num;
+		this->ptr = newDouble(obj);
+		this->pEnum = parserEnum::num;
     }
 
     parseObj::parseObj(char obj,int i,int j)

@@ -32,7 +32,8 @@ namespace lang
     class ClassObject;
     class SpecialFunction;
     class Array;
-    class Char;
+	class Char;
+	class Double;
 #define GCENABLE
     //参照ポインタGC
 #ifdef GCENABLE
@@ -46,7 +47,8 @@ namespace lang
     typedef ClassObject* langClassObject;
     typedef Function* langFunction;
     typedef Array* langArray;
-    typedef Char* langChar;
+	typedef Char* langChar;
+	typedef Double* langDouble;
 #define newObject(a) new lang::Object(a)
 #define newInt(a) new lang::Int(a)
 #define newString(a) new lang::String(a)
@@ -55,6 +57,7 @@ namespace lang
 #define newClassObject(a) new lang::ClassObject(a)
 #define newArray(a) new lang::Array(a);
 #define newChar(a) new lang::Char(a);
+#define newDouble(a) new lang::Double(a);
 #endif
 #ifndef GCENABLE
     typedef std::shared_ptr<Object> langObject;

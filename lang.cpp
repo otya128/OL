@@ -510,6 +510,12 @@ void gui(void)
 			//lang::gc_view = true;
 			if (leakcheck) _CrtSetReportHook((_CRT_REPORT_HOOK)hook);
 			lib::init();
+			lang::NULLOBJECT = new lang::Object();
+			lang::NULLOBJECT->type->name = "null";
+			lang::TRUEOBJECT = new lang::Int(true);
+			lang::TRUEOBJECT->type->name = "true";
+			lang::FALSEOBJECT = new lang::Int(false);
+			lang::FALSEOBJECT->type->name = "false";
 			do//while (true)//std::getchar())
 			{
 				std::stringstream ss;
@@ -560,12 +566,6 @@ void gui(void)
 				lang::parser* pars = 0;
 				try
 				{
-					lang::NULLOBJECT = new lang::Object();
-					lang::NULLOBJECT->type->name = "null";
-					lang::TRUEOBJECT = new lang::Int(true);
-					lang::TRUEOBJECT->type->name = "true";
-					lang::FALSEOBJECT = new lang::Int(false);
-					lang::FALSEOBJECT->type->name = "false";
 					pars = new lang::parser(input);//アウト
 					if (lang::prompt)
 					{

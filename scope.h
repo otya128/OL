@@ -74,6 +74,7 @@ ENUMCLASS evals
         langObject eval(langObject object,int& index,int opera = 17,evals ev = (evals)0);
         langFunction anonymousFunction(int& index);
         langClassObject _this;
+		scope *parent;
     };
     #define DEFINEDSCPEVAR(scope, name) (scope->variable.definedVar(name))
     langObject BuidInFunction(std::string name,std::vector<langObject> arg);

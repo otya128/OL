@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include <sstream>
 #include "parser.h"
 #include <stack>
 #include "Function.h"
@@ -43,6 +44,7 @@ namespace lang
 	ReadEscapeString,
 	ReadChar,
 	ReadEscapeChar,
+	ReadDouble
 };
 	int error_level;
 	//文字列から単純なhashを作成
@@ -59,7 +61,7 @@ namespace lang
 	}
 	bool isIden(unsigned char c, unsigned char nc)
 	{
-		return (c >= 'A'&&c <= 'Z') || (c >= 'a'&&c <= 'z') || (c >= '0'&&c <= '9') || (c == '_') || (c==':');//namespace
+		return (c >= 'A'&&c <= 'Z') || (c >= 'a'&&c <= 'z') || (c >= '0'&&c <= '9') || (c == '_') || (c == ':');//namespace
 	}
 	bool isIdenShiftJIS(unsigned char c)
 	{
@@ -405,7 +407,7 @@ namespace lang
 		{
 			WARNING("一致しない括弧[");
 		}
-		if(parserresult)std::cout << std::endl;
+		if (parserresult)std::cout << std::endl;
 	}
 	void parser::namespaceparse()
 	{
@@ -792,7 +794,7 @@ namespace lang
 					break;
 				case parserStatus::ReadIden:
 				ReadIden :
-					if (!isIden(chr,nextchr))
+					if (!isIden(chr, nextchr))
 					{
 						if (!(shiftJis && isIdenShiftJIS(chr)))
 						if (!shiftJis || !isIdenShiftJIS1(prevchr))
@@ -870,8 +872,29 @@ namespace lang
 				case parserStatus::ReadNum:ReadNum :
 					if (!isNum(chr))
 					{
+						if (chr == '.')
+						{
+							iden->append(input.substr(i, 1));
+							sts = parserStatus::ReadDouble;
+							break;
+						}
 						this->parsers.push_back(new parseObj(std::atoi(iden->c_str()), startindex, i - 1));
 						iden->clear();//!!!!コピーされるのでclear する!!!!
+						sts = parserStatus::None;
+						goto None;
+					}
+					//std::string chrs(chr);
+					iden->append(input.substr(i, 1));
+					break;
+				case parserStatus::ReadDouble:
+					if (!isNum(chr))
+					{
+						std::stringstream ss;
+						double d;
+						ss << *iden;
+						ss >> d;
+						this->parsers.push_back(new parseObj(d, startindex, i - 1));
+						iden->clear();
 						sts = parserStatus::None;
 						goto None;
 					}

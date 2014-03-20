@@ -15,7 +15,7 @@ namespace lang
         _Object,_Int,_String,_Char,_WChar,_Double,_Array,_Class,_Function,_ClassObject,_BuiltFunc
     };
 #pragma once
-    static const char* PreTypeName[] = {"Object","Int","String","Char","Double","Array","Class","Function","ClassObject","BuiltFunc"};
+    static const char* PreTypeName[] = {"Object","Int","String","Char","WChar","Double","Array","Class","Function","ClassObject","BuiltFunc"};
 
     class Type
     {
@@ -68,6 +68,7 @@ namespace lang
 		static langObject plus(langObject obj1, langObject obj2);
 		static langObject minus(langObject obj1, langObject obj2);
 		static langObject multiply(langObject obj1, langObject obj2);
+		static langObject division(langObject obj1, langObject obj2);
 		static langObject greater(langObject obj1, langObject obj2);
 		static langObject less(langObject obj1, langObject obj2);
 		static langObject greaterEqual(langObject obj1, langObject obj2);
@@ -129,7 +130,19 @@ namespace lang
         virtual std::string toString();
     private:
         wchar chr;
-    };
+	};
+	class Double : public Object
+	{
+	public:
+		double getDouble();
+		void setDouble(double i);
+		Double(double ptr);
+		~Double(void);
+		static double toDouble(langObject obj);
+		virtual std::string toString();
+	private:
+		double dbl;
+	};
     //typedef std::shared_ptr<String> langString;
 
 
