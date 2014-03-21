@@ -6,8 +6,8 @@
 #define PARSERENUM_LENGTH 48
 namespace lang
 {
-    enum parserEnum
-    {
+	enum parserEnum
+	{
 		identifier,//¯•Êq
 		num,//”’l
 		doublequote,//
@@ -79,6 +79,8 @@ namespace lang
 		colon,
 		_foreach,
 		_in,
-    };
+		_is,
+		_as,
+	};
 }
 #endif

@@ -4,49 +4,49 @@
 //#define CPP11 1
 #define ENDFOREACH }
 #ifdef CPP11
-#define ENUMCLASS enum class
+#define ENUMCLASS class
 #define FOREACH(VAR,COR) for(auto VAR : COR){
 #else
-#define ENUMCLASS enum
+#define ENUMCLASS 
 #define FOREACH(VAR,COR) for(auto it = (COR).begin(); it != (COR).end(); ++it ){auto VAR = *it;
 #endif
 namespace lang
 {
 	extern bool ahogc, parserresult, leakcheck, pause, prompt;
-    extern bool gc_view;
-    extern int error_level;
-    extern bool running;
-    #define v__  
+	extern bool gc_view;
+	extern int error_level;
+	extern bool running;
+#define v__  
 #define __v(x)  static_assert(x == 'ω', "KANI ERROR");
 #define v____v(x)  static_assert(x == 'ω', "KANI ERROR");
-//#define v（’ω’）v //たしかに~~~~~
+	//#define v（’ω’）v //たしかに~~~~~
 #define var_ auto
 #define in_ :
 #define foreach_ for
 #define is ->type->TypeEnum==
-    class Object;
-    class Int;
-    class String;
-    class Function;
-    class Class;
-    class ClassObject;
-    class SpecialFunction;
-    class Array;
+	class Object;
+	class Int;
+	class String;
+	class Function;
+	class Class;
+	class ClassObject;
+	class SpecialFunction;
+	class Array;
 	class Char;
 	class Double;
 #define GCENABLE
-    //参照ポインタGC
+	//参照ポインタGC
 #ifdef GCENABLE
-    class GC;
-    typedef GC がべこれ;
-    extern がべこれ* gc;
-    typedef Object* langObject;
-    typedef Int* langInt;
-    typedef String* langString;
-    typedef Class* langClass;
-    typedef ClassObject* langClassObject;
-    typedef Function* langFunction;
-    typedef Array* langArray;
+	class GC;
+	typedef GC がべこれ;
+	extern がべこれ* gc;
+	typedef Object* langObject;
+	typedef Int* langInt;
+	typedef String* langString;
+	typedef Class* langClass;
+	typedef ClassObject* langClassObject;
+	typedef Function* langFunction;
+	typedef Array* langArray;
 	typedef Char* langChar;
 	typedef Double* langDouble;
 #define newObject(a) new lang::Object(a)
@@ -60,13 +60,19 @@ namespace lang
 #define newDouble(a) new lang::Double(a);
 #endif
 #ifndef GCENABLE
-    typedef std::shared_ptr<Object> langObject;
-    typedef std::shared_ptr<Int> langInt;
-    typedef std::shared_ptr<String> langString;
-    typedef std::shared_ptr<Function> langFunction;
+	typedef std::shared_ptr<Object> langObject;
+	typedef std::shared_ptr<Int> langInt;
+	typedef std::shared_ptr<String> langString;
+	typedef std::shared_ptr<Function> langFunction;
 #define newObject(a) std::make_shared<Object>(a)
 #define newInt(a) std::make_shared<Int>(a)
 #define newString(a) std::make_shared<String>(a)
 #define newFunction(a,a1,a2,a3) std::make_shared<Function>(a,a1,a2,a3)
 #endif
+	class ObjectType;
+	class IntType;
+	class StringType;
+	class DoubleType;
+	class CharType;
+	class WCharType;
 }

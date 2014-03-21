@@ -94,7 +94,7 @@ namespace lang
         std::stringstream str;
         str<<"anonymousFunction"<<index;
         //str=;
-        std::string name = str.str();
+		std::string name = str.str();
         int funcRead=2;
         std::vector<std::string>* argList = new std::vector<std::string>();
 
@@ -106,8 +106,16 @@ namespace lang
             switch (funcRead)
             {
             case 2://(
+				//–¼‘O‚ ‚è“½–¼ŠÖ”
+				if (token->pEnum == parserEnum::identifier)
+				{
+					func->name = *token->name;
+					continue;
+				}
                 if(token->pEnum == parserEnum::leftparent)funcRead++;else funcRead = 0;
-                if(token->pEnum == parserEnum::rightparent)funcRead = 6;
+				if (token->pEnum == parserEnum::rightparent)funcRead = 6;
+				//ˆø”È—ª“½–¼ŠÖ”
+				if (token->pEnum == parserEnum::blockstart) funcRead = 6;
                 break;
             case 3://type 
                 if(token->pEnum == parserEnum::identifier)funcRead++;else funcRead = 0;
@@ -119,7 +127,15 @@ namespace lang
                     argList->push_back(*token->name);
                     funcRead++;
                 }
-                else funcRead = 0;
+                else
+				if (token->pEnum == parserEnum::comma || token->pEnum == parserEnum::rightparent)
+				{
+					funcRead--;
+					argList->push_back(*((this->parsers[i - 1])->name));
+					if (token->pEnum == parserEnum::rightparent)funcRead = 6;
+				}
+				else
+					funcRead = 0;
                 break;
             case 5://, or )
                 if(token->pEnum == parserEnum::comma)funcRead-=2;

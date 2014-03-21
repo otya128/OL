@@ -778,6 +778,9 @@ namespace lang
 			case parserEnum::plusplus:
 			case parserEnum::minusminus:
 				return IncrementPrece;
+			case parserEnum::_is:
+			case parserEnum::_as:
+				return 13;
 			case parserEnum::modulo:
 			case parserEnum::multiply:
 			case parserEnum::division:
@@ -824,11 +827,12 @@ namespace lang
 	}
 #endif
 #define OP if (opera </*=*/ thisop) break
+#define UOP if (unoopera </*=*/ thisop) break
 #define OP2 i = index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop) object = eval(object,i,17,evals::isbinaryoperation),index = i;
 #define OP3 i=index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2
 #define OP4 if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 #define OP5 i = index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop||this->parsers[index+1]->pEnum==leftbracket) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
-	langObject scope::eval(langObject object, int& index, int opera, evals ev)
+	langObject scope::eval(langObject object, int& index, int opera, evals ev, int unoopera)
 	{
 		//int index = object->index;
 		int binaryoperation = index + 1;
@@ -939,15 +943,15 @@ namespace lang
 					}
 					break;
 				case parserEnum::minus:
-					OP;
-					buf = eval(object, i, thisop);
+					UOP;
+					buf = eval(object, i, 17, evals::none, thisop);
 					object = (Object::unaryminus(buf));
 					index = i; binaryoperation = index + 1;
 					OP2
 						break;
 				case parserEnum::plus:
-					OP;
-					buf = eval(object, i, thisop);
+					UOP;
+					buf = eval(object, i, 17, evals::none, thisop);
 					object = (Object::unaryplus(buf));
 					index = i; binaryoperation = index + 1;
 					OP2
@@ -1000,6 +1004,7 @@ namespace lang
 						{
 							arg.push_back(eval(NULLOBJECT, index, 17));
 							index++;
+							if (index > i)break;
 							if (this->parsers[index]->pEnum == parserEnum::comma)index++;
 						}
 						/*if(this->variable[*this->parsers[j]->name]!=nullptr && this->variable[*this->parsers[j]->name]->type->TypeEnum == PreType::_Function)
@@ -1128,6 +1133,20 @@ namespace lang
 					//buf = newInt(1);
 					object = Object::inc(object);//Object::plus(object,buf);
 					this->variable.set(*this->parsers[index]->name, object);
+					index = i;
+					OP2
+						break;
+				case parserEnum::_is:
+					OP;
+					buf = eval(object, i, thisop);
+					object = (Object::_is(object, buf));
+					index = i;
+					OP2
+						break;
+				case parserEnum::_as:
+					OP;
+					buf = eval(object, i, thisop);
+					object = (Object::as(object, buf));
 					index = i;
 					OP2
 						break;

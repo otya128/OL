@@ -12,10 +12,10 @@ namespace lang
     //int objectalloc_count = 0;
     enum PreType
     {
-        _Object,_Int,_String,_Char,_WChar,_Double,_Array,_Class,_Function,_ClassObject,_BuiltFunc
+		_Object, _Int, _String, _Char, _WChar, _Double, _Array, _Class, _Function, _ClassObject, _BuiltFunc, _Type
     };
 #pragma once
-    static const char* PreTypeName[] = {"Object","Int","String","Char","WChar","Double","Array","Class","Function","ClassObject","BuiltFunc"};
+    static const char* PreTypeName[] = {"Object","Int","String","Char","WChar","Double","Array","Class","Function","ClassObject","BuiltFunc","Type"};
 
     class Type
     {
@@ -45,7 +45,7 @@ namespace lang
             //delete this->name;
         }
     };
-    extern Type* ObjectType;
+    extern Type* ObjectTypeClass;
 	class Object
 	{
 	protected:
@@ -79,6 +79,8 @@ namespace lang
 		static langObject equal(langObject obj1, langObject obj2);
 		static langObject leftShift(langObject obj1, langObject obj2);
 		static langObject rightShift(langObject obj1, langObject obj2);
+		static langObject _is(langObject obj1, langObject obj2);
+		static langObject as(langObject obj1, langObject obj2);
 	};
     extern SpecialFunction* object_tostr;
     extern SpecialFunction* string_substr;
@@ -95,7 +97,43 @@ namespace lang
         ~Int(void);
         static int toInt(langObject obj);
         virtual std::string toString();
-    };
+	};
+	class ObjectType : public Object
+	{
+	public:
+		ObjectType();
+		Type TypeClass;
+	};
+	class IntType : public Object
+	{
+	public:
+		IntType();
+		Type TypeClass;
+	};
+	class StringType : public Object
+	{
+	public:
+		StringType();
+		Type TypeClass;
+	};
+	class DoubleType : public Object
+	{
+	public:
+		DoubleType();
+		Type TypeClass;
+	};
+	class CharType : public Object
+	{
+	public:
+		CharType();
+		Type TypeClass;
+	};
+	class WCharType : public Object
+	{
+	public:
+		WCharType();
+		Type TypeClass;
+	};
     //typedef std::shared_ptr<Int> langInt;
     class String : public Object
     {

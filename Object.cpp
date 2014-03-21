@@ -36,7 +36,7 @@ namespace lang
 		{
 			gc->addObject(this);
 		}
-		this->type = (Type*)ObjectType;//new Type(PreType::_Object);
+		this->type = (Type*)ObjectTypeClass;//new Type(PreType::_Object);
 	}
 
 	std::string _toString(Object* arg)
@@ -67,7 +67,7 @@ namespace lang
 		if (gc_view) std::cout << "Ç™Ç◊Ç±ÇÍíÜ..." << this << "Ç™ñ≈ñSÇµÇ‹ÇµÇΩ...ptr" << this->ptr << "\t" << this->type->name << "\t" << _toString(this) << std::endl;//<<std::endl;
 #endif
 #endif
-		if (type != (Type*)ObjectType)delete this->type;
+		if (type != (Type*)ObjectTypeClass)delete this->type;
 		//delete this->ptr;
 	}
 	SpecialFunction* object_tostr = new SpecialFunction(0);
@@ -699,6 +699,92 @@ namespace lang
 		}
 		throw langRuntimeException((std::string(obj1->type->name) + "++èoóàÇ»Ç¢").c_str());
 		//ïœä∑ïsâ¬
+	}
+#pragma region TypeDefine
+	ObjectType::ObjectType() : TypeClass(_Object)
+	{
+		this->type = new Type(PreType::_Type, "object");
+	}
+	IntType::IntType() : TypeClass(_Int)
+	{
+		this->type = new Type(PreType::_Type, "int");
+	}
+	StringType::StringType() : TypeClass(_String)
+	{
+		this->type = new Type(PreType::_Type, "string");
+	}
+	DoubleType::DoubleType() : TypeClass(_Double)
+	{
+		this->type = new Type(PreType::_Type, "double");
+	}
+	CharType::CharType() : TypeClass(_Char)
+	{
+		this->type = new Type(PreType::_Type, "char");
+	}
+	WCharType::WCharType() : TypeClass(_WChar)
+	{
+		this->type = new Type(PreType::_Type, "wchar");
+	}
+#pragma endregion
+	langObject Object::_is(langObject obj1, langObject obj2)
+	{
+		if (obj2->type->TypeEnum == _Type || obj2->type->TypeEnum == _Class)
+		switch (obj2->type->TypeEnum)
+		{
+			case _Type:
+				if ((((ObjectType*)obj2)->TypeClass.TypeEnum == obj1->type->TypeEnum))return TRUEOBJECT;
+				return FALSEOBJECT;
+			case _Class:
+				auto instance = (langClassObject)obj1;
+				while (instance)
+				{
+					if (instance->staticClass == obj2)return TRUEOBJECT;
+					instance = (langClassObject)instance->base;
+				}
+				break;
+		}
+		return FALSEOBJECT;
+	}
+	langObject Object::as(langObject obj1, langObject obj2)
+	{
+		if (obj2->type->TypeEnum == _Type || obj2->type->TypeEnum == _Class)
+			switch (obj2->type->TypeEnum)
+		{
+				case _Type:
+				{
+							  auto objtype = (ObjectType*)obj2;
+							  switch (objtype->TypeClass.TypeEnum)
+							  {
+								  //toint
+								  case _Int:
+									  switch (obj1->type->TypeEnum)
+									  {
+										  case _Int:
+											  return newInt((int)((langInt)obj1)->getInt());
+										  case _Double:
+											  return newInt((int)((langDouble)obj1)->getDouble());
+									  }
+									  break;
+									  //todouble
+								  case _Double:
+									  switch (obj1->type->TypeEnum)
+									  {
+										  //double2int
+										  case _Int:
+											  return newDouble((double)((langInt)obj1)->getInt());
+										  case _Double:
+											  return newDouble((double)((langDouble)obj1)->getDouble());
+									  }
+									  break;
+							  }
+							  if ((((ObjectType*)obj2)->TypeClass.TypeEnum == obj1->type->TypeEnum))return TRUEOBJECT;
+							  return FALSEOBJECT;
+				}
+				case _Class:
+
+					break;
+		}
+		throw langRuntimeException((std::string(obj1->type->name) + "as " + obj2->type->name + "èoóàÇ»Ç¢").c_str());
 	}
 
 }

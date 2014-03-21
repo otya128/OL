@@ -128,7 +128,7 @@ namespace lang
 	}
 	bool running, prompt = false;
 	namespace lib{ void init(); }
-	Type* ObjectType = new Type(PreType::_Object);
+	Type* ObjectTypeClass = new Type(PreType::_Object);
 	langObject NULLOBJECT = nullptr;//ewObject(nullptr);
 	langObject TRUEOBJECT = nullptr;
 	langObject FALSEOBJECT = nullptr;
@@ -189,7 +189,7 @@ __v('ω')__v('ω')__v('ω')
 std::string getlinestring(std::string input, int index)
 {
 	int i, j;
-	for (i = index; i > 0; i--)
+	for (i = index; i >= 0; i--)
 	{
 		if (input[i] == '\n') break;
 	}
@@ -199,9 +199,9 @@ std::string getlinestring(std::string input, int index)
 	}
 	return input.substr(i + 1, j - i - 1);
 }
-ENUMCLASS option
+enum ENUMCLASS option
 {
-	none, errorlevel, std_out, chdir
+	none, errorlevel, std_out, chdir, std_err
 };
 int hook(int a1, char *a2, int *a3)
 {
@@ -446,6 +446,11 @@ void gui(void)
 							o = option::std_out;
 						}
 						else
+						if (!strcmp(argv[i], _OLT("-stderr")))
+						{
+							o = option::std_err;
+						}
+						else
 						if (!strcmp(argv[i], _OLT("-chdir")))
 						{
 							o = option::chdir;
@@ -468,6 +473,13 @@ void gui(void)
 											/*
 											auto s = stdout;
 											fopen_s(&s, argv[i], "w+");*/
+											o = option::none;
+					}
+						break;
+					case option::std_err:
+					{
+											auto s = stderr;
+											freopen_s(&s, argv[i], "w+", stderr);
 											o = option::none;
 					}
 						break;
@@ -604,7 +616,7 @@ void gui(void)
 					{
 						auto i = *it;
 #endif
-						std::cout << getlinestring(input, ex.tokens[i.second]->sourcestartindex);
+						std::cerr << getlinestring(input, ex.tokens[i.second]->sourcestartindex);
 						//std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
 						//break;
 					}
@@ -678,16 +690,17 @@ void gui(void)
 					//#endif
 					// lang::NULLOBJECT = new lang::Object();
 					running = true;
+					pars->runner->refinc();
 					auto result = pars->runner->run();
 					if (result && result != NULLOBJECT) std::cout << result->toString();// << std::endl;
 					if (lang::gc_view)std::cout << "実行終 変数や定数を削除" << std::endl;
 				}
 				catch (lang::langRuntimeException ex)
 				{
-					std::cout << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "場所?:" << std::endl;
+					std::cerr << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "場所?:" << std::endl;
 					//                    for(auto i : ex.stacktrace)
 					FOREACH(i, ex.stacktrace)//                    {
-						std::cout << getlinestring(input, ex.tokens[i.second]->sourcestartindex);
+						std::cerr << getlinestring(input, ex.tokens[i.second]->sourcestartindex);
 					//std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
 					//break;
 				}
@@ -763,7 +776,7 @@ void gui(void)
 		delete lang::NULLOBJECT;
 		delete lang::TRUEOBJECT;
 		delete lang::FALSEOBJECT;
-		delete lang::ObjectType;
+		delete lang::ObjectTypeClass;
 		delete lang::object_tostr;
 		delete lang::string_substr;
 	}

@@ -32,20 +32,22 @@ namespace lang
 #define HASHBASE    630
 #define HASHFOREACH 2149
 #define HASHIN      110
+#define HASHIS      115
+#define HASHAS      115
 #define ERROR(a) WARNING(a,0)//langObject NULLOBJECT = newObject(nullptr);
-	ENUMCLASS parserStatus
+	enum ENUMCLASS parserStatus
 	{
-	None,
-	ReadIden,
-	ReadNum,
-	ReadStr,
-	ReadComment,
-	ReadBlockComment,
-	ReadEscapeString,
-	ReadChar,
-	ReadEscapeChar,
-	ReadDouble
-};
+		None,
+		ReadIden,
+		ReadNum,
+		ReadStr,
+		ReadComment,
+		ReadBlockComment,
+		ReadEscapeString,
+		ReadChar,
+		ReadEscapeChar,
+		ReadDouble
+	};
 	int error_level;
 	//文字列から単純なhashを作成
 	//文字コード*位置を足していく単純なもの
@@ -94,7 +96,7 @@ namespace lang
 	namespace
 	を解析する。
 	*/
-	ENUMCLASS sts
+	enum ENUMCLASS sts
 	{
 		Empty,      //   = 0,
 		Func,       //   = 1,
@@ -117,6 +119,12 @@ namespace lang
 	void parser::function()
 	{
 		this->runner = new scope(this->parsers);
+		this->runner->variable.add("string", new StringType());
+		this->runner->variable.add("object", new lang::ObjectType());
+		this->runner->variable.add("int", new IntType());
+		this->runner->variable.add("double", new DoubleType());
+		this->runner->variable.add("char", new CharType());
+		this->runner->variable.add("wchar", new WCharType());
 		lang::gc = new がべこれ(this->runner);
 		int funcRead = 0, classRead = 0;
 		std::string funcName; std::string className;
@@ -859,6 +867,11 @@ namespace lang
 								case HASHIN:
 									if (*iden == "in"){ this->parsers.push_back(new parseObj(parserEnum::_in, iden, startindex, i - 1)); ok = true; }
 									break;
+								case HASHIS:
+									if (*iden == "is"){ this->parsers.push_back(new parseObj(parserEnum::_is, iden, startindex, i - 1)); ok = true; }
+									else
+									if (*iden == "as"){ this->parsers.push_back(new parseObj(parserEnum::_as, iden, startindex, i - 1)); ok = true; }
+									break;
 							}
 							if (!ok) this->parsers.push_back(new parseObj(parserEnum::identifier, iden, startindex, i - 1));
 							iden = new std::string();//!!!!コピーされないのでnew する!!!!
@@ -994,6 +1007,12 @@ namespace lang
 						case 't':
 							*iden += '\t';
 							break;
+						case '\"':
+							*iden += chr;
+							break;
+						case '\'':
+							*iden += chr;
+							break;
 						default:
 							WARNING((std::string("認識できないエスケープシーケンス") + chr).c_str(), 1);
 							break;
@@ -1008,6 +1027,12 @@ namespace lang
 							break;
 						case 't':
 							*iden += '\t';
+							break;
+						case '\"':
+							*iden += chr;
+							break;
+						case '\'':
+							*iden += chr;
 							break;
 						default:
 							WARNING((std::string("認識できないエスケープシーケンス") + chr).c_str(), 1);
