@@ -776,9 +776,17 @@ namespace lang
 											  return newDouble((double)((langDouble)obj1)->getDouble());
 									  }
 									  break;
+								  case _String:
+									  switch (obj1->type->TypeEnum)
+									  {
+										  //double2int
+										  case _String:
+											  return obj1;
+									  }
+									  break;
 							  }
-							  if ((((ObjectType*)obj2)->TypeClass.TypeEnum == obj1->type->TypeEnum))return TRUEOBJECT;
-							  return FALSEOBJECT;
+
+							  throw langRuntimeException((std::string(obj1->type->name) + "as " + obj2->type->name + "o—ˆ‚È‚¢").c_str());
 				}
 				case _Class:
 

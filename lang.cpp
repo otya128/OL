@@ -562,7 +562,7 @@ void gui(void)
 						if (ifs.fail())
 						{
 							/*_tc*/printf(_OLT("file:%sを開けません\n"), filename);//std::cout<<"file:"<<filename<<"を開けません"<<std::endl;
-							__v('ω')__v('ω')FAILEND; __v('ω')__v('ω')
+							__v('ω')v____v('ω')FAILEND; __v('ω')v____v('ω')
 						}
 						while (ifs && getline(ifs, input)) {
 							ss << input << '\n';

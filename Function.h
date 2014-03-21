@@ -11,19 +11,16 @@ namespace lang
     class Function : public Object
     {
     public:
-        //関数に関連付けられたスレッド
+        //関数に関連付けられたstd::thread
 #ifdef CPP11
         std::thread* thread;
 #endif
         bool working;
         //std::string* getString();
         //void setString(std::string* i);
-        //名前
         std::string name;
-        //引数
         std::vector<std::string>* argList;
         int index;
-        //スコープ
         scope* scope;
         lang::scope* thisscope;
         Function(std::string name,std::vector<std::string>* argList,lang::scope* scope,int index);
