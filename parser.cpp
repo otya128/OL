@@ -79,10 +79,11 @@ namespace lang
 		return c >= '0'&&c <= '9';
 	}
 #define WARNINGS(level, ...) {char buf[512];sprintf_s(buf,__VA_ARGS__);WARNING(buf, level);}
-	void WARNING(const char* param, int level = 0)
+	void parser::WARNING(const char* param, int level)
 	{
 		if (level <= error_level)
 		{
+			errcount++;
 			std::cerr << "[ERROR]" << param << std::endl;
 		}
 		else
@@ -654,6 +655,7 @@ namespace lang
 	}
 	parser::parser(std::string input)
 	{
+		errcount = 0;
 		int line = 0;
 		lang::gc = nullptr;
 		this->program = (input);
@@ -945,7 +947,7 @@ namespace lang
 							{
 								if (!isWChar)
 								{
-									WARNINGS(0, "charのsizeは1ですWCharに変更します。L\'%s\'", iden->c_str());
+									WARNINGS(1, "charのsizeは1ですWCharに変更します。L\'%s\'", iden->c_str());
 									isWChar = true;
 								}
 							}
@@ -1072,5 +1074,14 @@ namespace lang
 		catch (...)
 		{
 		}
+	}
+	langObject parser::Run()
+	{
+		if (errcount > 0)
+		{
+			std::cerr << "ERROR" << errcount << std::endl;
+			return NULLOBJECT;
+		}
+		return this->runner->run();
 	}
 }

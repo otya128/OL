@@ -691,7 +691,7 @@ void gui(void)
 					// lang::NULLOBJECT = new lang::Object();
 					running = true;
 					pars->runner->refinc();
-					auto result = pars->runner->run();
+					auto result = pars->Run();//pars->runner->run();
 					if (result && result != NULLOBJECT) std::cout << result->toString();// << std::endl;
 					if (lang::gc_view)std::cout << "実行終 変数や定数を削除" << std::endl;
 				}

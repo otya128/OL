@@ -25,6 +25,9 @@ namespace lang
 		std::vector < std::pair<int, langClass>> extendslist;
 		std::string program;
 		parser(std::string);
+		void WARNING(const char* param, int level = 0);
+		int errcount;
 		~parser(void);
+		langObject Run();
 	};
 }
