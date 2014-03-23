@@ -2,7 +2,7 @@
 #define __LANG_ARRAY_H__
 //#pragma once
 #include <vector>
-#include "object.h"
+#include "Object.h"
 #include "lang.h"
 namespace lang
 {

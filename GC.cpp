@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include <Windows.h>
+//#include <Windows.h>
 #ifdef CPP11
 #include <mutex>
 #endif
@@ -97,13 +97,17 @@ if (obj.second != count)
 		if (objectCount >= GCtimig / 2) GCtimig *= 2;
 		//_TCHAR buf[256];
 		//_tprintf_s(buf,"count:%d\tmax%d\n",objectCount,GCtimig);
-		char buf[256];
+#if _DEBUG
+		if (gc_view)
+			std::cout << "count:" << objectCount << "\tmax" << GCtimig << std::endl;
+#endif
+		/*char buf[256];
 #ifdef _WIN32
 		sprintf_s(buf, "count:%d\tmax%d\n", objectCount, GCtimig);
 #else
 		sprintf(buf, "count:%d\tmax%d\n", objectCount, GCtimig);
 #endif
-		OutputDebugStringA(buf);
+		OutputDebugStringA(buf);*/
 		NowGabekore = false;
 	}
 	void GC::search(scope* root)
