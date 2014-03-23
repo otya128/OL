@@ -1,4 +1,8 @@
-﻿試すには
+﻿git clone http://github.com/otya128/OL.git
+cd OL
+make
+./lang WINTEST.OL STD.OL
+試すには
 https://github.com/otya128/cpptest/raw/master/exe/lang.exe
 と
 https://github.com/otya128/cpptest/raw/master/exe/Hello%2CWorld.bat
@@ -15,6 +19,26 @@ https://github.com/otya128/cpptest/raw/master/exe/Hello%2CWorld.bat
 	ガベージコレクションの様子の表示 規定値:false
 -errorlevel n
 	エラーとして扱われるレベル 規定値:0
+-pause
+終了後に待機するかどうか
+-endpause
+終了後に待機するかどうか
+-json
+jsonファイルとしてパース結果を出力
+-e n
+nを実行する
+-gui
+guiでファイルを選択
+-prompt
+プロンプトモードを明示的に指定
+-nologo
+OtyaLanguageを表示しない
+-stdout file
+stdoutの内容をfileに書き込む
+-stderr file
+stderrの内容をfileに書き込む
+-chdir  file
+ディレクトリを変更する
 この lang アプリケーションは、AppWizard により作成されました。
 
 このファイルには、lang アプリケーションを構成する各ファイルの内容の概要が含まれています。
@@ -64,3 +88,4 @@ StdAfx.h, StdAfx.cpp
 AppWizard では "TODO:" コメントを使用して、ユーザーが追加またはカスタマイズする必要のあるソース コードを示します。
 
 /////////////////////////////////////////////////////////////////////////////
+Windows,Ubuntu,Macで動いた

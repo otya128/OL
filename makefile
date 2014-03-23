@@ -1,3 +1,4 @@
+#http://d.hatena.ne.jp/td2sk/20110618/1308395998
 PROGRAM := lang
 SOURCES := $(wildcard *.cpp)
 OBJS := $(SOURCES:.cpp=.o)
