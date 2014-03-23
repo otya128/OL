@@ -16,7 +16,9 @@
 #ifdef CPP11
 #include <thread>
 #endif
+#ifdef _WIN32
 #include <windows.h>
+#endif
 #include "Function.h"
 #include <time.h>
 //#include "†.h"
@@ -224,6 +226,9 @@ void narrow(const std::wstring &src, std::string &dest) {
 }
 #include "GTKOLWindow.h"
 OLWindow* window;
+#ifndef MAX_PATH
+#define MAX_PATH 260
+#endif
 char filename_[MAX_PATH];
 #define _OLT(x) x
 char*filename = _OLT("");
@@ -337,7 +342,7 @@ void gui(void)
 		delete txt;
 #endif
 	}
-#include <commctrl.h>
+//#include <commctrl.h>
 #ifndef _WIN32
 #include <unistd.h>
 #endif
