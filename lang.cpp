@@ -815,7 +815,7 @@ void gui(void)
 		std::getchar();
 #endif
 #if !defined(_DEBUG)
-	system("pause_");//WINDOWSならこっちの方が親切だから使う
+	system("pause");//WINDOWSならこっちの方が親切だから使う
 #endif
 #else
 		std::getchar();
