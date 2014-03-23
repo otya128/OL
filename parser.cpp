@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 #include <sstream>
 #include "parser.h"
@@ -9,6 +9,7 @@
 #include "langException.h"
 #include "Class.h"
 #include "dagger.h"
+#define TRUE 1
 #ifndef _WIN32
 #define wcstombs_s(a,b,c,d,e) wcstombs(b,d,e)
 typedef int errno_t;
@@ -24,7 +25,7 @@ namespace lang
 	class stack : public std::vector<T>
 	{
 	public:
-		void push(const T& __x)
+		void push(const T &__x)
 		{
 			this->push_back(__x);
 		}
@@ -76,8 +77,8 @@ namespace lang
 		ReadDouble
 	};
 	int error_level;
-	//•¶š—ñ‚©‚ç’Pƒ‚Èhash‚ğì¬
-	//•¶šƒR[ƒh*ˆÊ’u‚ğ‘«‚µ‚Ä‚¢‚­’Pƒ‚È‚à‚Ì
+	//æ–‡å­—åˆ—ã‹ã‚‰å˜ç´”ãªhashã‚’ä½œæˆ
+	//æ–‡å­—ã‚³ãƒ¼ãƒ‰*ä½ç½®ã‚’è¶³ã—ã¦ã„ãå˜ç´”ãªã‚‚ã®
 	int aho_hash(const char* c)
 	{
 		int r = 0, index = 0;
@@ -96,7 +97,7 @@ namespace lang
 	{
 		return c >= 0x80 && c <= 0xFF;
 	}
-	//1byte–Ú‚ª‘SŠp•¶š‚©‚Ç‚¤‚©
+	//1byteç›®ãŒå…¨è§’æ–‡å­—ã‹ã©ã†ã‹
 	bool isIdenShiftJIS1(unsigned char c)
 	{
 		return (c >= 0x80 && c <= 0x9F) || (c >= 0xE0 && c <= 0xFF);
@@ -126,7 +127,7 @@ namespace lang
 	function
 	class
 	namespace
-	‚ğ‰ğÍ‚·‚éB
+	ã‚’è§£æã™ã‚‹ã€‚
 	*/
 	enum ENUMCLASS sts
 	{
@@ -140,15 +141,15 @@ namespace lang
 		sts type;
 		std::string name;
 		BlockStruct(sts s, std::string n) :type(s), name(n){}
-		BlockStruct(const BlockStruct& a) : name(a.name), type(a.type)
+		/*BlockStruct(const BlockStruct& a) : name(a.name), type(a.type)
 		{
 		}
 		BlockStruct& operator = (BlockStruct& a)
 		{
 			this->type = a.type;
 			this->name = a.name;
-			return (BlockStruct&)(*this)/*BlockStruct(a)*/;
-		}
+			return (BlockStruct&)(*this)/*BlockStruct(a)*//*;
+		}*/
 	};
 	void parser::function()
 	{
@@ -178,9 +179,9 @@ namespace lang
 			{
 				case 1:
 					if (token->pEnum != parserEnum::identifier)
-						ERROR(("namespace‚Ì–¼‘O‚ª¯•Êq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ" + getlinestring(this->program, token->sourcestartindex)).c_str());
+						ERROR(("namespaceã®åå‰ãŒè­˜åˆ¥å­ã§ã¯ã‚ã‚Šã¾ã›ã‚“" + getlinestring(this->program, token->sourcestartindex)).c_str());
 					//BUG!!
-					//if(!namesp.empty())namesp += "::";//æ“ª‚É‚à::‚ª•t‚­
+					//if(!namesp.empty())namesp += "::";//å…ˆé ­ã«ã‚‚::ãŒä»˜ã
 					namesp += *token->name;
 					delete token->name;
 					token->name = new std::string(namesp);
@@ -218,7 +219,7 @@ namespace lang
 							//if( funcStack.size()>=2)for(size_t i = funcStack.size() - 2;i>=0;i--)
 
 							if (funcStack.size() >= 2)
-#if _MSC_VER >=1800
+#if TRUE//_MSC_VER >=1800
 							for (size_t i = 0; i < funcStack.size() - 1; i++)
 #else
 							for (size_t i = funcStack.size() - 1; i >= 0; i--)
@@ -258,15 +259,15 @@ namespace lang
 					if (token->pEnum == _class)
 					{
 						if (funcRead != 0)
-							ERROR((getlinestring(this->program, token->sourcestartindex) + "ŠÖ”‰ğÍ’†‚ÌƒNƒ‰ƒX").c_str());// WARNING("ŠÖ”‰ğÍ’†‚ÌƒNƒ‰ƒX");
+							ERROR((getlinestring(this->program, token->sourcestartindex) + "é–¢æ•°è§£æä¸­ã®ã‚¯ãƒ©ã‚¹").c_str());// WARNING("é–¢æ•°è§£æä¸­ã®ã‚¯ãƒ©ã‚¹");
 						if (funcStack.size() != 0 && funcStack.top().type == sts::Empty)
-							ERROR((getlinestring(this->program, token->sourcestartindex) + "ƒlƒXƒg‚³‚ê‚½ƒNƒ‰ƒX").c_str());
+							ERROR((getlinestring(this->program, token->sourcestartindex) + "ãƒã‚¹ãƒˆã•ã‚ŒãŸã‚¯ãƒ©ã‚¹").c_str());
 						classRead++;
 					}
 					break;
 				case 1:
 					if (token->pEnum != identifier)
-						ERROR(("ƒNƒ‰ƒX‚Ì–¼‘O‚ª¯•Êq‚Å‚Í‚ ‚è‚Ü‚¹‚ñ" + getlinestring(this->program, token->sourcestartindex)).c_str());
+						ERROR(("ã‚¯ãƒ©ã‚¹ã®åå‰ãŒè­˜åˆ¥å­ã§ã¯ã‚ã‚Šã¾ã›ã‚“" + getlinestring(this->program, token->sourcestartindex)).c_str());
 					className = namesp + *token->name;
 					if (member == nullptr)member = new membertype_(); else delete member;
 					if (staticmember == nullptr)staticmember = new membertype_(); else delete staticmember;
@@ -280,7 +281,7 @@ namespace lang
 						break;
 					}
 					if (token->pEnum != blockstart)
-						ERROR(("class " + className + "{‚ÅéŒ¾‚·‚é•K—v‚ª‚ ‚è‚Ü‚·B" + getlinestring(this->program, token->sourcestartindex)).c_str());
+						ERROR(("class " + className + "{ã§å®£è¨€ã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚" + getlinestring(this->program, token->sourcestartindex)).c_str());
 					classRead++;
 					class_read_stack_index = funcStack.size();
 					break;
@@ -337,7 +338,7 @@ namespace lang
 #endif
 							}
 							else
-								std::cout << "–¢À‘•" << std::endl, member->push_back(std::pair<std::string, langObject>(*token->name, NULLOBJECT));
+								std::cout << "æœªå®Ÿè£…" << std::endl, member->push_back(std::pair<std::string, langObject>(*token->name, NULLOBJECT));
 							isstatic = false;
 							classRead = 3;
 						}
@@ -433,7 +434,7 @@ namespace lang
 						this->runner->variable.add(namesp + funcName, newFunction(namesp + funcName, argList, this->runner, i));
 					}
 					else
-						delete argList;//‚Æ‚è‚ ‚¦‚¸
+						delete argList;//ã¨ã‚Šã‚ãˆãš
 					argList = nullptr;//new std::vector<std::string>();
 					func++;
 					//this->runner->variable.add(*funcName,std::make_shared<langFunction>(*funcName,argList,this->runner));
@@ -443,11 +444,11 @@ namespace lang
 		}
 		if (parent != 0)
 		{
-			WARNING("ˆê’v‚µ‚È‚¢Š‡ŒÊ(");
+			WARNING("ä¸€è‡´ã—ãªã„æ‹¬å¼§(");
 		}
 		if (bracket != 0)
 		{
-			WARNING("ˆê’v‚µ‚È‚¢Š‡ŒÊ[");
+			WARNING("ä¸€è‡´ã—ãªã„æ‹¬å¼§[");
 		}
 		if (parserresult)std::cout << std::endl;
 	}
@@ -466,7 +467,7 @@ namespace lang
 				case parserEnum::_using:
 					if (nextoken == nullptr)
 					{
-						ERROR("•s³‚Èusing");
+						ERROR("ä¸æ­£ãªusing");
 						break;
 					}
 					this->usings.push_back(*nextoken->name);
@@ -476,7 +477,7 @@ namespace lang
 				case parserEnum::identifier:
 					if (!DEFINEDSCPEVAR(this->runner, *token->name))
 					{
-						//‘{‚·
+						//æœã™
 						bool success = false;
 						auto name = namesp + *token->name;
 						if (DEFINEDSCPEVAR(this->runner, name))
@@ -495,7 +496,7 @@ namespace lang
 							{
 								auto i = *it;
 #endif
-								//‘{‚·
+								//æœã™
 								auto name = i + "::" + *token->name;
 								if (DEFINEDSCPEVAR(this->runner, name))
 								{
@@ -506,7 +507,7 @@ namespace lang
 								}
 							}
 						}
-						//if(!success)WARNINGS(1, "%s‚ªŒ©‚Â‚©‚ç‚È‚¢", token->name->c_str());
+						//if(!success)WARNINGS(1, "%sãŒè¦‹ã¤ã‹ã‚‰ãªã„", token->name->c_str());
 					}
 					break;
 				case parserEnum::_namespace:
@@ -532,7 +533,7 @@ namespace lang
 							namesp.clear();
 							auto cont = funcStack;// ._Get_container();
 							if (funcStack.size() >= 2)
-#if _MSC_VER >=1800
+#if TRUE//_MSC_VER >=1800
 							for (size_t i = 0; i < funcStack.size() - 1; i++)
 #else
 							for(size_t i = funcStack.size() - 1;i>=0;i--)
@@ -563,7 +564,7 @@ namespace lang
 			j.second->base = (langClass)this->runner->variable[*this->parsers[j.first]->name];
 			if (j.second->base == NULLOBJECT)
 			{
-				WARNINGS(0, "Œp³Œ³‚É‚È‚é%sƒNƒ‰ƒX‚ª‘¶İ‚µ‚Ü‚¹‚ñB", this->parsers[j.first]->name->c_str())
+				WARNINGS(0, "ç¶™æ‰¿å…ƒã«ãªã‚‹%sã‚¯ãƒ©ã‚¹ãŒå­˜åœ¨ã—ã¾ã›ã‚“ã€‚", this->parsers[j.first]->name->c_str())
 			}
 		}
 #if CPP11
@@ -665,8 +666,8 @@ namespace lang
 							//if( funcStack.size() >= 2)for(size_t i = funcStack.size() - 2;i>=0;i--)
 
 							if (funcStack.size() >= 2)
-								//VS2013‚©‚çd—l•Ï‚í‚Á‚Ä‚¢‚éH
-#if _MSC_VER >=1800
+								//VS2013ã‹ã‚‰ä»•æ§˜å¤‰ã‚ã£ã¦ã„ã‚‹ï¼Ÿ
+#if TRUE//_MSC_VER >=1800
 							for (size_t i = 0; i < funcStack.size() - 1; i++)
 #else
 							for (size_t i = funcStack.size() - 1; i >= 0; i--)
@@ -844,7 +845,7 @@ namespace lang
 						{
 							int aho = aho_hash(iden->c_str());
 							bool ok = false;
-							//O‰ñ‚à•¶š—ñ‚ğ”äŠr‚·‚é‚Ì‚Í–³‘Ê‚»‚¤‚¾‚©‚ç“K“–‚ÉƒnƒbƒVƒ…’l‚ğŒvZ‚µ‚ÄÅ‘å‚Å“ñ‰ñ•ª‚É‚µ‚Ä‚İ‚éƒeƒXƒg
+							//ä¸‰å›ã‚‚æ–‡å­—åˆ—ã‚’æ¯”è¼ƒã™ã‚‹ã®ã¯ç„¡é§„ãã†ã ã‹ã‚‰é©å½“ã«ãƒãƒƒã‚·ãƒ¥å€¤ã‚’è¨ˆç®—ã—ã¦æœ€å¤§ã§äºŒå›åˆ†ã«ã—ã¦ã¿ã‚‹ãƒ†ã‚¹ãƒˆ
 							switch (aho)
 							{
 								case HASHCLASS:
@@ -909,7 +910,7 @@ namespace lang
 									break;
 							}
 							if (!ok) this->parsers.push_back(new parseObj(parserEnum::identifier, iden, startindex, i - 1));
-							iden = new std::string();//!!!!ƒRƒs[‚³‚ê‚È‚¢‚Ì‚Ånew ‚·‚é!!!!
+							iden = new std::string();//!!!!ã‚³ãƒ”ãƒ¼ã•ã‚Œãªã„ã®ã§new ã™ã‚‹!!!!
 							sts = parserStatus::None;
 							goto None;
 						}
@@ -927,7 +928,7 @@ namespace lang
 							break;
 						}
 						this->parsers.push_back(new parseObj(atoi(iden->c_str()), startindex, i - 1));
-						iden->clear();//!!!!ƒRƒs[‚³‚ê‚é‚Ì‚Åclear ‚·‚é!!!!
+						iden->clear();//!!!!ã‚³ãƒ”ãƒ¼ã•ã‚Œã‚‹ã®ã§clear ã™ã‚‹!!!!
 						sts = parserStatus::None;
 						goto None;
 					}
@@ -953,7 +954,7 @@ namespace lang
 					if (chr == '"')
 					{
 						this->parsers.push_back(new parseObj(*iden, startindex, i));
-						iden->clear();//!!!!ƒRƒs[‚³‚ê‚é‚Ì‚Åclear ‚·‚é!!!!
+						iden->clear();//!!!!ã‚³ãƒ”ãƒ¼ã•ã‚Œã‚‹ã®ã§clear ã™ã‚‹!!!!
 						sts = parserStatus::None;
 					}
 					else
@@ -965,7 +966,7 @@ namespace lang
 						else
 						if (chr == '\n' || chr == '\0')
 						{
-							WARNING("•Â‚¶‚ç‚ê‚Ä‚¢‚È‚¢string");//throw langParseException("•Â‚¶‚ç‚ê‚Ä‚¢‚È‚¢string");
+							WARNING("é–‰ã˜ã‚‰ã‚Œã¦ã„ãªã„string");//throw langParseException("é–‰ã˜ã‚‰ã‚Œã¦ã„ãªã„string");
 						}
 						else
 							iden->append(input.substr(i, 1));
@@ -980,24 +981,24 @@ namespace lang
 							{
 								if (!isWChar)
 								{
-									WARNINGS(1, "char‚Ìsize‚Í1‚Å‚·WChar‚É•ÏX‚µ‚Ü‚·BL\'%s\'", iden->c_str());
+									WARNINGS(1, "charã®sizeã¯1ã§ã™WCharã«å¤‰æ›´ã—ã¾ã™ã€‚L\'%s\'", iden->c_str());
 									isWChar = true;
 								}
 							}
 							else
-								WARNINGS(0, "char‚Ìsize‚Í1‚Å‚·%s", iden->c_str());
+								WARNINGS(0, "charã®sizeã¯1ã§ã™%s", iden->c_str());
 						}
 						if (isWChar)
 						{
 							int size = iden->size();
 							const char* wStrC = iden->c_str();
-							//•ÏŠ·•¶š—ñŠi”[ƒoƒbƒtƒ@
+							//å¤‰æ›æ–‡å­—åˆ—æ ¼ç´ãƒãƒƒãƒ•ã‚¡
 							wchar wStrW[2];
 							size_t wLen = 0;
 							errno_t err = 0;
-							//ƒƒP[ƒ‹w’è
+							//ãƒ­ã‚±ãƒ¼ãƒ«æŒ‡å®š
 							setlocale(LC_ALL, "japanese");
-							//•ÏŠ·
+							//å¤‰æ›
 							err = mbstowcs_s(&wLen, /*&*/wStrW, size, wStrC, _TRUNCATE);
 							this->parsers.push_back(new parseObj(wStrW[0], startindex, i));
 						}
@@ -1019,7 +1020,7 @@ namespace lang
 						else
 						if (chr == '\n' || chr == '\0')
 						{
-							WARNING("•Â‚¶‚ç‚ê‚Ä‚¢‚È‚¢char");//throw langParseException("•Â‚¶‚ç‚ê‚Ä‚¢‚È‚¢string");
+							WARNING("é–‰ã˜ã‚‰ã‚Œã¦ã„ãªã„char");//throw langParseException("é–‰ã˜ã‚‰ã‚Œã¦ã„ãªã„string");
 						}
 						else
 							iden->append(input.substr(i, 1));
@@ -1049,7 +1050,7 @@ namespace lang
 							*iden += chr;
 							break;
 						default:
-							WARNING((std::string("”F¯‚Å‚«‚È‚¢ƒGƒXƒP[ƒvƒV[ƒPƒ“ƒX") + chr).c_str(), 1);
+							WARNING((std::string("èªè­˜ã§ããªã„ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã‚·ãƒ¼ã‚±ãƒ³ã‚¹") + chr).c_str(), 1);
 							break;
 					}
 					sts = parserStatus::ReadStr;
@@ -1070,7 +1071,7 @@ namespace lang
 							*iden += chr;
 							break;
 						default:
-							WARNING((std::string("”F¯‚Å‚«‚È‚¢ƒGƒXƒP[ƒvƒV[ƒPƒ“ƒX") + chr).c_str(), 1);
+							WARNING((std::string("èªè­˜ã§ããªã„ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã‚·ãƒ¼ã‚±ãƒ³ã‚¹") + chr).c_str(), 1);
 							break;
 					}
 					sts = parserStatus::ReadChar;
@@ -1083,7 +1084,7 @@ namespace lang
 			if (lang::parserresult) std::cout << chr;
 #endif
 		}
-		if (iden->empty())delete iden;//g‚í‚ê‚Ä‚È‚¢‚©‚çdelete
+		if (iden->empty())delete iden;//ä½¿ã‚ã‚Œã¦ãªã„ã‹ã‚‰delete
 		lang::plugin::dagger(this->parsers);
 		this->function();
 		this->staticparse();

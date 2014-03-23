@@ -539,17 +539,17 @@ void gui(void)
 			do//while (true)//std::getchar())
 			{
 				std::stringstream ss;
-#ifdef _WIN32
-				std::ifstream ifs;
-#else
-				std::ifstream ifs(filename);
-#endif
 				//std::getline(std::cin,input);
 				if (!notfileload)
 				{
 					for (int i = 0; i < files.size(); i++)
 					{
 						filename = files[i];
+#ifdef _WIN32
+						std::ifstream ifs;
+#else
+						std::ifstream ifs(filename);
+#endif
 #if _WIN32
 						if (UTF8)
 						{

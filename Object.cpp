@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 #include "Object.h"
 //#include "parserEnum.h"
@@ -68,7 +68,7 @@ namespace lang
 	{
 #if GABEKORE
 #if _DEBUG
-		if (gc_view) std::cout << "‚ª‚×‚±‚ê’†..." << this << "‚ª–Å–S‚µ‚Ü‚µ‚½...ptr" << this->ptr << "\t" << this->type->name << "\t" << _toString(this) << std::endl;//<<std::endl;
+		if (gc_view) std::cout << "ãŒã¹ã“ã‚Œä¸­..." << this << "ãŒæ»…äº¡ã—ã¾ã—ãŸ...ptr" << this->ptr << "\t" << this->type->name << "\t" << _toString(this) << std::endl;//<<std::endl;
 #endif
 #endif
 		if (type != (Type*)ObjectTypeClass)delete this->type;
@@ -82,7 +82,7 @@ namespace lang
 	}
 	langObject Object::setMember(std::string& name, langObject obj)
 	{
-		//İ’è‚Å‚«‚éƒƒ“ƒo‚È‚ñ‚Ä‚È‚¢
+		//è¨­å®šã§ãã‚‹ãƒ¡ãƒ³ãƒãªã‚“ã¦ãªã„
 		return nullptr;
 	}
 	void* Object::getPointer(void)
@@ -174,13 +174,13 @@ namespace lang
 			return (static_cast<Int*>(obj))->getInt();
 		if (obj->type->TypeEnum == PreType::_Double)
 			return (static_cast<Double*>(obj))->getDouble();
-		return 0;//•ÏŠ·•s‰Â
+		return 0;//å¤‰æ›ä¸å¯
 	}
 	char Char::toChar(langObject obj)
 	{
 		if (obj->type->TypeEnum == PreType::_Char)
 			return (static_cast<Char*>(obj))->getChar();
-		return 0;//•ÏŠ·•s‰Â
+		return 0;//å¤‰æ›ä¸å¯
 	}
 	Char::Char(char i)
 	{
@@ -212,7 +212,7 @@ namespace lang
 	{
 		if (obj->type->TypeEnum == PreType::_Char)
 			return (static_cast<Char*>(obj))->getChar();
-		return 0;//•ÏŠ·•s‰Â
+		return 0;//å¤‰æ›ä¸å¯
 	}
 	WChar::WChar(wchar i)
 	{
@@ -235,14 +235,14 @@ namespace lang
 	}
 	std::string WChar::toString()
 	{
-		__v('ƒÖ')
-			//•ÏŠ·•¶š—ñŠi”[ƒoƒbƒtƒ@
+		__v('Ï‰')
+			//å¤‰æ›æ–‡å­—åˆ—æ ¼ç´ãƒãƒƒãƒ•ã‚¡
 			/*char wStrC[3];
 			size_t wLen = 0;
 			errno_t err = 0;
-			//ƒƒP[ƒ‹w’è
+			//ãƒ­ã‚±ãƒ¼ãƒ«æŒ‡å®š
 			setlocale(LC_ALL,"japanese");
-			//•ÏŠ·
+			//å¤‰æ›
 			err = wcstombs_s(&wLen, wStrC, 2, &this->chr, _TRUNCATE);*/
 			char mbs[3];//char *mbs = new char[src.length() * MB_CUR_MAX + 1];
 		wcstombs_s(NULL, mbs, 3, &this->chr, 2);
@@ -258,7 +258,7 @@ namespace lang
 			return (static_cast<Double*>(obj))->getDouble();
 		if (obj->type->TypeEnum == PreType::_Int)
 			return (static_cast<Int*>(obj))->getInt();
-		return 0;//•ÏŠ·•s‰Â
+		return 0;//å¤‰æ›ä¸å¯
 	}
 	Double::Double(double i)
 	{
@@ -289,8 +289,8 @@ namespace lang
 #define LANG_OPERA_DEBUG_CHECK 
 #define LANG_OPERA_DEBUG_SINGLE_CHECK 
 #if _DEBUG
-#define LANG_OPERA_DEBUG_CHECK if (!obj1 || !obj2)throw langRuntimeException(__FUNCTION__"®‚ª‚ ‚è‚Ü‚¹‚ñB");
-#define LANG_OPERA_DEBUG_SINGLE_CHECK if (!obj1)throw langRuntimeException(__FUNCTION__"®‚ª‚ ‚è‚Ü‚¹‚ñB");
+#define LANG_OPERA_DEBUG_CHECK if (!obj1 || !obj2)throw langRuntimeException(__FUNCTION__"å¼ãŒã‚ã‚Šã¾ã›ã‚“ã€‚");
+#define LANG_OPERA_DEBUG_SINGLE_CHECK if (!obj1)throw langRuntimeException(__FUNCTION__"å¼ãŒã‚ã‚Šã¾ã›ã‚“ã€‚");
 #endif
 #define OPERA2ARG(name) {auto clas = (langClassObject)obj1;\
 	auto func = (langFunction)clas->thisscope->variable[name]; \
@@ -311,7 +311,7 @@ namespace lang
 	}\
 	}\
 			else\
-			throw langRuntimeException((std::string("ŠÖ”") + name + "‚ª’è‹`‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ").c_str()); }
+			throw langRuntimeException((std::string("é–¢æ•°") + name + "ãŒå®šç¾©ã•ã‚Œã¦ã„ã¾ã›ã‚“").c_str()); }
 #define OPERA2ARGSINGLE(name) {auto clas = (langClassObject)obj1;\
 	auto func = (langFunction)clas->thisscope->variable[name]; \
 	if (func != nullptr && func is _Function)\
@@ -320,7 +320,7 @@ namespace lang
 	return ret; \
 	}\
 			else\
-			throw langRuntimeException((std::string("ŠÖ”") + name + "‚ª’è‹`‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ").c_str()); }
+			throw langRuntimeException((std::string("é–¢æ•°") + name + "ãŒå®šç¾©ã•ã‚Œã¦ã„ã¾ã›ã‚“").c_str()); }
 
 #define OPERA2ARG2(name) {auto clas = (langClassObject)obj2;\
 	auto func = (langFunction)clas->thisscope->variable[name]; \
@@ -341,7 +341,7 @@ namespace lang
 	}\
 	}\
 			else\
-			throw langRuntimeException((std::string("ŠÖ”") + name + "‚ª’è‹`‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ").c_str()); }
+			throw langRuntimeException((std::string("é–¢æ•°") + name + "ãŒå®šç¾©ã•ã‚Œã¦ã„ã¾ã›ã‚“").c_str()); }
 	/*
 	{auto clas = (langClassObject)obj1;
 	auto func = (langFunction)clas->thisscope->variable[name];
@@ -362,7 +362,7 @@ namespace lang
 	}
 	}
 	else
-	throw langRuntimeException((std::string("ŠÖ”")+name+"‚ª’è‹`‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ").c_str());}
+	throw langRuntimeException((std::string("é–¢æ•°")+name+"ãŒå®šç¾©ã•ã‚Œã¦ã„ã¾ã›ã‚“").c_str());}
 	*/
 	langObject Object::bracket(langObject obj1, langObject obj2)
 	{
@@ -373,8 +373,8 @@ namespace lang
 					return ((langArray)obj1)->ary[Int::toInt(obj2)];
 					break;
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "[" + obj2->type->name + "]o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + obj2->type->name + "]å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 	langObject Object::bracketequal(langObject obj1, langObject obj2, langObject obj3)
 	{
@@ -385,8 +385,8 @@ namespace lang
 					return ((langArray)obj1)->ary[Int::toInt(obj2)] = obj3;
 					break;
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "[" + obj2->type->name + "]o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + obj2->type->name + "]å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 	langObject Object::plus(langObject obj1, langObject obj2)
 	{
@@ -419,11 +419,11 @@ namespace lang
 					}
 				}
 				else
-					throw langRuntimeException((std::string("ŠÖ”plus") + "‚ª’è‹`‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ").c_str()); }//OPERA2ARG("plus")
+					throw langRuntimeException((std::string("é–¢æ•°plus") + "ãŒå®šç¾©ã•ã‚Œã¦ã„ã¾ã›ã‚“").c_str()); }//OPERA2ARG("plus")
 					//break;
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "+" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException((std::string(obj1->type->name) + "+" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 	langObject Object::minus(langObject obj1, langObject obj2)
 	{
@@ -437,8 +437,8 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARG("minus")
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "-" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException((std::string(obj1->type->name) + "-" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 	langObject Object::unaryminus(langObject obj1)
 	{
@@ -452,8 +452,8 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARGSINGLE("unaryminus")
 		}
-		throw langRuntimeException(("-" + std::string(obj1->type->name) + "o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException(("-" + std::string(obj1->type->name) + "å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 	langObject Object::unaryplus(langObject obj1)
 	{
@@ -467,8 +467,8 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARGSINGLE("unaryplus")
 		}
-		throw langRuntimeException(("+" + std::string(obj1->type->name) + "o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException(("+" + std::string(obj1->type->name) + "å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 	langObject Object::multiply(langObject obj1, langObject obj2)
 	{
@@ -482,8 +482,8 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARG("multiply")
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "*" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException((std::string(obj1->type->name) + "*" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 	langObject Object::division(langObject obj1, langObject obj2)
 	{
@@ -497,8 +497,8 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARG("multiply")
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "/" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException((std::string(obj1->type->name) + "/" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 	langObject Object::greater(langObject obj1, langObject obj2)
 	{
@@ -514,8 +514,8 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARG("greater")
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + ">" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException((std::string(obj1->type->name) + ">" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 	langObject Object::less(langObject obj1, langObject obj2)
 	{
@@ -531,8 +531,8 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARG("less")
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "<" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException((std::string(obj1->type->name) + "<" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 	langObject Object::greaterEqual(langObject obj1, langObject obj2)
 	{
@@ -548,7 +548,7 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARG("greaterEqual")
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + ">=" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
+		throw langRuntimeException((std::string(obj1->type->name) + ">=" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
 	}
 	langObject Object::lessEqual(langObject obj1, langObject obj2)
 	{
@@ -564,7 +564,7 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARG("lessEqual")
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "[" + obj1->toString() + "]<=[" + obj2->toString() + "]" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + obj1->toString() + "]<=[" + obj2->toString() + "]" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
 	}
 	langObject Object::equal(langObject obj1, langObject obj2)
 	{
@@ -615,7 +615,7 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARG("modulo")
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "%" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
+		throw langRuntimeException((std::string(obj1->type->name) + "%" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
 	}
 	langObject Object::leftShift(langObject obj1, langObject obj2)
 	{
@@ -644,7 +644,7 @@ namespace lang
 							}
 						}
 						else
-							throw langRuntimeException((std::string("ŠÖ”leftShift") + "‚ª’è‹`‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ").c_str());
+							throw langRuntimeException((std::string("é–¢æ•°leftShift") + "ãŒå®šç¾©ã•ã‚Œã¦ã„ã¾ã›ã‚“").c_str());
 					}
 					return newInt(Int::toInt(obj1) << Int::toInt(obj2));
 				case PreType::_ClassObject:
@@ -672,10 +672,10 @@ namespace lang
 							}
 						}
 						else
-							throw langRuntimeException((std::string("ŠÖ”leftShift") + "‚ª’è‹`‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ").c_str());
+							throw langRuntimeException((std::string("é–¢æ•°leftShift") + "ãŒå®šç¾©ã•ã‚Œã¦ã„ã¾ã›ã‚“").c_str());
 					}
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "[" + obj1->toString() + "]<<[" + obj2->toString() + "]" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + obj1->toString() + "]<<[" + obj2->toString() + "]" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
 	}
 	langObject Object::rightShift(langObject obj1, langObject obj2)
 	{
@@ -687,7 +687,7 @@ namespace lang
 				case PreType::_ClassObject:
 					OPERA2ARG("rightShift")
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + ">>" + obj2->type->name + "o—ˆ‚È‚¢").c_str());
+		throw langRuntimeException((std::string(obj1->type->name) + ">>" + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
 	}
 
 	langObject Object::inc(langObject obj1)
@@ -701,8 +701,8 @@ namespace lang
 				//case PreType::_ClassObject:
 				//    OPERA2ARG("inc")
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "++o—ˆ‚È‚¢").c_str());
-		//•ÏŠ·•s‰Â
+		throw langRuntimeException((std::string(obj1->type->name) + "++å‡ºæ¥ãªã„").c_str());
+		//å¤‰æ›ä¸å¯
 	}
 #pragma region TypeDefine
 	ObjectType::ObjectType() : TypeClass(_Object)
@@ -790,13 +790,13 @@ namespace lang
 									  break;
 							  }
 
-							  throw langRuntimeException((std::string(obj1->type->name) + "as " + obj2->type->name + "o—ˆ‚È‚¢").c_str());
+							  throw langRuntimeException((std::string(obj1->type->name) + "as " + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
 				}
 				case _Class:
 
 					break;
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "as " + obj2->type->name + "o—ˆ‚È‚¢").c_str());
+		throw langRuntimeException((std::string(obj1->type->name) + "as " + obj2->type->name + "å‡ºæ¥ãªã„").c_str());
 	}
 
 }

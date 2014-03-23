@@ -1,4 +1,4 @@
-#ifndef __LANG_GTKOL_H__
+ï»¿#ifndef __LANG_GTKOL_H__
 #define __LANG_GTKOL_H__
 #ifdef _MSC_VER
 #pragma comment(lib, "C:/GTK/LIB/glib-2.0.lib")
@@ -15,12 +15,13 @@
 #define GTK_ENABLE_BROKEN
 #include <gtk/gtk.h>
 #include "lang.h"
-//__v('KANI')v__//‚±‚ê‚¾‚ÆKANI ERROR
-//__v('ƒÖ')v____v('ƒÖ')v____v('ƒÖ')v____v('ƒÖ')v____v('ƒÖ')v____v('ƒÖ')v____v('ƒÖ')v____v('ƒÖ')v__
+//__v('KANI')v__//ã“ã‚Œã ã¨KANI ERROR
+//__v('Ï‰')v____v('Ï‰')v____v('Ï‰')v____v('Ï‰')v____v('Ï‰')v____v('Ï‰')v____v('Ï‰')v____v('Ï‰')v__
     namespace lang
 {
     namespace gtk
-    {
+	{
+		void onclick_callback(GtkWidget *widget, gpointer data);
         template<class T>
         class eventargs
         {
@@ -67,7 +68,9 @@
             virtual void Copy(const OLWindow& copy)
             {
                 windowmap[copy.window] = this;
-                *this = copy;
+				*this = copy;
+				gtk_signal_connect(GTK_OBJECT(window), "clicked",
+					GTK_SIGNAL_FUNC(onclick_callback), (gpointer) this);
             }
             WindowEvent OnClick;
             WindowEvent OnSizeChange;
@@ -118,7 +121,7 @@
             {
                 text = (gchar*)gtk_window_get_title((GtkWindow*)window);
             }
-            //delete•K{
+            //deleteå¿…é ˆ
             virtual gchar* GetText()
             {
                 gchar* text = (gchar*)gtk_window_get_title((GtkWindow*)window);
@@ -136,7 +139,9 @@
             void Copy(const Button& copy)
             {
                 windowmap[copy.window] = this;
-                *this = copy;
+				*this = copy;
+				gtk_signal_connect(GTK_OBJECT(window), "clicked",
+					GTK_SIGNAL_FUNC(onclick_callback), (gpointer) this);
             }
             Button(void);
             Button(OLWindow& parent, const gchar* title, int X, int Y, int width, int height);
@@ -161,7 +166,9 @@
             void Copy(const TextBox& copy)
             {
                 windowmap[copy.window] = this;
-                *this = copy;
+				*this = copy;
+				gtk_signal_connect(GTK_OBJECT(window), "clicked",
+					GTK_SIGNAL_FUNC(onclick_callback), (gpointer) this);
             }
             virtual void SetText(const gchar* text)
             {
@@ -256,12 +263,12 @@
         class OpenFileDialog
         {
             GtkWidget* ofn;
-            gchar* filename_full;   // ƒtƒ@ƒCƒ‹–¼(ƒtƒ‹ƒpƒX)‚ğó‚¯æ‚é—Ìˆæ
-            gchar* filename;        // ƒtƒ@ƒCƒ‹–¼‚ğó‚¯æ‚é—Ìˆæ
+            gchar* filename_full;   // ãƒ•ã‚¡ã‚¤ãƒ«å(ãƒ•ãƒ«ãƒ‘ã‚¹)ã‚’å—ã‘å–ã‚‹é ˜åŸŸ
+            gchar* filename;        // ãƒ•ã‚¡ã‚¤ãƒ«åã‚’å—ã‘å–ã‚‹é ˜åŸŸ
         public:
             //_T("text(*.txt)\0*.txt\0All files(*.*)\0*.*\0\0")
             //txt
-            //ƒtƒ@ƒCƒ‹‚ğŠJ‚­
+            //ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã
             OpenFileDialog(gchar* strFilter, gchar* DefExt,gchar* Title,OLWindow& Owner)
             {
                 ofn = gtk_file_chooser_dialog_new (Title,

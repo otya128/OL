@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 #include "scope.h"
 //#include "variable.h"
@@ -32,7 +32,7 @@ namespace lang
 		}
 		else
 		{
-			throw_langRuntimeException("ŠÖ”%s‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB", name.c_str());
+			throw_langRuntimeException("é–¢æ•°%sãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚", name.c_str());
 		}
 	}
 	void scope::refinc()
@@ -69,7 +69,7 @@ namespace lang
 		this->type = en::scopeType::_none_;
 #if _DEBUG
 		if (gc_view)
-			std::cout << "•Ï”ƒXƒR[ƒv‚ğì¬" << this << std::endl;
+			std::cout << "å¤‰æ•°ã‚¹ã‚³ãƒ¼ãƒ—ã‚’ä½œæˆ" << this << std::endl;
 #endif
 	}
 	scope::scope(std::vector<parseObj*>& v, scope* parent, langClassObject _this) :parsers(v)
@@ -86,7 +86,7 @@ namespace lang
 		this->type = en::scopeType::_none_;
 #if _DEBUG
 		if (gc_view)
-			std::cout << "•Ï”ƒXƒR[ƒv‚ğì¬" << this << std::endl;
+			std::cout << "å¤‰æ•°ã‚¹ã‚³ãƒ¼ãƒ—ã‚’ä½œæˆ" << this << std::endl;
 #endif
 	}
 
@@ -96,7 +96,7 @@ namespace lang
 		gc->removeRoot(this);//gc->roots.erase(this);
 #if _DEBUG
 		if (gc_view)
-			std::cout << "•Ï”ƒXƒR[ƒv‚ğ”pŠü" << this << std::endl;
+			std::cout << "å¤‰æ•°ã‚¹ã‚³ãƒ¼ãƒ—ã‚’å»ƒæ£„" << this << std::endl;
 #endif
 	}
 	int scope::parentSkip(int index)
@@ -158,7 +158,7 @@ namespace lang
 		}
 		return index;
 	}
-	//•Ï”éŒ¾‚Æ®‚µ‚©Às‚Å‚«‚È‚¢•¶
+	//å¤‰æ•°å®£è¨€ã¨å¼ã—ã‹å®Ÿè¡Œã§ããªã„æ–‡
 	void scope::statement(void)
 	{
 		auto status = en::scopeStatus::none;
@@ -281,7 +281,7 @@ namespace lang
 								foreahflag = 0;
 								break;
 							case parserEnum::_return:
-								//‚±‚¤©“®¬Œ`‚³‚ê‚é‚Ì‚ÍƒoƒOH
+								//ã“ã†è‡ªå‹•æˆå½¢ã•ã‚Œã‚‹ã®ã¯ãƒã‚°ï¼Ÿ
 							{
 														this->status = en::returnStatus::_return;
 														index++;
@@ -380,8 +380,8 @@ namespace lang
 						}
 						break;
 					case en::_for:
-						__v('ƒÖ')v__
-#pragma region for•¶
+						__v('Ï‰')v__
+#pragma region foræ–‡
 							switch (findex)
 						{
 								case 4:
@@ -398,7 +398,7 @@ namespace lang
 												forscope->statement();//forscope->eval(NULLOBJECT, forscope->index);
 											}
 											forscope->index = forindex[1];
-											//  for(;;)‚Å–³ŒÀƒ‹[ƒv‚É‚·‚é
+											//  for(;;)ã§ç„¡é™ãƒ«ãƒ¼ãƒ—ã«ã™ã‚‹
 											if (forindex[1] + 1 == forindex[2] ||
 												Int::toInt(forscope->eval(NULLOBJECT, forscope->index)))
 											{
@@ -465,13 +465,13 @@ namespace lang
 										forindex[0] = index + 1;
 										findex = 1;
 									}
-									else throw "for‚ÌŒã‚É‚Í(‚ª•K—v";
+									else throw "forã®å¾Œã«ã¯(ãŒå¿…è¦";
 									break;
 						}
 						break;
 #pragma endregion
 					case en::_if:
-#pragma region if•¶ 
+#pragma region ifæ–‡ 
 					{
 									langObject buf = eval(this->parsers[this->index]->ptr, this->index);
 									if (Int::toInt(buf))
@@ -509,7 +509,7 @@ namespace lang
 						break;
 #pragma endregion
 					case en::_while:
-#pragma region while•¶
+#pragma region whileæ–‡
 						switch (whileflag)
 						{
 							case 0:
@@ -564,8 +564,8 @@ namespace lang
 						break;
 #pragma region for each
 					case en::_foreach:
-						//“‚¢ƒR[ƒh‚¾...
-						//æ“Ç‚İ‚Åmatch‚µ‚½‚Ù‚¤‚ª—Ç‚©‚Á‚½‚©‚à
+						//é…·ã„ã‚³ãƒ¼ãƒ‰ã ...
+						//å…ˆèª­ã¿ã§matchã—ãŸã»ã†ãŒè‰¯ã‹ã£ãŸã‹ã‚‚
 						//this->match(parserEnum::leftparent,parserEnum::identifier,...);
 						switch (foreahflag)
 						{
@@ -576,7 +576,7 @@ namespace lang
 								}
 								else
 								{
-									throw langRuntimeException("\•¶ƒGƒ‰[foreach");
+									throw langRuntimeException("æ§‹æ–‡ã‚¨ãƒ©ãƒ¼foreach");
 								}
 								break;
 							case 1:
@@ -586,7 +586,7 @@ namespace lang
 								}
 								else
 								{
-									throw langRuntimeException("\•¶ƒGƒ‰[foreach");
+									throw langRuntimeException("æ§‹æ–‡ã‚¨ãƒ©ãƒ¼foreach");
 								}
 								break;
 							case 2:
@@ -597,7 +597,7 @@ namespace lang
 								}
 								else
 								{
-									throw langRuntimeException("\•¶ƒGƒ‰[foreach");
+									throw langRuntimeException("æ§‹æ–‡ã‚¨ãƒ©ãƒ¼foreach");
 								}
 								break;
 							case 3:
@@ -607,7 +607,7 @@ namespace lang
 								}
 								else
 								{
-									throw langRuntimeException("\•¶ƒGƒ‰[foreach");
+									throw langRuntimeException("æ§‹æ–‡ã‚¨ãƒ©ãƒ¼foreach");
 								}
 								break;
 							case 4:
@@ -621,7 +621,7 @@ namespace lang
 								}
 								else
 								{
-									throw langRuntimeException("\•¶ƒGƒ‰[foreach");
+									throw langRuntimeException("æ§‹æ–‡ã‚¨ãƒ©ãƒ¼foreach");
 								}
 								break;
 							case 6:
@@ -642,26 +642,26 @@ namespace lang
 													MoveNext = (langFunction)(en->thisscope->variable["MoveNext"]);
 													if (!(MoveNext is _Function))
 													{
-														throw langRuntimeException("MoveNext‚ÍŠÖ”‚Å‚ ‚é•K—v‚ª‚ ‚è‚Ü‚·B");
+														throw langRuntimeException("MoveNextã¯é–¢æ•°ã§ã‚ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚");
 													}
 													if (!(Current is _Function))
 													{
-														throw langRuntimeException("Current‚ÍŠÖ”‚Å‚ ‚é•K—v‚ª‚ ‚è‚Ü‚·B");
+														throw langRuntimeException("Currentã¯é–¢æ•°ã§ã‚ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚");
 													}
 												}
 												else
 												{
-													throw langRuntimeException("GetEnumerator‚Ì•Ô‚è’l‚ÍClassObject‚Å‚ ‚é•K—v‚ª‚ ‚è‚Ü‚·B");
+													throw langRuntimeException("GetEnumeratorã®è¿”ã‚Šå€¤ã¯ClassObjectã§ã‚ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚");
 												}
 											}
 											else
 											{
-												throw langRuntimeException("GetEnumerator‚ÍŠÖ”‚Å‚ ‚é•K—v‚ª‚ ‚è‚Ü‚·B");
+												throw langRuntimeException("GetEnumeratorã¯é–¢æ•°ã§ã‚ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚");
 											}
 										}
 										else
 										{
-											throw langRuntimeException("foreach‚Ì‘ÎÛ‚Æ‚È‚é•Ï”‚ÍEnumerable‚Å‚ ‚é•K—v‚ª‚ ‚è‚Ü‚·B");
+											throw langRuntimeException("foreachã®å¯¾è±¡ã¨ãªã‚‹å¤‰æ•°ã¯Enumerableã§ã‚ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚");
 										}
 									}
 									foreahflag++;
@@ -673,7 +673,7 @@ namespace lang
 								}
 								else
 								{
-									throw langRuntimeException("\•¶ƒGƒ‰[foreach");
+									throw langRuntimeException("æ§‹æ–‡ã‚¨ãƒ©ãƒ¼foreach");
 								}
 								break;
 							case 7:
@@ -809,11 +809,11 @@ namespace lang
 				return 13;
 			case parserEnum::oror:
 				return 14;
-			case parserEnum::equal://=    _
-			case parserEnum::plusequal://+= _
-			case parserEnum::minusequal://-   _
-			case parserEnum::divisionequal:// /=_
-			case parserEnum::leftshiftequal://<<= _
+			case parserEnum::equal://=    ï¼¼
+			case parserEnum::plusequal://+= ï¼¼
+			case parserEnum::minusequal://-   ï¼¼
+			case parserEnum::divisionequal:// /=ï¼¼
+			case parserEnum::leftshiftequal://<<= ï¼¼
 			case parserEnum::rightshiftequal://>>= /
 			case parserEnum::multiplyequal: //*=  /
 			case parserEnum::moduloequal:  //%=  /
@@ -938,7 +938,7 @@ namespace lang
 
 						else
 						{
-							throw lang::langRuntimeException("new ‚ÍClassŒ^‚Å‚Ì‚İ—LŒø‚Å‚·B");
+							throw lang::langRuntimeException("new ã¯Classå‹ã§ã®ã¿æœ‰åŠ¹ã§ã™ã€‚");
 						}
 					}
 					break;
@@ -963,9 +963,9 @@ namespace lang
 
 					}
 					else
-						throw lang::langRuntimeException("this‚Íg‚¦‚Ü‚¹‚ñB");
+						throw lang::langRuntimeException("thisã¯ä½¿ãˆã¾ã›ã‚“ã€‚");
 					index = index + 0;
-					//throw lang::langRuntimeException("new ‚ÍClassŒ^‚Å‚Ì‚İ—LŒø‚Å‚·B");
+					//throw lang::langRuntimeException("new ã¯Classå‹ã§ã®ã¿æœ‰åŠ¹ã§ã™ã€‚");
 					break;
 				case parserEnum::_false:
 					object = this->parsers[index]->ptr;
@@ -1024,11 +1024,13 @@ namespace lang
 							isBuilt = false;
 						}
 						else
+						{
 							object = BuitInFunction(*this->parsers[binaryoperation - 1]->name, arg);
+						}
 						//object = 
 						index = i;
 						binaryoperation = index + 1;
-					}__v('ƒÖ')v__
+					}__v('Ï‰')v__
 					if (isBuilt)
 						i = index - 1;
 					OP4
@@ -1173,7 +1175,7 @@ namespace lang
 									int ind = Int::toInt(buf);
 									if (set->ary.size() <= ind)
 
-										throw_langRuntimeException("”z—ñ‚Ì”ÍˆÍŠO‚ÉƒAƒNƒZƒX%x‚ÌƒTƒCƒY‚Í%d‚ÅA %d‚ÉƒAƒNƒZƒX‚µ‚æ‚¤‚Æ‚µ‚Ü‚µ‚½B:VAR_DUMP%s", set, set->ary.size(), ind, set->toString().c_str())
+										throw_langRuntimeException("é…åˆ—ã®ç¯„å›²å¤–ã«ã‚¢ã‚¯ã‚»ã‚¹%xã®ã‚µã‚¤ã‚ºã¯%dã§ã€ %dã«ã‚¢ã‚¯ã‚»ã‚¹ã—ã‚ˆã†ã¨ã—ã¾ã—ãŸã€‚:VAR_DUMP%s", set, set->ary.size(), ind, set->toString().c_str())
 
 										set->ary[ind] = eval(NULLOBJECT, binaryoperation);
 									object = set->ary[Int::toInt(object)];
@@ -1207,7 +1209,7 @@ namespace lang
 								object = Object::bracket(object, arg);
 						}
 						else
-							throw langRuntimeException("[]‚ğg‚¦‚È‚¢");
+							throw langRuntimeException("[]ã‚’ä½¿ãˆãªã„");
 					}
 					OP5
 						break;
@@ -1248,7 +1250,7 @@ namespace lang
 									{
 										if (object->type->TypeEnum == PreType::_ClassObject)
 											object = ((langClassObject)object)->staticClass;
-										//else ; //staticƒNƒ‰ƒX‚©‚çstatic‚ğæ‚ë‚¤‚Æ‚µ‚Ä‚¢‚é
+										//else ; //staticã‚¯ãƒ©ã‚¹ã‹ã‚‰staticã‚’å–ã‚ã†ã¨ã—ã¦ã„ã‚‹
 										index++;
 										binaryoperation++;
 									}
@@ -1301,7 +1303,7 @@ namespace lang
 								}
 							}
 						}
-						//throw lang::langRuntimeException(".‚ÍClassŒ^‚Å‚Ì‚İ—LŒø‚Å‚·B");
+						//throw lang::langRuntimeException(".ã¯Classå‹ã§ã®ã¿æœ‰åŠ¹ã§ã™ã€‚");
 					}
 					//i = index + 2;
 					OP3

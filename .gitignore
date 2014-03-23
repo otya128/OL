@@ -41,3 +41,4 @@ Makefile - コピー.txt
 Makefile - コピー
 makefile~
 *.o
+*.stackdump

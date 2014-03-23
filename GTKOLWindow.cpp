@@ -1,4 +1,4 @@
-#include "stdafx.h"
+Ôªø#include "stdafx.h"
 #include "GTKOLWindow.h"
 namespace lang
 {
@@ -39,7 +39,7 @@ namespace lang
         }
         void onclick_callback( GtkWidget *widget, gpointer data)
         {
-            auto win = OLWindow::windowmap[widget];
+			auto win = (OLWindow*)data;//OLWindow::windowmap[widget];
             (win)->OnClick(win);
         }
         void Button::ctor(OLWindow& parent, const gchar* title, int X, int Y, int nWidth,int nHeight)
@@ -154,7 +154,7 @@ namespace lang
             #else
             int pSize = 0;
 
-            //ShiftJISÇ©ÇÁUTF-16Ç÷ïœä∑
+            //ShiftJIS„Åã„ÇâUTF-16„Å∏Â§âÊèõ
             const int nSize = ::MultiByteToWideChar( CP_ACP, 0, (char*)
                 pSource, -1, NULL, 0 );
 
@@ -162,7 +162,7 @@ namespace lang
             ::MultiByteToWideChar( CP_ACP, 0, (char*)pSource, -1, (wchar_t*)
                 buffUtf16, nSize );
 
-            //UTF-16Ç©ÇÁShift-JISÇ÷ïœä∑
+            //UTF-16„Åã„ÇâShift-JIS„Å∏Â§âÊèõ
             const int nSizeUtf8 = ::WideCharToMultiByte( CP_UTF8, 0, (wchar_t*)
                 buffUtf16, -1, NULL, 0, NULL, NULL );
             //if( !pDist ){
@@ -188,14 +188,14 @@ namespace lang
         }
         void OLWindow::SetFont(const gchar* name, int size)
         {
-            //__v(L'É÷')v__;
+            //__v(L'œâ')v__;
             std::stringstream fontname;
             fontname << name << ' ' << size;
             gtk_widget_modify_font(window, pango_font_description_from_string(fontname.str().c_str()));
         }
         void OLWindow::SetFont(const gchar* name, int size,bool bold,bool italic,bool underline,bool strike)
         {
-            //__v(L'É÷')v__;
+            //__v(L'œâ')v__;
             std::stringstream fontname;
             gchar* utf8;
             ConvSJistoUtf8(name, utf8);
