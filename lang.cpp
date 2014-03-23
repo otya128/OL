@@ -5,6 +5,7 @@
 #pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include "parser.h"
+#include <stdlib.h>
 #include "scope.h"
 #include <memory>
 #include <fstream>
@@ -218,12 +219,15 @@ int hook(int a1, char *a2, int *a3)
 }
 //面倒になったからコピペhttp://d.hatena.ne.jp/kryozahiro/20080809/1218295912
 //->wcstombs_s使う
+/*#ifndef MB_CUR_MAX
+#define MB_CUR_MAX (sizeof(char))
+#endif
 void narrow(const std::wstring &src, std::string &dest) {
 	char *mbs = new char[src.length() * MB_CUR_MAX + 1];
 	wcstombs_s(NULL, mbs, src.length() * MB_CUR_MAX + 1, src.c_str(), src.length() * MB_CUR_MAX + 1);
 	dest = mbs;
 	delete[] mbs;
-}
+}*/
 #include "GTKOLWindow.h"
 OLWindow* window;
 #ifndef MAX_PATH
