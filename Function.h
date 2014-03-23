@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __LANG_FUNCTION_H__//#pragma once
+#define __LANG_FUNCTION_H__
 #include "lang.h"
 #ifdef CPP11
 #include <thread>
@@ -53,3 +54,4 @@ namespace lang
     };
     //typedef std::shared_ptr<Function> langFunction;
 }
+#endif

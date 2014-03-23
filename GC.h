@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __LANG_GC_H__
+#define __LANG_GC_H__//#pragma once
 #include "Object.h"
 
 #ifdef CPP11
@@ -44,5 +45,6 @@ namespace lang
         ~GC(void);
     };
     typedef GC ‚ª‚×‚±‚ê;
-#pragma once
+//#pragma once
 }
+#endif 

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #if _WIN32
+#include <tchar.h>
 #include "OLWindow.h"
 #pragma comment(lib, "Uxtheme.lib")
 #include <Uxtheme.h>

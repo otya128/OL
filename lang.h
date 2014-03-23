@@ -1,7 +1,10 @@
+#ifndef __LANG_H__
+#define __LANG_H__
 #include <memory>
-#pragma once
+//#pragma once
 //#define OL_GTK
 //#define CPP11 1
+int main(int, char**);
 #define ENDFOREACH }
 #ifdef CPP11
 #define ENUMCLASS class
@@ -76,3 +79,4 @@ namespace lang
 	class CharType;
 	class WCharType;
 }
+#endif

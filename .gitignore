@@ -36,3 +36,7 @@ _ReSharper*/
 file.txt
 hoge
 *.swp
+*.depend
+Makefile - コピー.txt
+Makefile - コピー
+makefile~

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __DAG__H__
+#define __DAG__H__//#pragma once
 #include <vector>
 #include "parseObj.h"
 #include "lang.h"
@@ -6,12 +7,13 @@ namespace lang
 {
     namespace plugin
     {
-        class Åı
+		class dagger
         {
         std::vector<parseObj*>& tokens;
         public:
-            Åı(std::vector<parseObj*>& p);
-            ~Åı(void);
+			dagger(std::vector<parseObj*>& p);
+			~dagger(void);
         };
     }
 }
+#endif

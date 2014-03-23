@@ -1,3 +1,5 @@
+#ifndef __LANG_OLR_H__
+#define __LANG_OLR_H__
 #include "stdafx.h"
 #include "Object.h"
 namespace lang
@@ -97,3 +99,4 @@ namespace lang
 		}
 	}
 }
+#endif

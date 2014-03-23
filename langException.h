@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __LANG_EXCEPTION_H__
+#define __LANG_EXCEPTION_H__
+//#pragma once
 namespace lang
 {
     class langException : public std::runtime_error
@@ -50,3 +52,4 @@ namespace lang
         }
     };
 }
+#endif

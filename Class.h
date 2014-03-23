@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __LANG_CLASS_H__//#pragma once
+#define __LANG_CLASS_H__
 #include "lang.h"
 #include "Object.h"
 #include "variable.h"
@@ -36,3 +37,4 @@ namespace lang
         ~ClassObject(void);
     };
 }
+#endif

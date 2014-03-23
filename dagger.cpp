@@ -1,26 +1,26 @@
 #include "stdafx.h"
-#include "õ.h"
+#include "dagger.h"
 
 namespace lang
 {
     namespace plugin
     {
-        //õö
-        õ::õ(std::vector<parseObj*>& p) : tokens(p)
+        //daggerö
+		dagger::dagger(std::vector<parseObj*>& p) : tokens(p)
         {
         #ifdef CPP11
             auto old = tokens;//copy
-            parseObj* shiftjisõ = nullptr;
+			parseObj* shiftjisdagger = nullptr;
             tokens.clear();
             foreach_(var_ i in_ old)
             {
-                if(shiftjisõ)
+				if (shiftjisdagger)
                 {
                     if(i->pEnum == parserEnum::none && i->name->size() == 1 && (*i->name)[0] == (char)-11)
                     {
-                        tokens.push_back(new parseObj(parserEnum::leftparent,new std::string("õ"),i->sourcestartindex,i->sourceendindex));
+                        tokens.push_back(new parseObj(parserEnum::leftparent,new std::string("dagger"),i->sourcestartindex,i->sourceendindex));
                         delete i;
-                            delete shiftjisõ;
+                            delete shiftjisdagger;
                     }
                     else
                     {
@@ -28,20 +28,20 @@ namespace lang
                         {
                             tokens.push_back(new parseObj(parserEnum::rightparent,new std::string("ö"),i->sourcestartindex,i->sourceendindex));
                             delete i;
-                            delete shiftjisõ;
+                            delete shiftjisdagger;
                         }
                         else
                         {
-                            tokens.push_back(shiftjisõ);
+                            tokens.push_back(shiftjisdagger);
                             tokens.push_back(i);
                         }
                     }
-                    shiftjisõ = nullptr;
+                    shiftjisdagger = nullptr;
                 }
                 else
                     if(i->pEnum == parserEnum::none && i->name->size() == 1 && (*i->name)[0] == (char)-127)
                     {
-                        shiftjisõ = i;
+                        shiftjisdagger = i;
                         continue;
                     }
                     else
@@ -53,7 +53,7 @@ namespace lang
         }
 
 
-        õ::~õ(void)
+        dagger::~dagger(void)
         {
         }
     }

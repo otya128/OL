@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __LANG_PARSER_H__//#pragma once
+#define __LANG_PARSER_H__
 #include <vector>
 #include "parseObj.h"
 #include "scope.h"
@@ -31,3 +32,4 @@ namespace lang
 		langObject Run();
 	};
 }
+#endif

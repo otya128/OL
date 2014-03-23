@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __LANG_ARRAY_H__
+#define __LANG_ARRAY_H__
+//#pragma once
 #include <vector>
 #include "object.h"
 #include "lang.h"
@@ -16,4 +18,4 @@ namespace lang
 		virtual langObject getMember(std::string &name);
     };
 }
-
+#endif

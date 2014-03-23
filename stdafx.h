@@ -3,12 +3,12 @@
 // を記述します。
 //
 
-#pragma once
-
+#ifndef __STDAFX_H__//#pragma once
+#define __STDAFX_H__
 #include "targetver.h"
 
 #include <stdio.h>
-#include <tchar.h>
+//#include <tchar.h>
 //add
 #include <iostream>
 #include <string>
@@ -17,5 +17,5 @@
 #include <crtdbg.h>
 #define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #endif
-
+#endif
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください。

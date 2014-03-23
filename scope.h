@@ -1,4 +1,6 @@
-#pragma once
+//#pragma once
+#ifndef __SCOPE_H__
+#define __SCOPE_H__
 #include "lang.h"
 #include <vector>
 #include "parseObj.h"
@@ -80,3 +82,4 @@ namespace lang
 #define DEFINEDSCPEVAR(scope, name) (scope->variable.definedVar(name))
 	langObject BuidInFunction(std::string name, std::vector<langObject> arg);
 }
+#endif

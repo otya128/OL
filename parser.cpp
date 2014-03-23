@@ -7,7 +7,7 @@
 #include "GC.h"
 #include "langException.h"
 #include "Class.h"
-#include "õ.h"
+#include "dagger.h"
 //#include "parserEnum.h"
 #define newFunction(a,a1,a2,a3) new Function(a,a1,a2,a3)
 std::string getlinestring(std::string input, int index);
@@ -1051,7 +1051,7 @@ namespace lang
 #endif
 		}
 		if (iden->empty())delete iden;//g‚í‚ê‚Ä‚È‚¢‚©‚çdelete
-		lang::plugin::õ(this->parsers);
+		lang::plugin::dagger(this->parsers);
 		this->function();
 		this->staticparse();
 		this->namespaceparse();

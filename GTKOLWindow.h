@@ -1,7 +1,11 @@
+#ifndef __LANG_GTKOL_H__
+#define __LANG_GTKOL_H__
+#ifdef _MSC_VER
 #pragma comment(lib, "C:/GTK/LIB/glib-2.0.lib")
 #pragma comment(lib, "C:/GTK/LIB/gobject-2.0.lib")
 #pragma comment(lib, "C:/GTK/LIB/gtk-win32-2.0.lib")
 #pragma comment(lib, "C:/gTK/LIB/pango-1.0.lib")
+#endif
 #include <vector>
 #include <map>
 #define GTK_ENABLE_BROKEN
@@ -307,3 +311,4 @@
     }
 }
 using namespace lang::gtk;
+#endif 

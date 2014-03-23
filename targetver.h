@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __TARGETVER_H__
+#define __TARGETVER_H__
+//#pragma once
 
 // SDKDDKVer.h をインクルードすると、利用できる最も上位の Windows プラットフォームが定義されます。
 
@@ -6,4 +8,5 @@
 // SDKDDKVer.h をインクルードする前に、サポート対象とするプラットフォームを示すように _WIN32_WINNT マクロを設定します。
 #if _WIN32
 #include <SDKDDKVer.h>
+#endif
 #endif

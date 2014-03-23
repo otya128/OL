@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __LANG_VARIABLE_H__
+#define __LANG_VARIABLE_H__//#pragma once
 #include <map>
 #include <memory>
 #include "Object.h"
@@ -28,3 +29,4 @@ namespace lang
         }*/
     };
 }
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __LANG_PARSEOBJ_H__
+#define __LANG_PARSEOBJ_H__
+//#pragma once
 #include "parserEnum.h"
 #include "Object.h"
 #include <memory>
@@ -31,4 +33,4 @@ namespace lang
         #endif
     };
 }
-
+#endif

@@ -1,5 +1,7 @@
 #if _WIN32
-#pragma once
+#ifndef __LANG_OLWINDOW_H__
+#define __LANG_OLWINDOW_H__
+//#pragma once
 #include <vector>
 #include <map>
 #include <Windows.h>
@@ -289,4 +291,5 @@ namespace lang
     void __MessageBox(const wchar_t* message);
     void __MessageBox(OLWindow &parent,const wchar_t* message);
 }
+#endif
 #endif
