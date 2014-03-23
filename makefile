@@ -2,7 +2,8 @@
 PROGRAM := lang
 SOURCES := $(wildcard *.cpp)
 OBJS := $(SOURCES:.cpp=.o)
-DEPENDS := $(SOURCES:.cpp=.depend)
+DEPEND_DIR := depend
+DEPENDS := $(addprefix $(DEPEND_DIR)/,$(SOURCES:.cpp=.depend))
 CXX := g++
 CPPFLAGS := -std=c++11 `pkg-config gtk+-2.0 --libs --cflags` -fpermissive  -w $(DEBUG) 
 .PHONY: all
@@ -11,9 +12,10 @@ $(PROGRAM): $(OBJS)
 	$(CXX) -o $(PROGRAM) $^ $(CPPFLAGS)
 
 
-%.depend: %.cpp
+$(DEPEND_DIR)/%.depend: %.cpp
 	@echo generating $@
-	@$(SHELL) -ec '$(CC) -MM $(CPPFLAGS) $< | sed "s/\($*\)\.o[ :]*/\1.o $@ : /g" > $@; [ -s $@ ] || rm -f $@'
+	@mkdir -p $(DEPEND_DIR)
+	@$(SHELL) -ec '$(CXX) $(CXXFLAGS) $(LIBS) -MM $< | tr "\\\\\n" " " | sed -e "s/^\(.*\)$$/$(OBJ_DIR)\/\1\n\t@mkdir -p $$\(OBJ_DIR\)\n\t$$\(CXX\) $$\(CXXFLAGS\) -c $$< -o $$\@ $$\(LIBS\)/g" > $(DEPEND_DIR)/$(notdir $@)'
 
 
 ifneq "$(MAKECMDGOALS)" "clean"
