@@ -1,4 +1,5 @@
 #ifndef __LANG_EXCEPTION_H__
+#include <stdexcept>
 #define __LANG_EXCEPTION_H__
 //#pragma once
 namespace lang
