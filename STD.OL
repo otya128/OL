@@ -122,8 +122,8 @@ namespace OL
 			{
 				this._window = OLRuntime::GUI::Button::Create(window._window, title, X, Y, width, height);
 			}
-		}
 		print("WHAT");
+		}
 		class Label
 		{
 			var _window;

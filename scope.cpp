@@ -932,7 +932,7 @@ namespace lang
 								index = i;
 								binaryoperation = index + 1;
 								i = index - 1;
-								//OP4
+								OP4
 							}
 						}
 
@@ -1026,6 +1026,7 @@ namespace lang
 						else
 						{
 							object = BuitInFunction(*this->parsers[binaryoperation - 1]->name, arg);
+							isBuilt = true;
 						}
 						//object = 
 						index = i;
@@ -1235,7 +1236,8 @@ namespace lang
 											//binaryoperation++;
 											buf->setMember(*bufbuf->name, eval(NULLOBJECT, binaryoperation));//buf->thisscope->variable.set(*bufbuf->name, eval(NULLOBJECT, binaryoperation));
 											//object = buf->thisscope->variable[*bufbuf->name];
-											index++;
+											index = binaryoperation;
+											//index++;
 											binaryoperation++;
 										}
 									}

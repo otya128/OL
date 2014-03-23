@@ -156,6 +156,7 @@ class Console
 		return WriteLine;
 	}
 }
+/*
 class haga
 {
 static var lf = "\n";
@@ -165,3 +166,4 @@ void hogeõvar hogeö
 printõhogeö;
 }
 }
+*/

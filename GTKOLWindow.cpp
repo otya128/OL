@@ -39,7 +39,7 @@ namespace lang
         }
         void onclick_callback( GtkWidget *widget, gpointer data)
         {
-			auto win = (OLWindow*)data;//OLWindow::windowmap[widget];
+			auto win = OLWindow::windowmap[widget];
             (win)->OnClick(win);
         }
         void Button::ctor(OLWindow& parent, const gchar* title, int X, int Y, int nWidth,int nHeight)
