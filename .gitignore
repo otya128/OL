@@ -40,3 +40,4 @@ hoge
 Makefile - コピー.txt
 Makefile - コピー
 makefile~
+*.o

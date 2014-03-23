@@ -44,7 +44,7 @@ namespace lang
         GC(scope* root);
         ~GC(void);
     };
-    typedef GC ‚ª‚×‚±‚ê;
+    typedef GC gabekore;
 //#pragma once
 }
 #endif 

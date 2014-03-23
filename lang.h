@@ -1,9 +1,10 @@
-#ifndef __LANG_H__
+ï»¿#ifndef __LANG_H__
 #define __LANG_H__
 #include <memory>
 //#pragma once
 //#define OL_GTK
 //#define CPP11 1
+#define OL_GTK 1
 int main(int, char**);
 #define ENDFOREACH }
 #ifdef CPP11
@@ -19,10 +20,16 @@ namespace lang
 	extern bool gc_view;
 	extern int error_level;
 	extern bool running;
+#ifdef _MSC_VER
 #define v__  
-#define __v(x)  static_assert(x == 'ƒÖ', "KANI ERROR");
-#define v____v(x)  static_assert(x == 'ƒÖ', "KANI ERROR");
-	//#define vifƒÖfjv //‚½‚µ‚©‚É~~~~~
+#define __v(x)  static_assert(x == 'Ï‰', "KANI ERROR");
+#define v____v(x)  static_assert(x == 'Ï‰', "KANI ERROR");
+#else
+#define v__  
+#define __v(x) 
+#define v____v(x) 
+#endif
+	//#define vï¼ˆâ€™Ï‰â€™ï¼‰v //ãŸã—ã‹ã«~~~~~
 #define var_ auto
 #define in_ :
 #define foreach_ for
@@ -38,11 +45,11 @@ namespace lang
 	class Char;
 	class Double;
 #define GCENABLE
-	//QÆƒ|ƒCƒ“ƒ^GC
+	//å‚ç…§ãƒã‚¤ãƒ³ã‚¿GC
 #ifdef GCENABLE
 	class GC;
-	typedef GC ‚ª‚×‚±‚ê;
-	extern ‚ª‚×‚±‚ê* gc;
+	typedef GC gabekore;
+	extern gabekore* gc;
 	typedef Object* langObject;
 	typedef Int* langInt;
 	typedef String* langString;

@@ -44,7 +44,6 @@ namespace lang
 
 	enum ENUMCLASS evals
 	{
-		none = 0,
 		isbinaryoperation = 1,
 		arrayset = 2,
 		dmmy1 = 4,

@@ -9,14 +9,18 @@
 #include "Class.h"
 #include "langException.h"
 #include "Array.h"
+#include <stdlib.h>
 #define newInt(a) new Int(a)
 #define newString(a) new String(a)
+#ifndef _WIN32
+#define wcstombs_s(a,b,c,d,e) wcstombs(b,d,e)
+#endif
 /*#define langObject langObject
 #define langInt std::shared_ptr<Int>
 #define langString std::shared_ptr<String>*/
 namespace lang
 {
-	‚ª‚×‚±‚ê* gc;
+	gabekore* gc;
 	Object::Object(void* ptr)
 	{
 		if (lang::gc != nullptr)

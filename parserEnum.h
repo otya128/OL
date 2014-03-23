@@ -41,13 +41,13 @@ namespace lang
 		multiplyequal,//*=
 		divisionequal,// /=
 		moduloequal,//%=
-		or,//|
+		_or,//|
 		oror,//||
-		and,//&
+		_and,//&
 		andand,//&&
-		xor,//^
+		_xor,//^
 		notequal,//!
-		not,//~
+		_not,//~
 		notnot,//!LogicalNot
 		leftshift,//<<
 		rightshift,//>>

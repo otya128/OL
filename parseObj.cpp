@@ -85,7 +85,7 @@ namespace lang
                 return (static_cast<Int*>(this->ptr/*.get()*/))->getInt();
             //return (static_cast<std::shared_ptr<Int>>(this->ptr))->getInt();
         }
-        throw std::exception::exception("型intにキャスト不可");
+        //throw std::exception::exception("型intにキャスト不可");
     }
     std::string parseObj::getString(void)
     {
@@ -96,24 +96,24 @@ namespace lang
             //return *((static_cast<std::shared_ptr<String>>(this->ptr))->getString());
             //return (char*)ptr;//(std::string)(((char*)ptr)+4);
         }
-        throw std::exception::exception("型stringにキャスト不可");
+        //throw std::exception::exception("型stringにキャスト不可");
     }
 
     double parseObj::getDouble(void)
     {
-        /*if(this->pEnum==parserEnum::num)
+        if(this->pEnum==parserEnum::num)
         {
         return *((double*)this->ptr);
-        }*/
-        throw std::exception::exception("型doubleにキャスト不可");
+        }
+        //throw std::exception::exception("型doubleにキャスト不可");
     }
     char parseObj::getChar(void)
-    {/*
+    {
      if(this->pEnum==parserEnum::chr)
      {
-     return (char)this->ptr;
-     }*/
-        throw std::exception::exception("型charにキャスト不可");
+     return *(char*)this->ptr;
+     }
+        //throw std::exception::exception("型charにキャスト不可");
     }
     std::string parseObj::toString(void)
     {

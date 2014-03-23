@@ -151,7 +151,7 @@ namespace lang
             #ifndef _WIN32
                 pDist = pSource;
                 return TRUE;
-            #endif
+            #else
             int pSize = 0;
 
             //ShiftJIS‚©‚çUTF-16‚Ö•ÏŠ·
@@ -184,6 +184,7 @@ namespace lang
             delete buffUtf8;
 
             return TRUE;
+#endif
         }
         void OLWindow::SetFont(const gchar* name, int size)
         {

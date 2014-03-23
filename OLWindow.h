@@ -1,4 +1,4 @@
-#if _WIN32
+#ifdef _WIN32
 #ifndef __LANG_OLWINDOW_H__
 #define __LANG_OLWINDOW_H__
 //#pragma once

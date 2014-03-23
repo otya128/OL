@@ -23,6 +23,12 @@
 #pragma comment(linker, "\"/manifestdependency:type='Win32' "\
 	"name='Microsoft.Windows.Common-Controls' version='6.0.0.0' "\
 	"processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#ifndef _WIN32
+#define wcstombs_s(a,b,c,d,e) wcstombs(b,d,e)
+#define strcpy_s(a,b,c) strcpy(a,c)
+#define strncpy_s(a,b,c,d) strncpy(a,c,d)
+#define freopen_s(a,b,c,d) *a = freopen(b,c,d) 
+#endif
 #ifndef _DEBUG
 #ifdef _WIN32
 #include <eh.h>
@@ -132,7 +138,7 @@ namespace lang
 	langObject NULLOBJECT = nullptr;//ewObject(nullptr);
 	langObject TRUEOBJECT = nullptr;
 	langObject FALSEOBJECT = nullptr;
-	bool ahogc = false, parserresult = false, leakcheck = false, pause = false;
+	bool ahogc = false, parserresult = false, leakcheck = false, pause_ = false;
 #if _DEBUG
 	std::vector<int> BreakPoint;//行で指定
 #endif
@@ -201,7 +207,7 @@ std::string getlinestring(std::string input, int index)
 }
 enum ENUMCLASS option
 {
-	none, errorlevel, std_out, chdir, std_err
+	none, errorlevel, std_out, ch_dir, std_err
 };
 int hook(int a1, char *a2, int *a3)
 {
@@ -335,15 +341,15 @@ void gui(void)
 #ifndef _WIN32
 #include <unistd.h>
 #endif
-#pragma comment(lib, "comctl32.lib")
+//#pragma comment(lib, "comctl32.lib")
 	int main(int argc, char *argv[])
 	{
-		INITCOMMONCONTROLSEX    stICCEx;
-		stICCEx.dwSize = sizeof (INITCOMMONCONTROLSEX);
-		stICCEx.dwICC = INT_MAX;//ICC_WIN95_CLASSES;                                // ICC_STANDARD_CLASSES
-		//InitCommonControlsEx
-		InitCommonControlsEx(&stICCEx);
-		//    _CrtSetBreakAlloc(155);
+		//INITCOMMONCONTROLSEX    stICCEx;
+		//stICCEx.dwSize = sizeof (INITCOMMONCONTROLSEX);
+		//stICCEx.dwICC = INT_MAX;//ICC_WIN95_CLASSES;                                // ICC_STANDARD_CLASSES
+		////InitCommonControlsEx
+		//InitCommonControlsEx(&stICCEx);
+		////    _CrtSetBreakAlloc(155);
 		int result = 0;
 		{
 			wchar_t et[256];
@@ -359,7 +365,7 @@ void gui(void)
 			escapetable[13] = "\\r";
 			escapetable[(int)'\"'] = "\\\"";
 			//([](int x){return x*x;})();
-#ifndef _DEBUG
+#if !defined(_DEBUG) && defined(_WIN32)
 			//スレッド毎に変換関数を登録する
 			_set_se_translator(se_translator_function);
 #endif
@@ -368,7 +374,7 @@ void gui(void)
 			//_CrtSetBreakAlloc(218);
 			option o = option::none;
 			lang::error_level = 0;
-			bool endpause = false, json = false, nologo = false;
+			bool endpause_ = false, json = false, nologo = false;
 			bool notfileload = true;
 			bool gui = !!!!false;
 			std::string input;
@@ -401,12 +407,12 @@ void gui(void)
 						else
 						if (!strcmp(argv[i], _OLT("-pause")))
 						{
-							pause = true;
+							pause_ = true;
 						}
 						else
 						if (!strcmp(argv[i], _OLT("-endpause")))
 						{
-							endpause = true;
+							endpause_ = true;
 						}
 						else
 						if (!strcmp(argv[i], _OLT("-json")))
@@ -453,7 +459,7 @@ void gui(void)
 						else
 						if (!strcmp(argv[i], _OLT("-chdir")))
 						{
-							o = option::chdir;
+							o = option::ch_dir;
 						}
 						else
 						{
@@ -483,9 +489,9 @@ void gui(void)
 											o = option::none;
 					}
 						break;
-					case option::chdir:
+					case option::ch_dir:
 #ifndef _WIN32
-						chdir(argv[i]);
+						//chdir(argv[i]);
 #endif
 #ifdef _WIN32
 						SetCurrentDirectoryA(argv[i]);
@@ -520,7 +526,9 @@ void gui(void)
 			}
 		http://0xbaadf00d/
 			//lang::gc_view = true;
+#ifdef _WIN32
 			if (leakcheck) _CrtSetReportHook((_CRT_REPORT_HOOK)hook);
+#endif
 			lib::init();
 			lang::NULLOBJECT = new lang::Object();
 			lang::NULLOBJECT->type->name = "null";
@@ -531,7 +539,11 @@ void gui(void)
 			do//while (true)//std::getchar())
 			{
 				std::stringstream ss;
+#ifdef _WIN32
 				std::ifstream ifs;
+#else
+				std::ifstream ifs(filename);
+#endif
 				//std::getline(std::cin,input);
 				if (!notfileload)
 				{
@@ -557,7 +569,7 @@ void gui(void)
 							ifs = std::ifstream(filename);
 						}
 #else
-						ifs = std::ifstream(filename);
+						//ifs = std::ifstream(filename);
 #endif
 						if (ifs.fail())
 						{
@@ -717,6 +729,7 @@ void gui(void)
 				std::cerr << "BUG!!!" << ex.what() << std::endl;
 				std::cerr << "異常終了 変数や定数を削除" << std::endl;
 			}
+#ifdef _WIN32
 			catch (struct _EXCEPTION_POINTERS* ep)
 			{
 				std::cerr << "WIN32 EXCEPTION!" << std::endl;
@@ -725,6 +738,7 @@ void gui(void)
 				std::cerr << codestring << std::endl;
 				if (lang::gc_view)std::cerr << "異常終了 変数や定数を削除" << std::endl;
 			}
+#endif
 			catch (...)
 			{
 				std::cerr << "BUG!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -732,7 +746,7 @@ void gui(void)
 			}
 #endif
 			running = false;
-			if (endpause)std::getchar();
+			if (endpause_)std::getchar();
 			clock_t start, end;
 			start = clock();
 			std::vector<lang::scope*> del;
@@ -780,17 +794,19 @@ void gui(void)
 		delete lang::object_tostr;
 		delete lang::string_substr;
 	}
+#if defined(_WIN32)
 	if (leakcheck)
 	{
 		_CrtDumpMemoryLeaks();
 	}
-	if (pause)
+#endif
+	if (pause_)
 #if defined(_WIN32)
 #if _DEBUG
 		std::getchar();
 #endif
 #if !defined(_DEBUG)
-	system("PAUSE");//WINDOWSならこっちの方が親切だから使う
+	system("pause_");//WINDOWSならこっちの方が親切だから使う
 #endif
 #else
 		std::getchar();

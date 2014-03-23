@@ -3,11 +3,11 @@ SOURCES := $(wildcard *.cpp)
 OBJS := $(SOURCES:.cpp=.o)
 DEPENDS := $(SOURCES:.cpp=.depend)
 CXX := g++
-CPPFLAGS := -std=c++11 -O -Wall -W `pkg-config gtk+-2.0 --libs --cflags`
+CPPFLAGS := -std=c++11 `pkg-config gtk+-2.0 --libs --cflags` -fpermissive  -w 
 .PHONY: all
 all: $(PROGRAM)
 $(PROGRAM): $(OBJS) 
-	$(CXX) -o $(PROGRAM) $(CPPFLAGS) $^
+	$(CXX) -o $(PROGRAM) $^ $(CPPFLAGS)
 
 
 %.depend: %.cpp

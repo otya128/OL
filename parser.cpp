@@ -2,15 +2,42 @@
 #include "stdafx.h"
 #include <sstream>
 #include "parser.h"
+#include <stdlib.h>
 #include <stack>
 #include "Function.h"
 #include "GC.h"
 #include "langException.h"
 #include "Class.h"
 #include "dagger.h"
+#ifndef _WIN32
+#define wcstombs_s(a,b,c,d,e) wcstombs(b,d,e)
+typedef int errno_t;
+#define _TRUNCATE ((size_t)-1)
+#define mbstowcs_s(a,b,c,d,e) mbstowcs(b,d,e)
+#endif
 //#include "parserEnum.h"
 #define newFunction(a,a1,a2,a3) new Function(a,a1,a2,a3)
 std::string getlinestring(std::string input, int index);
+namespace lang
+{
+	template <class T>
+	class stack : public std::vector<T>
+	{
+	public:
+		void push(const T& __x)
+		{
+			this->push_back(__x);
+		}
+		void pop()
+		{
+			this->pop_back();
+		}
+		T top()
+		{
+			return this->at(this->size() - 1);
+		}
+	};
+}
 namespace lang
 {
 #define HASHCLASS   1107
@@ -78,7 +105,11 @@ namespace lang
 	{
 		return c >= '0'&&c <= '9';
 	}
+#ifdef _WIN32
 #define WARNINGS(level, ...) {char buf[512];sprintf_s(buf,__VA_ARGS__);WARNING(buf, level);}
+#else
+#define WARNINGS(level, ...) {char buf[512];sprintf(buf,__VA_ARGS__);WARNING(buf, level);}
+#endif
 	void parser::WARNING(const char* param, int level)
 	{
 		if (level <= error_level)
@@ -114,7 +145,9 @@ namespace lang
 		}
 		BlockStruct& operator = (BlockStruct& a)
 		{
-			return BlockStruct(a);
+			this->type = a.type;
+			this->name = a.name;
+			return (BlockStruct&)(*this)/*BlockStruct(a)*/;
 		}
 	};
 	void parser::function()
@@ -126,11 +159,11 @@ namespace lang
 		this->runner->variable.add("double", new DoubleType());
 		this->runner->variable.add("char", new CharType());
 		this->runner->variable.add("wchar", new WCharType());
-		lang::gc = new Ç™Ç◊Ç±ÇÍ(this->runner);
+		lang::gc = new gabekore(this->runner);
 		int funcRead = 0, classRead = 0;
 		std::string funcName; std::string className;
 		std::vector<std::string>* argList = nullptr;//new std::vector<std::string>();
-		std::stack<BlockStruct> funcStack;
+		lang::stack<BlockStruct> funcStack;
 		int func = 0, parent = 0, bracket = 0;
 		size_t class_read_stack_index = 0;
 		std::string namesp; int namespread(0);
@@ -181,7 +214,7 @@ namespace lang
 						if (funcStack.top().type == sts::NameSpace)
 						{
 							namesp.clear();
-							auto cont = funcStack._Get_container();
+							auto cont = funcStack;//._Get_container();
 							//if( funcStack.size()>=2)for(size_t i = funcStack.size() - 2;i>=0;i--)
 
 							if (funcStack.size() >= 2)
@@ -421,7 +454,7 @@ namespace lang
 	void parser::namespaceparse()
 	{
 		std::string namesp;
-		std::stack<BlockStruct> funcStack;
+		lang::stack<BlockStruct> funcStack;
 		std::string empty;
 		for (int i = 0; i < this->parsers.size(); i++)
 		{
@@ -497,7 +530,7 @@ namespace lang
 						if (funcStack.top().type == sts::NameSpace)
 						{
 							namesp.clear();
-							auto cont = funcStack._Get_container();
+							auto cont = funcStack;// ._Get_container();
 							if (funcStack.size() >= 2)
 #if _MSC_VER >=1800
 							for (size_t i = 0; i < funcStack.size() - 1; i++)
@@ -550,7 +583,7 @@ namespace lang
 	}
 	void parser::staticparse()
 	{
-		std::stack<BlockStruct> funcStack;
+		lang::stack<BlockStruct> funcStack;
 		std::string namesp;
 		std::string varname;
 		int read = 0, block = 0;
@@ -628,7 +661,7 @@ namespace lang
 						if (funcStack.top().type == sts::NameSpace)
 						{
 							namesp.clear();
-							auto cont = funcStack._Get_container();
+							auto cont = funcStack;//._Get_container();
 							//if( funcStack.size() >= 2)for(size_t i = funcStack.size() - 2;i>=0;i--)
 
 							if (funcStack.size() >= 2)
@@ -893,7 +926,7 @@ namespace lang
 							sts = parserStatus::ReadDouble;
 							break;
 						}
-						this->parsers.push_back(new parseObj(std::atoi(iden->c_str()), startindex, i - 1));
+						this->parsers.push_back(new parseObj(atoi(iden->c_str()), startindex, i - 1));
 						iden->clear();//!!!!ÉRÉsÅ[Ç≥ÇÍÇÈÇÃÇ≈clear Ç∑ÇÈ!!!!
 						sts = parserStatus::None;
 						goto None;

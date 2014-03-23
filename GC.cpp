@@ -98,7 +98,7 @@ if (obj.second != count)
 		//_TCHAR buf[256];
 		//_tprintf_s(buf,"count:%d\tmax%d\n",objectCount,GCtimig);
 		char buf[256];
-		sprintf_s(buf, "count:%d\tmax%d\n", objectCount, GCtimig);
+		sprintf(buf, "count:%d\tmax%d\n", objectCount, GCtimig);
 		OutputDebugStringA(buf);
 		NowGabekore = false;
 	}

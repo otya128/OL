@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "scope.h"
 //#include "variable.h"
-#include <tchar.h>
+//#include <tchar.h>
 #include <map>
 #include <memory>
 #include <vector>
@@ -756,10 +756,10 @@ namespace lang
 			case parserEnum::minusminus:
 			case parserEnum::plusplus:
 			case parserEnum::notnot:
-			case parserEnum::not:
+			case parserEnum::_not:
 			case parserEnum::plus:
 			case parserEnum::minus:
-			case parserEnum::and:
+			case parserEnum::_and:
 			case parserEnum::multiply:
 			case parserEnum::_new:
 				return 3;
@@ -799,11 +799,11 @@ namespace lang
 			case parserEnum::equalequal:
 			case parserEnum::notequal:
 				return 9;
-			case parserEnum::and:
+			case parserEnum::_and:
 				return 10;
-			case parserEnum::xor:
+			case parserEnum::_xor:
 				return 11;
-			case parserEnum::or:
+			case parserEnum::_or:
 				return 12;
 			case parserEnum::andand:
 				return 13;
@@ -944,14 +944,14 @@ namespace lang
 					break;
 				case parserEnum::minus:
 					UOP;
-					buf = eval(object, i, 17, evals::none, thisop);
+					buf = eval(object, i, 17, (evals)0, thisop);
 					object = (Object::unaryminus(buf));
 					index = i; binaryoperation = index + 1;
 					OP2
 						break;
 				case parserEnum::plus:
 					UOP;
-					buf = eval(object, i, 17, evals::none, thisop);
+					buf = eval(object, i, 17, (evals)0, thisop);
 					object = (Object::unaryplus(buf));
 					index = i; binaryoperation = index + 1;
 					OP2

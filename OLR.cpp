@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include <cmath>
+#include <stdlib.h>
 #include <sstream>
 #include <iosfwd>
 #include "Function.h"
@@ -11,6 +13,9 @@
 #include "GTKOLWindow.h"
 #else
 #include "OLWindow.h"
+#endif
+#ifndef _WIN32
+#define fopen_s(a,b,c) *a = fopen(b,c) 
 #endif
 //ëgÇ›çûÇ›ä÷êîíB
 namespace lang
@@ -206,7 +211,7 @@ namespace lang
 		langObject window_create(std::vector<langObject> arg)
 		{
 			ObjectWin* a = new ObjectWin();
-			std::string& str2 = arg[0]->toString();
+			std::string str2 = arg[0]->toString();
 			//int len = str2.length();
 			//TCHAR* buf = new TCHAR[len * 2];
 			//buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
@@ -241,7 +246,7 @@ namespace lang
 		langObject window_settext(std::vector<langObject> arg)
 		{
 			ObjectWin* a = static_cast<ObjectWin*>(arg[0]);
-			std::string& str2 = arg[1]->toString();
+			std::string str2 = arg[1]->toString();
 			//int len = str2.length();
 			//TCHAR* buf = new TCHAR[len * 2 + 1];
 			//buf[MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
@@ -262,7 +267,7 @@ namespace lang
 		{
 			ObjectWin* parent = dynamic_cast<ObjectWin*>(arg[0]);
 			ObjectBtn* a = new ObjectBtn();
-			std::string& str2 = arg[1]->toString();
+			std::string str2 = arg[1]->toString();
 			//int len = str2.length();
 			//TCHAR* buf = new TCHAR[len * 2];
 			//buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
@@ -277,7 +282,7 @@ namespace lang
 		{
 			ObjectWin* parent = dynamic_cast<ObjectWin*>(arg[0]);
 			ObjectLabel* a = new ObjectLabel();
-			std::string& str2 = arg[1]->toString();
+			std::string str2 = arg[1]->toString();
 			//int len = str2.length();
 			//TCHAR* buf = new TCHAR[len * 2];
 			//buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
@@ -292,7 +297,7 @@ namespace lang
 		{
 			ObjectWin* parent = dynamic_cast<ObjectWin*>(arg[0]);
 			ObjectTextBox* a = new ObjectTextBox();
-			std::string& str2 = arg[1]->toString();
+			std::string str2 = arg[1]->toString();
 			//int len = str2.length();
 			//TCHAR* buf = new TCHAR[len * 2 + 1];
 			//buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
@@ -329,7 +334,7 @@ namespace lang
 		{
 			ObjectWin* parent = /*dynamic*/static_cast<ObjectWin*>(arg[0]);
 			ObjectCheckBox* a = new ObjectCheckBox();
-			std::string &str2 = arg[1]->toString();
+			std::string str2 = arg[1]->toString();
 			//int len = str2.length();
 			//TCHAR* buf = new TCHAR[len * 2];
 			//buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');
@@ -363,7 +368,7 @@ namespace lang
 		langObject window_setfont(std::vector<langObject> arg)
 		{
 			ObjectWin* a = (ObjectWin*)arg[0];
-			std::string& str2 = arg[1]->toString();
+			std::string str2 = arg[1]->toString();
 			//int len = str2.length();
 			//TCHAR* buf = new TCHAR[len * 2];
 			//buf[MultiByteToWideChar(CP_OEMCP,MB_PRECOMPOSED,str2.c_str(),len,buf,len * 2)] = _T('\0');

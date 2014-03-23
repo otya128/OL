@@ -5,7 +5,11 @@
 #pragma comment(lib, "C:/GTK/LIB/gobject-2.0.lib")
 #pragma comment(lib, "C:/GTK/LIB/gtk-win32-2.0.lib")
 #pragma comment(lib, "C:/gTK/LIB/pango-1.0.lib")
+#else
+#define strcpy_s(a,b,c) strcpy(a,c)
+#define strncpy_s(a,b,c,d) strncpy(a,c,d)
 #endif
+#include <string.h>
 #include <vector>
 #include <map>
 #define GTK_ENABLE_BROKEN
@@ -17,12 +21,12 @@
 {
     namespace gtk
     {
-        template<class T = void*>
+        template<class T>
         class eventargs
         {
         public:
-            T Arg;
-            eventargs(T a) : Arg(a)
+			T Arg;
+			eventargs(T a) : Arg(a)
             {
             }
             //Button
@@ -32,15 +36,15 @@
         typedef void (*EventFunc)(eventargs<void*>);
         typedef void (*WindowEventFunc)(eventargs<OLWindow*>);
         typedef void (*ButtonEventFunc)(eventargs<Button*>);
-        template<class T = void*, class EFunc = EventFunc>
+        template<class T, class EFunc>
         class Event
         {
             std::vector<EFunc> even;
         public:
-            Event::Event()
+            Event()
             {
             }
-            void operator ()(eventargs<T> er)
+			void operator ()(eventargs<T> er)
             {
                 if(even.size())
                     for(int i=0;i<even.size();i++)
@@ -57,7 +61,7 @@
         typedef Event<OLWindow*,WindowEventFunc> WindowEvent;
         class OLWindow
         {
-            void OLWindow::ctor(const gchar* title, int nWidth,int nHeight);
+            void ctor(const gchar* title, int nWidth,int nHeight);
         public:
             static std::map<GtkWidget*,OLWindow*> windowmap;
             virtual void Copy(const OLWindow& copy)
@@ -69,9 +73,9 @@
             WindowEvent OnSizeChange;
             GtkWidget* window;
             GtkFixed *fixed;
-            OLWindow::OLWindow();
+            OLWindow();
             //OLWindow::OLWindow(const char* title);
-            OLWindow::OLWindow(const gchar* title,int nWidth,int nHeight);
+            OLWindow(const gchar* title,int nWidth,int nHeight);
             //OLWindow(const char* title, int X,int Y,int nWidth,int nHeight);
             void OLWindow::Show();
             virtual ~OLWindow(void);
