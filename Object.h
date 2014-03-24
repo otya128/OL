@@ -145,6 +145,7 @@ namespace lang
 		String(std::string* i);
 		String(std::string &i);
 		String(std::string i);
+		String(char* i);
         ~String(void);
         virtual std::string toString();
     };

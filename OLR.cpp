@@ -93,7 +93,7 @@ namespace lang
 		}
 		langObject VarPtr(std::vector<langObject> arg)
 		{
-			return newInt((int)arg[0]->getPointer());
+			return newInt(reinterpret_cast<int>(arg[0]->getPointer()));
 		}
 		langObject WriteMemory(std::vector<langObject> arg)
 		{
@@ -244,7 +244,7 @@ namespace lang
 			//result = newString(&std::string(mbs));
 			//delete [] mbs;
 			//delete [] text;
-			result = newString(&std::string(a->win->GetText()));
+			result = newString(a->win->GetText());
 			return result;
 		}
 		langObject window_settext(std::vector<langObject> arg)

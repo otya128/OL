@@ -147,6 +147,11 @@ namespace lang
 		this->type = new Type(PreType::_String);
 		this->ptr = (void*)new std::string(i);
 	}
+	String::String(char* i)
+	{
+		this->type = new Type(PreType::_String);
+		this->ptr = (void*)new std::string(i);
+	}
 	String::~String(void)
 	{
 		//delete this->type;
