@@ -5,7 +5,7 @@ OBJS := $(SOURCES:.cpp=.o)
 DEPEND_DIR := depend
 DEPENDS := $(addprefix $(DEPEND_DIR)/,$(SOURCES:.cpp=.depend))
 CXX := g++
-CPPFLAGS := -std=c++11 `pkg-config gtk+-2.0 --libs --cflags` -fpermissive  -w $(DEBUG) 
+CPPFLAGS := -std=c++11 `pkg-config gtk+-2.0 --libs --cflags` -fpermissive  -w $(DEBUG) -U_WIN32 
 .PHONY: all
 all: $(PROGRAM)
 $(PROGRAM): $(OBJS) 
