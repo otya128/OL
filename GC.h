@@ -37,10 +37,10 @@ namespace lang
         void addObject(Object* obj);
         void start(void);
         void search(scope* root);
-        void GC::search(langObject object);
-        void GC::search(langClassObject object);
-        void GC::free_(langObject object);
-        void GC::uncontroll(langObject object);
+        void search(langObject object);
+        void search(langClassObject object);
+        void free_(langObject object);
+        void uncontroll(langObject object);
         GC(scope* root);
         ~GC(void);
     };
