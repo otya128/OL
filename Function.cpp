@@ -158,20 +158,20 @@ namespace lang
     }
     langObject Object_ToString(langObject obj, std::vector<langObject> argList)
     {
-        return newString(&obj->toString());
+        return newString(obj->toString());
     }
     langObject String_Substring(langObject obj, std::vector<langObject> argList)
     {
         if(argList.size() == 1 && obj is _String)
         {
             auto bug = (langString)obj;
-            return newString(&bug->getString()->substr(Int::toInt(argList[0])));
+            return newString(bug->getString()->substr(Int::toInt(argList[0])));
         }
         else
             if(argList.size() == 2 && obj is _String)
             {
                 auto bug = (langString)obj;
-                return newString(&bug->getString()->substr(Int::toInt(argList[0]), Int::toInt(argList[1])));
+                return newString(bug->getString()->substr(Int::toInt(argList[0]), Int::toInt(argList[1])));
             }
             throw lang::langRuntimeException("ˆø”‚Ì”‚ªˆê’v‚µ‚Ü‚¹‚ñ[String.Substring(,)]");
     }

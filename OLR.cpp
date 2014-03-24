@@ -150,7 +150,7 @@ namespace lang
 		{
 			std::stringstream a;
 			a << std::this_thread::get_id();
-			return newString(&a.str());
+			return newString(a.str());
 		}
 #endif
 		langObject Fopen(std::vector<langObject> arg)

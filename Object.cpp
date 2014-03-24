@@ -137,6 +137,11 @@ namespace lang
 		this->ptr = (void*)new std::string(*i);
 
 	}
+	String::String(std::string &i)
+	{
+		this->type = new Type(PreType::_String);
+		this->ptr = (void*)new std::string(i);
+	}
 	String::~String(void)
 	{
 		//delete this->type;
@@ -315,8 +320,8 @@ namespace lang
 #define OPERA2ARGSINGLE(name) {auto clas = (langClassObject)obj1;\
 	auto func = (langFunction)clas->thisscope->variable[name]; \
 	if (func != nullptr && func is _Function)\
-	{\
-	auto ret = func->call(&std::vector<langObject>()); \
+	{auto arg = std::vector<langObject>(); \
+	auto ret = func->call(&arg); \
 	return ret; \
 	}\
 			else\
@@ -398,7 +403,7 @@ namespace lang
 				case PreType::_Double:
 					return newDouble(Double::toDouble(obj1) + Double::toDouble(obj2));
 				case _String:
-					return newString(&(obj1->toString() + obj2->toString()));
+					return newString((obj1->toString() + obj2->toString()));
 				case PreType::_ClassObject:
 				{auto clas = (langClassObject)obj1;
 				auto func = (langFunction)clas->thisscope->variable["plus"];

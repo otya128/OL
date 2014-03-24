@@ -635,7 +635,8 @@ namespace lang
 											auto e = instance->thisscope->variable["GetEnumerator"];
 											if (e is _Function)
 											{
-												auto en = (langClassObject)((langFunction)e)->call(&std::vector<langObject>());
+												auto arg = std::vector<langObject>();
+												auto en = (langClassObject)((langFunction)e)->call(&arg);
 												if (en is _ClassObject)
 												{
 													Current = (langFunction)(en->thisscope->variable["Current"]);
@@ -678,8 +679,8 @@ namespace lang
 								break;
 							case 7:
 							_foreach_7 :
-							{
-										   int result = Int::toInt(MoveNext->call(&std::vector<langObject>()));
+							{auto arg = std::vector<langObject>();
+										   int result = Int::toInt(MoveNext->call(&arg));
 										   if (result)
 										   {
 											   foreachscope->variable.add(*foreach_var, Current->call(&std::vector<langObject>()));

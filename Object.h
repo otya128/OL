@@ -142,7 +142,8 @@ namespace lang
         virtual langObject getMember(std::string& name);
         std::string* getString();
         void setString(std::string* i);
-        String(std::string* ptr);
+		String(std::string* ptr);
+		String(std::string &ptr);
         ~String(void);
         virtual std::string toString();
     };

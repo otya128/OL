@@ -32,7 +32,7 @@ namespace lang
     {
     public:
         Class* staticClass;
-        virtual std::string ClassObject::toString(void);
+        virtual std::string toString(void);
         ClassObject(Class* type);
         ~ClassObject(void);
     };

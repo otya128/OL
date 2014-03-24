@@ -105,7 +105,8 @@ namespace lang
         RECT rc;
         GetClientRect(hWnd, &rc);
         rc.right = width;
-        AdjustWindowRectEx(&rc, GetWindowLong(hWnd,GWL_STYLE),(BOOL)GetMenu(hWnd),GetWindowLong(hWnd,GWL_EXSTYLE));
+        AdjustWindowRectEx
+		rc, GetWindowLong(hWnd,GWL_STYLE),(BOOL)GetMenu(hWnd),GetWindowLong(hWnd,GWL_EXSTYLE));
         return rc.right;
         }*/
         LONG SetHeight(LONG height);
