@@ -380,7 +380,7 @@ namespace lang
 						}
 						break;
 					case en::_for:
-						__v('ω')v__
+						__v('ω')v___
 #pragma region for文
 							switch (findex)
 						{
@@ -680,44 +680,44 @@ namespace lang
 							case 7:
 							_foreach_7 :
 							{auto arg = std::vector<langObject>();
-										   int result = Int::toInt(MoveNext->call(&arg));
-										   if (result)
+									   int result = Int::toInt(MoveNext->call(&arg));
+									   if (result)
+									   {
+										   auto arg = std::vector<langObject>();
+										   foreachscope->variable.add(*foreach_var, Current->call(&arg));
+										   auto buf = foreachscope->run();
+										   if (foreachscope->status == en::returnStatus::_return)
 										   {
-												auto arg = std::vector<langObject>();
-											   foreachscope->variable.add(*foreach_var, Current->call(&arg));
-											   auto buf = foreachscope->run();
-											   if (foreachscope->status == en::returnStatus::_return)
-											   {
-												   this->status = foreachscope->status;
-												   foreachscope->refdec();
-												   return buf;
-											   }
-											   else
-											   if (foreachscope->status == en::returnStatus::_break)
-											   {
-												   this->index = this->blockSkip(this->index);
-												   status = en::none;
-												   foreachscope->refdec();
-												   foreahflag = 0;
-												   continue;
-											   }
-											   else
-											   if (foreachscope->status != en::returnStatus::_continue && foreachscope->status != en::returnStatus::none_)
-											   {
-												   this->status = foreachscope->status;
-												   foreachscope->refdec();
-												   return buf;
-											   }
-											   this->index--;
+											   this->status = foreachscope->status;
+											   foreachscope->refdec();
+											   return buf;
 										   }
 										   else
+										   if (foreachscope->status == en::returnStatus::_break)
 										   {
 											   this->index = this->blockSkip(this->index);
 											   status = en::none;
 											   foreachscope->refdec();
 											   foreahflag = 0;
+											   continue;
 										   }
-										   break;
+										   else
+										   if (foreachscope->status != en::returnStatus::_continue && foreachscope->status != en::returnStatus::none_)
+										   {
+											   this->status = foreachscope->status;
+											   foreachscope->refdec();
+											   return buf;
+										   }
+										   this->index--;
+									   }
+									   else
+									   {
+										   this->index = this->blockSkip(this->index);
+										   status = en::none;
+										   foreachscope->refdec();
+										   foreahflag = 0;
+									   }
+									   break;
 							}
 									   break;
 						}
@@ -887,62 +887,104 @@ namespace lang
 					binaryoperation = index + 1;
 					break;
 				case _new:
-					if (*this->parsers[binaryoperation]->name == "Array")
+					/*if (*this->parsers[binaryoperation]->name == "Array")
 					{
-						binaryoperation++;
-						object = eval(NULLOBJECT, binaryoperation, 17);
-						//binaryoperation+=2;
-						index = binaryoperation;
-						binaryoperation = index + 1;
-						object = newArray(Int::toInt(object));
+					binaryoperation++;
+					object = eval(NULLOBJECT, binaryoperation, 17);
+					//binaryoperation+=2;
+					index = binaryoperation;
+					binaryoperation = index + 1;
+					object = newArray(Int::toInt(object));
 					}
-					else
-					{
-						object = eval(NULLOBJECT, binaryoperation, 0);
-						index = binaryoperation;
-						binaryoperation = index + 1;
+					else*/
+				{
+							 object = eval(NULLOBJECT, binaryoperation, 0);
+							 index = binaryoperation;
+							 binaryoperation = index + 1;
 
-						if (object->type->TypeEnum == PreType::_Class)
-						{
-							auto buf = (Class*)object;
-							object = newClassObject(buf);
-							if (this->parsers[binaryoperation]->pEnum == parserEnum::leftparent)
-							{
-								int thisop = Operator(this->parsers[binaryoperation]->pEnum);
-								j = index;
-								i = this->parentSkip(binaryoperation);
-								std::vector<langObject> arg;
-								index = index + 2;
-								while (index < i)
-								{
-									arg.push_back(eval(NULLOBJECT, index, 17));
-									index++;
-									if (this->parsers[index]->pEnum == parserEnum::comma)index++;
-								}
-								auto ctor = ((langClassObject)object)->thisscope->variable["ctor"];
-								if (ctor->type->TypeEnum == _Function)
-								{
-									try
-									{
-										object = langObject(static_cast<Function*>(ctor)->ctorcall(&arg));
-									}
-									catch (langRuntimeException ex)
-									{
-										throw langRuntimeException(ex.what(), ex.tokens, ex.funcstacktrace, static_cast<Function*>(ctor)->name.c_str(), ex.stacktrace);
-									}
-								}
-								index = i;
-								binaryoperation = index + 1;
-								i = index - 1;
-								OP4
-							}
-						}
+							 {
+								 auto buf = (Class*)object;
+								 if (this->parsers[binaryoperation]->pEnum == parserEnum::leftparent)
+								 {
+									 int thisop = Operator(this->parsers[binaryoperation]->pEnum);
+									 j = index;
+									 i = this->parentSkip(binaryoperation);
+									 std::vector<langObject> arg;
+									 index = index + 2;
+									 while (index < i)
+									 {
+										 arg.push_back(eval(NULLOBJECT, index, 17));
+										 index++;
+										 if (this->parsers[index]->pEnum == parserEnum::comma)index++;
+									 }
+									 if (object->type->TypeEnum == PreType::_Class)
+									 {
+										 object = newClassObject(buf);
+										 auto ctor = ((langClassObject)object)->thisscope->variable["ctor"];
+										 if (ctor->type->TypeEnum == _Function)
+										 {
+											 try
+											 {
+												 object = langObject(static_cast<Function*>(ctor)->ctorcall(&arg));
+											 }
+											 catch (langRuntimeException ex)
+											 {
+												 throw langRuntimeException(ex.what(), ex.tokens, ex.funcstacktrace, static_cast<Function*>(ctor)->name.c_str(), ex.stacktrace);
+											 }
+										 }
+									 }
+									 else
+									 {
 
-						else
-						{
-							throw lang::langRuntimeException("new はClass型でのみ有効です。");
-						}
-					}
+										 if (object->type->TypeEnum == _Type)
+										 {
+											 auto type = ((ObjectType*)object);
+											 try
+											 {
+												 object = type->create(arg);
+											 }
+											 catch (langRuntimeException ex)
+											 {
+												 std::stringstream ss;
+												 ss << lang::PreTypeName[type->TypeClass.TypeEnum] << " ctor";
+												 throw langRuntimeException(ex.what(), ex.tokens, ex.funcstacktrace, ss.str().c_str(), ex.stacktrace);
+											 }
+										 }
+									 }
+									 index = i;
+									 binaryoperation = index + 1;
+									 i = index - 1;
+									 OP4
+								 }
+								 else
+								 {
+									 if (object->type->TypeEnum == PreType::_Class)
+									 {
+										 object = newClassObject(buf);
+									 }
+									 else if (object->type->TypeEnum == _Type)
+									 {
+										 auto type = ((ObjectType*)object);
+										 try
+										 {
+											 auto arg = std::vector<langObject>();
+											 object = type->create(arg);
+										 }
+										 catch (langRuntimeException ex)
+										 {
+											 std::stringstream ss;
+											 ss << lang::PreTypeName[type->TypeClass.TypeEnum] << " ctor";
+											 throw langRuntimeException(ex.what(), ex.tokens, ex.funcstacktrace, ss.str().c_str(), ex.stacktrace);
+										 }
+									 }
+								 }
+							 }
+							 /*
+		else
+		{
+			throw lang::langRuntimeException("new はClass型でのみ有効です。");
+		}*/
+				}
 					break;
 				case parserEnum::minus:
 					UOP;
@@ -1033,7 +1075,7 @@ namespace lang
 						//object = 
 						index = i;
 						binaryoperation = index + 1;
-					}__v('ω')v__
+					}__v('ω')v___
 					if (isBuilt)
 						i = index - 1;
 					OP4

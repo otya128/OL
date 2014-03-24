@@ -583,7 +583,7 @@ void gui(void)
 						if (ifs.fail())
 						{
 							/*_tc*/printf(_OLT("file:%sを開けません\n"), filename);//std::cout<<"file:"<<filename<<"を開けません"<<std::endl;
-							__v('ω')v____v('ω')FAILEND; __v('ω')v____v('ω')
+							__v('ω')v_____v('ω')FAILEND; __v('ω')v_____v('ω')
 						}
 						while (ifs && getline(ifs, input)) {
 							ss << input << '\n';
@@ -701,9 +701,9 @@ void gui(void)
 				}
 				try
 				{
-					__v('ω')v__
-						__v('ω')v__
-						__v('ω')v__
+					__v('ω')v___
+						__v('ω')v___
+						__v('ω')v___
 						//#if AHO_GC //スレッドで動き続けるアホなGC
 #ifdef CPP11
 					if (ahogc)std::thread thd([]{ while (true) lang::gc->start(); });

@@ -188,20 +188,20 @@ namespace lang
         }
         void OLWindow::SetFont(const gchar* name, int size)
         {
-            //__v(L'ω')v__;
+            //__v(L'ω')v____;
             std::stringstream fontname;
             fontname << name << ' ' << size;
             gtk_widget_modify_font(window, pango_font_description_from_string(fontname.str().c_str()));
         }
         void OLWindow::SetFont(const gchar* name, int size,bool bold,bool italic,bool underline,bool strike)
         {
-            //__v(L'ω')v__;
+            //__v(L'ω')v____;
             std::stringstream fontname;
             gchar* utf8;
             ConvSJistoUtf8(name, utf8);
             fontname << utf8 << ' ' << size;
-            if(underline)fontname << ' ' << "Underline";
-            if(strike)fontname << ' ' << "Strike";
+            //if(underline)fontname << ' ' << "Underline";
+            //if(strike)fontname << ' ' << "Strike";
             auto font = pango_font_description_from_string(fontname.str().c_str());
             pango_font_description_set_style(font, italic ? PangoStyle::PANGO_STYLE_ITALIC : PangoStyle::PANGO_STYLE_NORMAL);
             pango_font_description_set_weight(font, bold ? PangoWeight::PANGO_WEIGHT_BOLD : PangoWeight::PANGO_WEIGHT_NORMAL);

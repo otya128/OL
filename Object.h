@@ -104,36 +104,49 @@ namespace lang
 	public:
 		ObjectType();
 		Type TypeClass;
+		virtual langObject create(std::vector<langObject> &arg);
 	};
 	class IntType : public Object
 	{
 	public:
 		IntType();
 		Type TypeClass;
+		virtual langObject create(std::vector<langObject> &arg);
 	};
 	class StringType : public Object
 	{
 	public:
 		StringType();
 		Type TypeClass;
+		virtual langObject create(std::vector<langObject> &arg);
 	};
 	class DoubleType : public Object
 	{
 	public:
 		DoubleType();
 		Type TypeClass;
+		virtual langObject create(std::vector<langObject> &arg);
 	};
 	class CharType : public Object
 	{
 	public:
 		CharType();
 		Type TypeClass;
+		virtual langObject create(std::vector<langObject> &arg);
 	};
 	class WCharType : public Object
 	{
 	public:
 		WCharType();
 		Type TypeClass;
+		virtual langObject create(std::vector<langObject> &arg);
+	};
+	class ArrayType : public Object
+	{
+	public:
+		ArrayType();
+		Type TypeClass;
+		virtual langObject create(std::vector<langObject> &arg);
 	};
     //typedef std::shared_ptr<Int> langInt;
     class String : public Object

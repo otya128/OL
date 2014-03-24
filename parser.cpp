@@ -41,6 +41,7 @@ namespace lang
 }
 namespace lang
 {
+	ArrayType* ArrayTypeObject;
 #define HASHCLASS   1107
 #define HASHTHIS    659
 #define HASHNEW     339
@@ -160,6 +161,9 @@ namespace lang
 		this->runner->variable.add("double", new DoubleType());
 		this->runner->variable.add("char", new CharType());
 		this->runner->variable.add("wchar", new WCharType());
+		ArrayTypeObject = new ArrayType();
+		this->runner->variable.add("array", ArrayTypeObject);
+		this->runner->variable.add("Array", ArrayTypeObject);
 		lang::gc = new gabekore(this->runner);
 		int funcRead = 0, classRead = 0;
 		std::string funcName; std::string className;

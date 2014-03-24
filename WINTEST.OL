@@ -68,7 +68,7 @@ var button1 = new OL::GUI::Button(form1,"Button",0,0,128,24);
 var button2 = new OL::GUI::Button(form1,"Click!",0,40,128,24);
 var label1 = new OL::GUI::Label(form1,"Hello,World!!",0,24,128,16);
 var textbox1 = new OL::GUI::TextBox(form1,"",0,64,256,192,true);
-var font = new OL::GUI::Font("‚l‚r ƒSƒVƒbƒN",20,true,true,true,true);
+var font = new OL::GUI::Font("‚l‚r –¾’©",20,true,true,true,true);
 textbox1.SetFont(font);
 //textbox1.SetMultiLine(false);
 var checkbox1 = new OL::GUI::CheckBox(textbox1,"CheckBox",0,88,128,16);

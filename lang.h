@@ -21,13 +21,13 @@ namespace lang
 	extern int error_level;
 	extern bool running;
 #ifdef _MSC_VER
-#define v__  
+#define v___  
 #define __v(x)  static_assert(x == 'ω', "KANI ERROR");
-#define v____v(x)  static_assert(x == 'ω', "KANI ERROR");
+#define v_____v(x)  static_assert(x == 'ω', "KANI ERROR");
 #else
-#define v__  
+#define v___  
 #define __v(x) 
-#define v____v(x) 
+#define v_____v(x) 
 #endif
 	//#define v（’ω’）v //たしかに~~~~~
 #define var_ auto
@@ -85,5 +85,7 @@ namespace lang
 	class DoubleType;
 	class CharType;
 	class WCharType;
+	class ArrayType;
+	extern ArrayType* ArrayTypeObject;
 }
 #endif

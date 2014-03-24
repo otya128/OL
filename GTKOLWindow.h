@@ -15,8 +15,8 @@
 #define GTK_ENABLE_BROKEN
 #include <gtk/gtk.h>
 #include "lang.h"
-//__v('KANI')v__//これだとKANI ERROR
-//__v('ω')v____v('ω')v____v('ω')v____v('ω')v____v('ω')v____v('ω')v____v('ω')v____v('ω')v__
+//__v('KANI')v___//これだとKANI ERROR
+//__v('ω')v_____v('ω')v_____v('ω')v_____v('ω')v_____v('ω')v_____v('ω')v_____v('ω')v_____v('ω')v___
     namespace lang
 {
     namespace gtk

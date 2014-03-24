@@ -724,25 +724,57 @@ namespace lang
 	{
 		this->type = new Type(PreType::_Type, "object");
 	}
+	langObject ObjectType::create(std::vector<langObject> &arg)
+	{
+		return new Object();
+	}
 	IntType::IntType() : TypeClass(_Int)
 	{
 		this->type = new Type(PreType::_Type, "int");
+	}
+	langObject IntType::create(std::vector<langObject> &arg)
+	{
+		return new Int(Int::toInt(arg[0]));
 	}
 	StringType::StringType() : TypeClass(_String)
 	{
 		this->type = new Type(PreType::_Type, "string");
 	}
+	langObject StringType::create(std::vector<langObject> &arg)
+	{
+		return new String(arg[0]->toString());
+	}
 	DoubleType::DoubleType() : TypeClass(_Double)
 	{
 		this->type = new Type(PreType::_Type, "double");
+	}
+	langObject DoubleType::create(std::vector<langObject> &arg)
+	{
+		return new Double(Double::toDouble(arg[0]));
 	}
 	CharType::CharType() : TypeClass(_Char)
 	{
 		this->type = new Type(PreType::_Type, "char");
 	}
+	langObject CharType::create(std::vector<langObject> &arg)
+	{
+		return new Char(Char::toChar(arg[0]));
+	}
 	WCharType::WCharType() : TypeClass(_WChar)
 	{
 		this->type = new Type(PreType::_Type, "wchar");
+	}
+	langObject WCharType::create(std::vector<langObject> &arg)
+	{
+		return new WChar(WChar::toWChar(arg[0]));
+	}
+	ArrayType::ArrayType() : TypeClass(_WChar)
+	{
+		this->type = new Type(PreType::_Type, "array");
+	}
+	langObject ArrayType::create(std::vector<langObject> &arg)
+	{
+		return new Array(Int::toInt(arg[0]));
 	}
 #pragma endregion
 	langObject Object::_is(langObject obj1, langObject obj2)
