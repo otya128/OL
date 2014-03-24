@@ -80,7 +80,7 @@
             //OLWindow::OLWindow(const char* title);
             OLWindow(const gchar* title,int nWidth,int nHeight);
             //OLWindow(const char* title, int X,int Y,int nWidth,int nHeight);
-            void OLWindow::Show();
+            void Show();
             virtual ~OLWindow(void);
             virtual void SetFont(const gchar* name, int size);
             virtual void SetFont(const gchar* name, int size,bool bold,bool italic,bool underline,bool strike);

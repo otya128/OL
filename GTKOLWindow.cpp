@@ -147,9 +147,9 @@ namespace lang
     {
         //copypaste http://www.lab.its55.com/?p=32
         int ConvSJistoUtf8(const char* pSource, char*& pDist )
-        {
+		{
             #ifndef _WIN32
-                pDist = pSource;
+                pDist = const_cast<char*>(pSource);
                 return TRUE;
             #else
             int pSize = 0;
