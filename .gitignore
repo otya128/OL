@@ -42,3 +42,4 @@ Makefile - コピー
 makefile~
 *.o
 *.stackdump
+*.9860
