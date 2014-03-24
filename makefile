@@ -4,7 +4,7 @@ SOURCES := $(wildcard *.cpp)
 OBJS := $(SOURCES:.cpp=.o)
 DEPEND_DIR := depend
 DEPENDS := $(addprefix $(DEPEND_DIR)/,$(SOURCES:.cpp=.depend))
-CXX := g++
+CXX := clang++
 CPPFLAGS := -std=c++11 `pkg-config gtk+-2.0 --libs --cflags` -fpermissive  -w $(DEBUG) 
 .PHONY: all
 all: $(PROGRAM)

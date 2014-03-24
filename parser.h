@@ -16,9 +16,9 @@ namespace lang
 #else
 		std::vector<std::pair<int,std::pair<std::string&,std::string> > > staticmemberevals;
 #endif
-		void parser::function();
-		void parser::namespaceparse();
-		void parser::staticparse();
+		void function();
+		void namespaceparse();
+		void staticparse();
 	public:
 		scope* runner;
 		std::vector<parseObj*> parsers;
