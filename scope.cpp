@@ -683,7 +683,8 @@ namespace lang
 										   int result = Int::toInt(MoveNext->call(&arg));
 										   if (result)
 										   {
-											   foreachscope->variable.add(*foreach_var, Current->call(&std::vector<langObject>()));
+												auto arg = std::vector<langObject>();
+											   foreachscope->variable.add(*foreach_var, Current->call(&arg));
 											   auto buf = foreachscope->run();
 											   if (foreachscope->status == en::returnStatus::_return)
 											   {

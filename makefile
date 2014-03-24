@@ -4,8 +4,13 @@ SOURCES := $(wildcard *.cpp)
 OBJS := $(SOURCES:.cpp=.o)
 DEPEND_DIR := depend
 DEPENDS := $(addprefix $(DEPEND_DIR)/,$(SOURCES:.cpp=.depend))
+<<<<<<< HEAD
 CXX := g++
 CPPFLAGS := -std=c++11 `pkg-config gtk+-2.0 --libs --cflags` -fpermissive  -w $(DEBUG) -U_WIN32 
+=======
+CXX := clang++
+CPPFLAGS := -std=c++11 `pkg-config gtk+-2.0 --libs --cflags` -fpermissive  -w $(DEBUG) 
+>>>>>>> 4433482f70c4800b06ec420021eb3790717ccdfd
 .PHONY: all
 all: $(PROGRAM)
 $(PROGRAM): $(OBJS) 

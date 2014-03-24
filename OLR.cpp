@@ -93,7 +93,8 @@ namespace lang
 		}
 		langObject VarPtr(std::vector<langObject> arg)
 		{
-			return newInt(reinterpret_cast<int>(arg[0]->getPointer()));
+			auto i = arg[0]->getPointer();
+			return newInt(*reinterpret_cast<int*>(&i));
 		}
 		langObject WriteMemory(std::vector<langObject> arg)
 		{
