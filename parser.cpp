@@ -193,6 +193,7 @@ namespace lang
 		{
 			WARNINGS(0, "syntax error [no leftparent][lambda]%s", getlinestring(this->program, token->sourcestartindex).c_str())
 		}
+		if (!isparentlambda) argindex++;
 		std::reverse(arg.begin(), arg.end());
 		int endindex = index + 1;
 		int parent = 0, block = 0, bracket = 0;
