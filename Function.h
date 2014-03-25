@@ -39,9 +39,11 @@ namespace lang
 	public:
 		int endindex;
 		virtual langObject call(std::vector<langObject>* argList);
-		Lambda(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index, int endindex);
-		Lambda(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index, int endindex);
+		Lambda(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index, int endindex, bool isexp);
+		Lambda(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index, int endindex, bool isexp);
 		Lambda(Lambda* f, lang::scope* this_scope);
+		bool NoExpLambda;
+		int startindex;
 	};
     extern langObject (*FuncTable[])(langObject, std::vector<langObject>); 
     class SpecialFunction : public Function

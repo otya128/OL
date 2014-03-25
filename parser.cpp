@@ -196,11 +196,20 @@ namespace lang
 		std::reverse(arg.begin(), arg.end());
 		int endindex = index + 2;
 		int parent = 0, block = 0, bracket = 0;
+		bool isexp = false,isparent = false;
+		if (this->parsers[endindex]->pEnum == blockstart)
+		{
+			isexp = true;
+		};
+		if (this->parsers[index + 1]->pEnum == leftparent)
+		{
+			isparent = true;
+		}
 		for (;; endindex++)
 		{
 			parseObj* token = this->parsers[endindex];
 			//すべて0ならtrue
-			if (!(parent || block || bracket))
+			if (!(parent + block + bracket))
 			{
 				if (token->pEnum == semicolon)break;
 				if (token->pEnum == rightparent)break;
@@ -217,9 +226,10 @@ namespace lang
 				if (token->pEnum == rightbracket)bracket--;
 			}
 		}
+		index = index + isparent;
 		std::stringstream ss;
-		ss << "lambda" << index << '-' << endindex;
-		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1,endindex);
+		ss << "lambda" << index + 1 << '-' << endindex;
+		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1, endindex/* + 1*/, isexp);
 		this->parsers[argindex]->ptr = l;
 	}
 	void parser::function()

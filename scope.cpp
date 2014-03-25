@@ -861,7 +861,7 @@ namespace lang
 				langLambda l = (langLambda)this->parsers[index]->ptr;// new Lambda((langLambda)this->parsers[index]->ptr, this);
 				if (l->is_lambda)
 				{
-					index = l->endindex + 1;
+					index = l->endindex ;
 					binaryoperation = index + 1;
 					object = new Lambda(l, this);
 				}

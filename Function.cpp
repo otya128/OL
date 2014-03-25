@@ -98,20 +98,22 @@ namespace lang
         working = false;
         return /*std::shared_ptr<Object>*/( buf);
 	}
-	Lambda::Lambda(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index, int endindex)
+	Lambda::Lambda(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index, int endindex, bool isexp)
 		: Function(name, argList, scope, index)
 	{
 		this->is_lambda = true;
 		this->type->name = this->name.c_str();
 		this->endindex = endindex;
+		this->NoExpLambda = isexp;
 		//this->type->TypeEnum = _Lambda;
 	}
-	Lambda::Lambda(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index, int endindex)
+	Lambda::Lambda(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index, int endindex, bool isexp)
 		: Function(name, argList, scope, index)
 	{
 		this->is_lambda = true;
 		this->type->name = this->name.c_str();
 		this->endindex = endindex;
+		this->NoExpLambda = isexp;
 		//this->type->TypeEnum = _Lambda;
 	}
 	Lambda::Lambda(Lambda* f, lang::scope* this_scope) : Function(f, this_scope)
@@ -119,10 +121,12 @@ namespace lang
 		this->is_lambda = true;
 		this->type->name = this->name.c_str();
 		this->endindex = f->endindex;
+		this->NoExpLambda = f->NoExpLambda;
 		//this->type->TypeEnum = _Lambda;
 	}
 	langObject Lambda::call(std::vector<langObject>* argList)
 	{
+		if (this->NoExpLambda) return Function::call(argList);
 		working = true;
 		auto sc = new lang::scope(this->scope->parsers, this->scope/*.get()*/, this->scope->_this);
 		if (name.size() && name.at(0) == '#')sc->variable.add(name.substr(1), this);//new Function(this,sc));
