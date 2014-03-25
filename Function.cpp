@@ -5,8 +5,25 @@
 namespace lang
 {
 
+	Function::Function(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index)
+	{
+		this->is_lambda = false;
+		this->working = false;
+#ifdef CPP11
+		this->thread = nullptr;
+#endif
+		this->type = new Type(PreType::_Function);
+		this->name = name;
+		this->argList = new std::vector<std::string>(argList);
+		this->thisscope = nullptr;
+		this->scope = scope;//std::make_shared<lang::scope>(*scope);
+		if (this->scope != nullptr)scope->refinc();
+		this->index = index;
+	}
     Function::Function(std::string name,std::vector<std::string>* argList,lang::scope* scope,int index)
-    {
+	{
+		this->is_lambda = false;
+		this->working = false;
 #ifdef CPP11
         this->thread = nullptr;
 #endif
@@ -19,12 +36,14 @@ namespace lang
         this->index = index;
     }
     Function::Function(Function* f,lang::scope* this_scope)
-    {
+	{
+		this->is_lambda = false;
+		this->working = false;
 #ifdef CPP11
         this->thread = nullptr;
 #endif
         //if(f is _Function){}
-        this->type = new Type(f->type->TypeEnum,(char*)f->type->name);
+		this->type = new Type(f->type->TypeEnum, (char*)f->type->name);
         this->name = f->name; 
         this->argList = new std::vector<std::string>(*f->argList);
         this->scope = f->scope;
@@ -78,7 +97,48 @@ namespace lang
         sc->del();
         working = false;
         return /*std::shared_ptr<Object>*/( buf);
-    }
+	}
+	Lambda::Lambda(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index, int endindex)
+		: Function(name, argList, scope, index)
+	{
+		this->is_lambda = true;
+		this->type->name = this->name.c_str();
+		this->endindex = endindex;
+		//this->type->TypeEnum = _Lambda;
+	}
+	Lambda::Lambda(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index, int endindex)
+		: Function(name, argList, scope, index)
+	{
+		this->is_lambda = true;
+		this->type->name = this->name.c_str();
+		this->endindex = endindex;
+		//this->type->TypeEnum = _Lambda;
+	}
+	Lambda::Lambda(Lambda* f, lang::scope* this_scope) : Function(f, this_scope)
+	{
+		this->is_lambda = true;
+		this->type->name = this->name.c_str();
+		this->endindex = f->endindex;
+		//this->type->TypeEnum = _Lambda;
+	}
+	langObject Lambda::call(std::vector<langObject>* argList)
+	{
+		working = true;
+		auto sc = new lang::scope(this->scope->parsers, this->scope/*.get()*/, this->scope->_this);
+		if (name.size() && name.at(0) == '#')sc->variable.add(name.substr(1), this);//new Function(this,sc));
+		sc->type = en::scopeType::_function;
+		sc->startIndex = this->index;// + 1;//+1‚µ‚ñ‚ ‚¢‚Æreturn‚ª–³‚¢ŠÖ”‚Åreturn‚³‚ê‚È‚­‚È‚é
+		if (this->argList->size() != argList->size())
+			throw langRuntimeException("ˆø”‚Ì”‚ªˆá‚¤");
+		for (int i = 0; i<this->argList->size(); i++)
+		{
+			sc->variable.add((*this->argList)[i], (*argList)[i]);
+		}
+		auto buf = sc->eval(NULLOBJECT, sc->startIndex);//run();
+		sc->del();
+		working = false;
+		return /*std::shared_ptr<Object>*/(buf);
+	}
     langObject Function::ctorcall(std::vector<langObject>* argList)
     {
         auto sc =new lang::scope(this->scope->parsers,this->scope,this->scope->_this);

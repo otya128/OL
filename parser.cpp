@@ -18,7 +18,7 @@ typedef int errno_t;
 #endif
 //#include "parserEnum.h"
 #define newFunction(a,a1,a2,a3) new Function(a,a1,a2,a3)
-std::string getlinestring(std::string input, int index);
+std::string getlinestring(std::string &input, int index);
 namespace lang
 {
 	template <class T>
@@ -147,11 +147,81 @@ namespace lang
 		}
 		BlockStruct& operator = (BlockStruct& a)
 		{
-			this->type = a.type;
-			this->name = a.name;
-			return (BlockStruct&)(*this)/*BlockStruct(a)*//*;
+		this->type = a.type;
+		this->name = a.name;
+		return (BlockStruct&)(*this)/*BlockStruct(a)*//*;
 		}*/
 	};
+	void parser::lambdaparse(int index)
+	{
+		int argindex = index - 1;
+		bool isparentlambda = false;
+		if (this->parsers[index - 1]->pEnum == rightparent)
+		{
+			argindex -= 1;
+			isparentlambda = true;
+		}
+		int lambda_i = 0;
+		parseObj* token = this->parsers[argindex];
+		std::vector<std::string> arg;
+		for (;argindex >= 0; argindex--)
+		{
+			parseObj* token = this->parsers[argindex];
+			if (token->pEnum != identifier && token->pEnum != comma)break;
+			//parseObj* prevtoken = argindex ? this->parsers[argindex - 1] : nullptr;
+			if (token->pEnum == identifier)
+			if (!lambda_i)
+			{
+				arg.push_back(*token->name);
+				lambda_i++;
+			}
+			else
+			{
+				if (lambda_i > 1)
+				{
+					WARNINGS(0, "syntax error[lambda]%s", getlinestring(this->program, token->sourcestartindex).c_str())
+				}
+				lambda_i++;
+			}
+			if (token->pEnum == comma)
+			{
+				lambda_i = 0;
+			}
+		}
+		//argindex++;
+		if (isparentlambda && this->parsers[argindex]->pEnum != leftparent)
+		{
+			WARNINGS(0, "syntax error [no leftparent][lambda]%s", getlinestring(this->program, token->sourcestartindex).c_str())
+		}
+		std::reverse(arg.begin(), arg.end());
+		int endindex = index + 2;
+		int parent = 0, block = 0, bracket = 0;
+		for (;; endindex++)
+		{
+			parseObj* token = this->parsers[endindex];
+			//すべて0ならtrue
+			if (!(parent || block || bracket))
+			{
+				if (token->pEnum == semicolon)break;
+				if (token->pEnum == rightparent)break;
+				if (token->pEnum == blockend)break;
+				if (token->pEnum == rightbracket)break;
+			}
+			else
+			{
+				if (token->pEnum == leftparent)parent++;
+				if (token->pEnum == blockstart)block++;
+				if (token->pEnum == leftbracket)bracket++;
+				if (token->pEnum == rightparent)parent--;
+				if (token->pEnum == blockend)block--;
+				if (token->pEnum == rightbracket)bracket--;
+			}
+		}
+		std::stringstream ss;
+		ss << "lambda" << index << '-' << endindex;
+		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1,endindex);
+		this->parsers[argindex]->ptr = l;
+	}
 	void parser::function()
 	{
 		this->runner = new scope(this->parsers);
@@ -175,6 +245,7 @@ namespace lang
 		int extendname;
 		membertype member = nullptr;
 		membertype staticmember = nullptr;
+		int classanonymous = 0;//0の位置では宣言できないので問題ない
 		bool isstatic = false;
 		for (int i = 0; i < this->parsers.size(); i++)
 		{
@@ -256,6 +327,9 @@ namespace lang
 				case parserEnum::_namespace:
 					namespread++;
 					break;
+				case parserEnum::lambda:
+					this->lambdaparse(i);
+					break;
 			}
 			switch (classRead)
 			{
@@ -270,15 +344,26 @@ namespace lang
 					}
 					break;
 				case 1:
-					if (token->pEnum != identifier)
+					classanonymous = 0;
+					if (token->pEnum != identifier)if (token->pEnum != blockstart && token->pEnum != colon)
 						ERROR(("クラスの名前が識別子ではありません" + getlinestring(this->program, token->sourcestartindex)).c_str());
+					else
+					{
+						classanonymous = i;
+						className = namesp + "classanonymous";
+						if (!member)member = new membertype_(); else delete member;
+						if (!staticmember)staticmember = new membertype_(); else delete staticmember;
+						classRead++;
+						extendname = -1;
+						goto case2;
+					}
 					className = namesp + *token->name;
 					if (member == nullptr)member = new membertype_(); else delete member;
 					if (staticmember == nullptr)staticmember = new membertype_(); else delete staticmember;
 					classRead++;
 					extendname = -1;
 					break;
-				case 2:
+				case 2:case2 :
 					if (token->pEnum == colon)
 					{
 						classRead = 5;
@@ -312,7 +397,9 @@ namespace lang
 					{
 						auto classs = newClass(className, 0, member, this->runner, staticmember);
 						if (extendname != -1)this->extendslist.push_back(std::pair<int, langClass>(extendname, classs));
-						this->runner->variable.add(className, classs);
+						if (!classanonymous)this->runner->variable.add(className, classs);
+						else
+							this->parsers[classanonymous - 1]->ptr = classs;
 						member = nullptr;
 						staticmember = nullptr;
 						classRead = 0;
@@ -338,7 +425,7 @@ namespace lang
 #ifdef CPP11
 								staticmemberevals.push_back(std::tuple<int, std::string&, std::string>(i + 2, *token->name, className));
 #else
-								staticmemberevals.push_back(std::pair<int,std::pair<std::string&,std::string> >(i + 2,std::pair<std::string&,std::string>(*token->name,className)));
+								staticmemberevals.push_back(std::pair<int, std::pair<std::string&, std::string> >(i + 2, std::pair<std::string&, std::string>(*token->name, className)));
 #endif
 							}
 							else
@@ -496,7 +583,7 @@ namespace lang
 							for (auto i : this->usings)
 							{
 #else
-							for( auto it = this->usings.begin(); it != this->usings.end(); ++it )
+							for (auto it = this->usings.begin(); it != this->usings.end(); ++it)
 							{
 								auto i = *it;
 #endif
@@ -540,7 +627,7 @@ namespace lang
 #if TRUE//_MSC_VER >=1800
 							for (size_t i = 0; i < funcStack.size() - 1; i++)
 #else
-							for(size_t i = funcStack.size() - 1;i>=0;i--)
+							for (size_t i = funcStack.size() - 1; i >= 0; i--)
 #endif
 								//for(size_t i = 0;i<=funcStack.size() - 2;i++)
 							{
@@ -575,14 +662,14 @@ namespace lang
 		foreach_(auto &&i in_ this->staticmemberevals)
 		{
 #else
-		for( auto it = this->staticmemberevals.begin(); it != this->staticmemberevals.end(); ++it )
+		for (auto it = this->staticmemberevals.begin(); it != this->staticmemberevals.end(); ++it)
 		{
 			auto i = *it;
 #endif
 #if CPP11
 			((langClass)this->runner->variable[std::get<2>(i)])->thisscope->variable.set(std::get<1>(i), this->runner->eval(NULLOBJECT, std::get<0>(i)));
 #else
-			((langClass)this->runner->variable[i.second.second])->thisscope->variable.set(i.second.first,this->runner->eval(NULLOBJECT,i.first));
+			((langClass)this->runner->variable[i.second.second])->thisscope->variable.set(i.second.first, this->runner->eval(NULLOBJECT, i.first));
 #endif
 		}
 	}
@@ -702,7 +789,7 @@ namespace lang
 #endif
 		auto sts = parserStatus::None;
 		auto iden = new std::string();
-		bool shiftJis = false, ASCII = true;
+		bool shiftJis = true, ASCII = true;
 		int startindex = 0;
 		int blockComment = 0;
 		bool isWChar = false;
@@ -754,10 +841,11 @@ namespace lang
 						case '.':
 							this->parsers.push_back(new parseObj(parserEnum::dot, new std::string("."), i, i));
 							break;
-						case '=':if (nextchr == '=')
-							this->parsers.push_back(new parseObj(parserEnum::equalequal, new std::string("=="), i, i + 1)), i++;
-								 else this->parsers.push_back(new parseObj(parserEnum::equal, new std::string("="), i, i));
-								 break;
+						case '=':
+							if (nextchr == '=')
+								this->parsers.push_back(new parseObj(parserEnum::equalequal, new std::string("=="), i, i + 1)), i++;
+							else if (nextchr == '>') this->parsers.push_back(new parseObj(parserEnum::lambda, new std::string("=>"), i, i + 1)), i++; else this->parsers.push_back(new parseObj(parserEnum::equal, new std::string("="), i, i));
+							break;
 						case ';':
 							this->parsers.push_back(new parseObj(parserEnum::semicolon, new std::string(";"), i, i));
 							break;
@@ -845,7 +933,7 @@ namespace lang
 					if (!isIden(chr, nextchr))
 					{
 						if (!(shiftJis && isIdenShiftJIS(chr)))
-						if (!shiftJis || !isIdenShiftJIS1(prevchr))
+							//if (!shiftJis || (!isIdenShiftJIS(prevchr)/* && isIdenShiftJIS(nextchr)*/))
 						{
 							int aho = aho_hash(iden->c_str());
 							bool ok = false;

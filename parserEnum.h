@@ -81,6 +81,7 @@ namespace lang
 		_in,
 		_is,
 		_as,
+		lambda,
 	};
 }
 #endif

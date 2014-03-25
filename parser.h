@@ -19,6 +19,7 @@ namespace lang
 		void function();
 		void namespaceparse();
 		void staticparse();
+		void lambdaparse(int index);
 	public:
 		scope* runner;
 		std::vector<parseObj*> parsers;

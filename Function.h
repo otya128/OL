@@ -24,13 +24,25 @@ namespace lang
         int index;
         scope* scope;
         lang::scope* thisscope;
-        Function(std::string name,std::vector<std::string>* argList,lang::scope* scope,int index);
+		Function(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index);
+		Function(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index);
         Function(Function* f,lang::scope* this_scope);
         virtual ~Function(void);
         virtual std::string toString();
         virtual langObject call(std::vector<langObject>* argList);
         virtual langObject ctorcall(std::vector<langObject>* argList);
+		bool is_lambda;
     };
+	//Ów¯Îw«
+	class Lambda :public Function
+	{
+	public:
+		int endindex;
+		virtual langObject call(std::vector<langObject>* argList);
+		Lambda(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index, int endindex);
+		Lambda(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index, int endindex);
+		Lambda(Lambda* f, lang::scope* this_scope);
+	};
     extern langObject (*FuncTable[])(langObject, std::vector<langObject>); 
     class SpecialFunction : public Function
     {

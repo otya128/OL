@@ -403,9 +403,9 @@ namespace lang
 		langObject exit(std::vector<langObject> arg)
 		{
 			if (arg.size())
-				::exit(Int::toInt(arg[0]));
+				throw langExitException(Int::toInt(arg[0]));
 			else
-				::exit(0);
+				throw langExitException(0);//::exit(0);
 		}
 	}
 }

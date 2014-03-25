@@ -12,6 +12,15 @@ namespace lang
         {	// construct from message string
         }
     };
+	class langExitException : public langException
+	{
+	public:
+		int code;
+		langExitException(int code) : langException("lang::langExitException")
+		{
+			this->code = code;
+		}
+	};
     class langRuntimeException : public langException
     {
     public:

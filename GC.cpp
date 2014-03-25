@@ -104,9 +104,9 @@ if (obj.second != count)
 		/*char buf[256];
 #ifdef _WIN32
 		sprintf_s(buf, "count:%d\tmax%d\n", objectCount, GCtimig);
-#else
+		#else
 		sprintf(buf, "count:%d\tmax%d\n", objectCount, GCtimig);
-#endif
+		#endif
 		OutputDebugStringA(buf);*/
 		NowGabekore = false;
 	}
@@ -170,35 +170,36 @@ if (obj.second != count)
 				this->object[object] = count;
 				break;
 			case lang::_Class:
+				this->object[object] = count;
 				FOREACH(i, *((langClass)object)->member)//            foreach_(var_ i in_ *((langClass)object)->member)
 					//            {
 				if (this->object[i.second] != count)
 				{
 					this->search(i.second);//
 				}
-			}
-			if (((langClass)object)->base)
-			{
-				this->search(((langClass)object)->base);
-			}
-			break;
-        case lang::_Array:
-			this->object[object] = count;
-			FOREACH(i, ((langArray)object)->ary)//            foreach_(var_ i in_ ((langArray)object)->ary)
-				//            {
-			if (this->object[i] != count)
-			{
-				this->search(i);//
-			}
-	}
-	break;
-        case lang::_ClassObject:
-			this->object[object] = count;
-			if (((langClass)object)->base)
-			{
-				this->search(((langClass)object)->base);
-			}
-			break;
+				ENDFOREACH
+				if (((langClass)object)->base)
+				{
+					this->search(((langClass)object)->base);
+				}
+				break;
+			case lang::_Array:
+				this->object[object] = count;
+				FOREACH(i, ((langArray)object)->ary)//            foreach_(var_ i in_ ((langArray)object)->ary)
+					//            {
+				if (this->object[i] != count)
+				{
+					this->search(i);//
+				}
+				ENDFOREACH
+					break;
+			case lang::_ClassObject:
+				this->object[object] = count;
+				if (((langClass)object)->base)
+				{
+					this->search(((langClass)object)->base);
+				}
+				break;
 		}
 	}
 	void GC::search(langClassObject object)
@@ -212,8 +213,8 @@ if (obj.second != count)
 		//{
 		FOREACH(root, this->roots)
 			this->search(i.second);
-	}
-		}
+		ENDFOREACH
+			ENDFOREACH
 	}
 	//GC‚©‚çíœ‚µ‚Äƒƒ‚ƒŠ‚©‚ç‰ğ•ú‚·‚é
 	void GC::free_(langObject object)

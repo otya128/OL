@@ -238,6 +238,11 @@ namespace lang
 						switch (j->pEnum)
 						{
 							case _class:
+								if (this->parsers[this->index]->ptr)
+								{
+									result = eval(this->parsers[this->index]->ptr, this->index);
+								}
+								else
 								index = this->blockSkip(index, -1);
 								break;
 							case parserEnum::num:
@@ -850,6 +855,21 @@ namespace lang
 		langObject buf;
 		if (!isbinaryoperation)
 		{
+			if (this->parsers[index]->ptr && this->parsers[index]->ptr->type->TypeEnum == _Function)
+			{
+				//ラムダ式だ
+				langLambda l = (langLambda)this->parsers[index]->ptr;// new Lambda((langLambda)this->parsers[index]->ptr, this);
+				if (l->is_lambda)
+				{
+					index = l->endindex + 1;
+					binaryoperation = index + 1;
+					object = new Lambda(l, this);
+				}
+				else
+				{
+					//今のところありえないが匿名関数も同様の方法で処理する場合はここに
+				}
+			}
 			int thisop = UnaryOperator(this->parsers[index]->pEnum);
 			i = index + 1;
 			switch (this->parsers[index]->pEnum)
@@ -989,9 +1009,17 @@ namespace lang
 							 /*
 		else
 		{
-			throw lang::langRuntimeException("new はClass型でのみ有効です。");
+		throw lang::langRuntimeException("new はClass型でのみ有効です。");
 		}*/
 				}
+					break;
+				case parserEnum::_class:
+					if (this->parsers[index]->ptr)
+					{
+						object = this->parsers[index]->ptr;
+						index = this->blockSkip(index,-1);
+						binaryoperation = index + 1;
+					}
 					break;
 				case parserEnum::minus:
 					UOP;
@@ -1289,6 +1317,11 @@ namespace lang
 											//object = buf->thisscope->variable[*bufbuf->name];
 											index = binaryoperation;
 											//index++;
+											binaryoperation++;
+										}
+										else
+										{
+											index++;
 											binaryoperation++;
 										}
 									}

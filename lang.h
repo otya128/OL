@@ -38,6 +38,7 @@ namespace lang
 	class Int;
 	class String;
 	class Function;
+	class Lambda;
 	class Class;
 	class ClassObject;
 	class SpecialFunction;
@@ -56,6 +57,7 @@ namespace lang
 	typedef Class* langClass;
 	typedef ClassObject* langClassObject;
 	typedef Function* langFunction;
+	typedef Lambda* langLambda;
 	typedef Array* langArray;
 	typedef Char* langChar;
 	typedef Double* langDouble;

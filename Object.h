@@ -11,12 +11,12 @@ namespace lang
 {
     //#define newObject(a) std::make_shared<Object>(a)
     //int objectalloc_count = 0;
-    enum PreType
-    {
-		_Object, _Int, _String, _Char, _WChar, _Double, _Array, _Class, _Function, _ClassObject, _BuiltFunc, _Type
-    };
+	enum PreType
+	{
+		_Object, _Int, _String, _Char, _WChar, _Double, _Array, _Class, _Function, _ClassObject, _BuiltFunc, _Type,
+	};
 #pragma once
-    static const char* PreTypeName[] = {"Object","Int","String","Char","WChar","Double","Array","Class","Function","ClassObject","BuiltFunc","Type"};
+	static const char* PreTypeName[] = { "Object", "Int", "String", "Char", "WChar", "Double", "Array", "Class", "Function", "ClassObject", "BuiltFunc", "Type" };
 
     class Type
     {

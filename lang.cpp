@@ -171,6 +171,9 @@ char* enumtable[] = { "identifier", "num", "doublequote", "str", "leftparent", "
 "colon",
 "_foreach",
 "_in",
+"_is",
+"_as",
+"lambda",
 };
 
 char* parserEnumToString(lang::parserEnum i)
@@ -195,7 +198,7 @@ __v('ω')__v('ω')__v('ω')
 //v（’ω’）v
 //    v（’ω’）v
 //    v（’ω’）v
-std::string getlinestring(std::string input, int index)
+std::string getlinestring(std::string &input, int index)
 {
 	int i, j;
 	for (i = index; i >= 0; i--)
@@ -223,10 +226,10 @@ int hook(int a1, char *a2, int *a3)
 #define MB_CUR_MAX (sizeof(char))
 #endif
 void narrow(const std::wstring &src, std::string &dest) {
-	char *mbs = new char[src.length() * MB_CUR_MAX + 1];
-	wcstombs_s(NULL, mbs, src.length() * MB_CUR_MAX + 1, src.c_str(), src.length() * MB_CUR_MAX + 1);
-	dest = mbs;
-	delete[] mbs;
+char *mbs = new char[src.length() * MB_CUR_MAX + 1];
+wcstombs_s(NULL, mbs, src.length() * MB_CUR_MAX + 1, src.c_str(), src.length() * MB_CUR_MAX + 1);
+dest = mbs;
+delete[] mbs;
 }*/
 #include "GTKOLWindow.h"
 OLWindow* window;
@@ -346,13 +349,15 @@ void gui(void)
 		delete txt;
 #endif
 	}
-//#include <commctrl.h>
+	//#include <commctrl.h>
 #ifndef _WIN32
 #include <unistd.h>
 #endif
-//#pragma comment(lib, "comctl32.lib")
+	//#pragma comment(lib, "comctl32.lib")
 	int main(int argc, char *argv[])
 	{
+#define plus__(x) 1  x  1
+		std::cout << plus__(+);
 		//INITCOMMONCONTROLSEX    stICCEx;
 		//stICCEx.dwSize = sizeof (INITCOMMONCONTROLSEX);
 		//stICCEx.dwICC = INT_MAX;//ICC_WIN95_CLASSES;                                // ICC_STANDARD_CLASSES
@@ -621,6 +626,11 @@ void gui(void)
 						}
 					}
 				}
+				catch (lang::langExitException ex)
+				{
+					if (!prompt)
+						::exit(ex.code);
+				}
 				catch (lang::langParseException ex)
 				{
 					std::cerr << std::endl << "lang::langParseException - lang::parser" << std::endl << ex.what();
@@ -652,7 +662,7 @@ void gui(void)
 				}
 				for (int i = 0; i < pars->parsers.size(); i++)
 				{
-					if (pars->parsers[i]->ptr != nullptr)
+					if (pars->parsers[i]->ptr)
 					{
 						lang::gc->constroot.push_back(pars->parsers[i]->ptr);
 					}
@@ -732,6 +742,11 @@ void gui(void)
 				ENDFOREACH//}
 				if (lang::gc_view)std::cerr << "異常終了 変数や定数を削除" << std::endl;
 			}
+			catch (lang::langExitException ex)
+			{
+				if (!prompt)
+					::exit(ex.code);
+			}
 #if !defined(_DEBUG)//デバッグならデバッガの機能を利用する
 			catch (std::exception ex)
 			{
@@ -769,15 +784,15 @@ void gui(void)
 
 			end = clock();
 			if (lang::gc_view)std::cout << (double)(end - start) / CLOCKS_PER_SEC << "秒" << std::endl;
-			for (int i = 0; i < del.size(); i++)
-			{
-				delete del[i];
-			}
 			if (lang::gc_view)std::cout << "定数の削除" << std::endl;
 			for (int i = 0; i < pars->parsers.size(); i++)
 			{
 				// delete pars->parsers[i]->ptr;
 				delete pars->parsers[i];
+			}
+			for (int i = 0; i < del.size(); i++)
+			{
+				delete del[i];
 			}
 			delete pars;
 			if (prompt)std::cout << std::endl;
