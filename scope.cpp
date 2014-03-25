@@ -342,6 +342,13 @@ namespace lang
 						switch (j->pEnum)
 						{
 							case parserEnum::identifier:
+								if (*this->parsers[this->index - 1]->name == "function")
+								{
+									int i = index - 1;
+									result = eval(this->parsers[this->index - 1]->ptr, i);
+									index = i; status = en::none;
+									break;
+								}
 								status = en::var;
 								break;
 							default:
@@ -782,7 +789,7 @@ namespace lang
 				return IncrementPrece;
 			case parserEnum::_is:
 			case parserEnum::_as:
-				return 13;
+				return 7;
 			case parserEnum::modulo:
 			case parserEnum::multiply:
 			case parserEnum::division:

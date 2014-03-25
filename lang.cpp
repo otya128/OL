@@ -637,7 +637,7 @@ void gui(void)
 					{
 						auto i = *it;
 #endif
-						std::cerr << getlinestring(input, ex.tokens[i.second]->sourcestartindex);
+						std::cerr << getlinestring(input, ex.tokens[i.second]->sourcestartindex) << std::endl;
 						//std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
 						//break;
 					}
@@ -721,7 +721,7 @@ void gui(void)
 					std::cerr << std::endl << "lang::langRuntimeException - lang::scope::run" << std::endl << ex.what() << std::endl << "場所?:" << std::endl;
 					//                    for(auto i : ex.stacktrace)
 					FOREACH(i, ex.stacktrace)//                    {
-						std::cerr << getlinestring(input, ex.tokens[i.second]->sourcestartindex);
+						std::cerr << getlinestring(input, ex.tokens[i.second]->sourcestartindex) << std::endl;
 					//std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
 					//break;
 				}

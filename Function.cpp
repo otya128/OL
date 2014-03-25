@@ -64,7 +64,8 @@ namespace lang
     langObject Function::call(std::vector<langObject>* argList)
     {
         working = true;
-        auto sc =new lang::scope(this->scope->parsers,this->scope/*.get()*/,this->scope->_this);
+		auto sc = new lang::scope(this->scope->parsers, this->scope/*.get()*/, this->scope->_this);
+		if (name.size() && name.at(0) == '#')sc->variable.add(name.substr(1), this);//new Function(this,sc));
         sc->type = en::scopeType::_function;
         sc->startIndex = this->index + 1;//+1‚µ‚ñ‚ ‚¢‚Æreturn‚ª–³‚¢ŠÖ”‚Åreturn‚³‚ê‚È‚­‚È‚é
         if(this->argList->size()!=argList->size())
@@ -109,7 +110,7 @@ namespace lang
 				//–¼‘O‚ ‚è“½–¼ŠÖ”
 				if (token->pEnum == parserEnum::identifier)
 				{
-					func->name = *token->name;
+					func->name = "#" + *token->name;
 					continue;
 				}
                 if(token->pEnum == parserEnum::leftparent)funcRead++;else funcRead = 0;
@@ -151,7 +152,7 @@ namespace lang
                 break;
             }
         }
-        if(func->argList == nullptr)throw "syntax error";
+        if(!func->argList)throw langRuntimeException("syntax error anonymousFunction");
         this->refinc();
         index = this->blockSkip(func->index);
         return /*std::shared_ptr<Function>*/(func);
