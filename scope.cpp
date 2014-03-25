@@ -910,6 +910,7 @@ namespace lang
 				case parserEnum::leftparent:
 					i = this->parentSkip(index);
 					object = eval(NULLOBJECT, binaryoperation, 17);
+					if (binaryoperation > i){ i = binaryoperation; }//fix?
 					index = i;
 					binaryoperation = index + 1;
 					break;

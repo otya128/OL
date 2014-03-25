@@ -122,6 +122,7 @@ namespace lang
 		this->type->name = this->name.c_str();
 		this->endindex = f->endindex;
 		this->NoExpLambda = f->NoExpLambda;
+		this->scope = this->thisscope;
 		//this->type->TypeEnum = _Lambda;
 	}
 	langObject Lambda::call(std::vector<langObject>* argList)

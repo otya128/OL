@@ -194,22 +194,28 @@ namespace lang
 			WARNINGS(0, "syntax error [no leftparent][lambda]%s", getlinestring(this->program, token->sourcestartindex).c_str())
 		}
 		std::reverse(arg.begin(), arg.end());
-		int endindex = index + 2;
+		int endindex = index + 1;
 		int parent = 0, block = 0, bracket = 0;
 		bool isexp = false,isparent = false;
-		if (this->parsers[endindex]->pEnum == blockstart)
+		if (this->parsers[index + 1]->pEnum == blockstart)
 		{
 			isexp = true;
-		};
+		}
 		if (this->parsers[index + 1]->pEnum == leftparent)
 		{
-			isparent = true;
+			//isparent = true;
 		}
 		for (;; endindex++)
 		{
 			parseObj* token = this->parsers[endindex];
+			if (token->pEnum == leftparent)parent++;
+			else if (token->pEnum == blockstart)block++;
+			else if (token->pEnum == leftbracket)bracket++;
+			else if (token->pEnum == rightparent)parent--;
+			else if (token->pEnum == blockend)block--;
+			else if (token->pEnum == rightbracket)bracket--;
 			//すべて0ならtrue
-			if (!(parent + block + bracket))
+			else if (parent <= 0 || block <= 0 || bracket <= 0)
 			{
 				if (token->pEnum == semicolon)break;
 				if (token->pEnum == rightparent)break;
@@ -218,12 +224,6 @@ namespace lang
 			}
 			else
 			{
-				if (token->pEnum == leftparent)parent++;
-				if (token->pEnum == blockstart)block++;
-				if (token->pEnum == leftbracket)bracket++;
-				if (token->pEnum == rightparent)parent--;
-				if (token->pEnum == blockend)block--;
-				if (token->pEnum == rightbracket)bracket--;
 			}
 		}
 		index = index + isparent;
