@@ -212,16 +212,52 @@ namespace lang
 			if (token->pEnum == leftparent)parent++;
 			else if (token->pEnum == blockstart)block++;
 			else if (token->pEnum == leftbracket)bracket++;
-			else if (token->pEnum == rightparent)parent--;
-			else if (token->pEnum == blockend)block--;
-			else if (token->pEnum == rightbracket)bracket--;
+			else if (token->pEnum == rightparent)
+			{
+				parent--;
+				if (parent < 0)
+				{
+					WARNING("式を返すラムダ式は;で終わる必要があります。", 1);
+					break;
+				}
+			}
+			else if (token->pEnum == blockend)
+			{
+				block--;
+				if (block < 0)
+				{
+					WARNING("式を返すラムダ式は;で終わる必要があります。", 1);
+					break;
+				}
+			}
+			else if (token->pEnum == rightbracket)
+			{
+				bracket--;
+				if (bracket < 0)
+				{
+					WARNING("式を返すラムダ式は;で終わる必要があります。", 1);
+					break;
+				}
+			}
 			//すべて0ならtrue
 			else if (parent <= 0 || block <= 0 || bracket <= 0)
 			{
 				if (token->pEnum == semicolon)break;
-				if (token->pEnum == rightparent)break;
-				if (token->pEnum == blockend)break;
-				if (token->pEnum == rightbracket)break;
+				if (token->pEnum == rightparent)
+				{
+					WARNING("式を返すラムダ式は;で終わる必要があります。", 1);
+					break;
+				}
+				if (token->pEnum == blockend)
+				{
+					WARNING("式を返すラムダ式は;で終わる必要があります。", 1);
+					break;
+				}
+				if (token->pEnum == rightbracket)
+				{
+					WARNING("式を返すラムダ式は;で終わる必要があります。", 1);
+					break;
+				}
 			}
 			else
 			{
@@ -230,7 +266,7 @@ namespace lang
 		index = index + isparent;
 		std::stringstream ss;
 		ss << "lambda" << index + 1 << '-' << endindex;
-		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1, endindex/* + 1*/, isexp);
+		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1, endindex-1/* + 1*/, isexp);
 		this->parsers[argindex]->ptr = l;
 	}
 	void parser::function()
@@ -800,7 +836,7 @@ namespace lang
 #endif
 		auto sts = parserStatus::None;
 		auto iden = new std::string();
-		bool shiftJis = true, ASCII = true;
+		bool shiftJis = !!!true, ASCII = true;
 		int startindex = 0;
 		int blockComment = 0;
 		bool isWChar = false;

@@ -243,7 +243,7 @@ namespace lang
 									result = eval(this->parsers[this->index]->ptr, this->index);
 								}
 								else
-								index = this->blockSkip(index, -1);
+									index = this->blockSkip(index, -1);
 								break;
 							case parserEnum::num:
 							case parserEnum::chr:
@@ -845,6 +845,7 @@ namespace lang
 #define OP2 i = index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop) object = eval(object,i,17,evals::isbinaryoperation),index = i;
 #define OP3 i=index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2
 #define OP4 if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
+	//#define OP4 if(this->parsers.size()>index+1&&(Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/||this->parsers[index+1]->pEnum==leftparent)/*&&(this->parsers[index+1]->pEnum!=leftparent || object->type->TypeEnum == _Function))*/) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 #define OP5 i = index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop||this->parsers[index+1]->pEnum==leftbracket) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 	langObject scope::eval(langObject object, int& index, int opera, evals ev, int unoopera)
 	{
@@ -852,6 +853,9 @@ namespace lang
 		int binaryoperation = index + 1;
 		int i, j;
 		bool isbinaryoperation = (bool)((int)ev & 1);
+		//print((x=>y=>z=>x*y*z)(2)(3)(4))
+		//が正常に動かなかったのは変数として上書きされていてendindexが1多かったから?とりあえず治ってる
+		bool lam = false;
 		langObject buf;
 		if (!isbinaryoperation)
 		{
@@ -861,9 +865,10 @@ namespace lang
 				langLambda l = (langLambda)this->parsers[index]->ptr;// new Lambda((langLambda)this->parsers[index]->ptr, this);
 				if (l->is_lambda)
 				{
-					index = l->endindex ;
+					index = l->endindex;
 					binaryoperation = index + 1;
 					object = new Lambda(l, this);
+					lam = true;
 				}
 				else
 				{
@@ -875,6 +880,7 @@ namespace lang
 			switch (this->parsers[index]->pEnum)
 			{
 				case parserEnum::identifier:
+					if (lam)break;
 					/*if(this->parsers.size()>binaryoperation&&this->parsers[binaryoperation]->pEnum==leftparent)
 					{
 					j=index;
@@ -910,7 +916,10 @@ namespace lang
 				case parserEnum::leftparent:
 					i = this->parentSkip(index);
 					object = eval(NULLOBJECT, binaryoperation, 17);
-					if (binaryoperation > i){ i = binaryoperation; }//fix?
+					//if (binaryoperation > i)
+					//{
+					//	i = binaryoperation;
+					//}//fix?
 					index = i;
 					binaryoperation = index + 1;
 					break;
@@ -1018,7 +1027,7 @@ namespace lang
 					if (this->parsers[index]->ptr)
 					{
 						object = this->parsers[index]->ptr;
-						index = this->blockSkip(index,-1);
+						index = this->blockSkip(index, -1);
 						binaryoperation = index + 1;
 					}
 					break;
@@ -1074,6 +1083,10 @@ namespace lang
 			switch (this->parsers[binaryoperation]->pEnum)
 			{
 				case leftparent:
+					//if ((!object || object->type->TypeEnum != _Function) && !(*BuiltFunction)[*this->parsers[binaryoperation - 1]->name])
+					//{
+					//	break;
+					//}
 					OP;
 					{
 						j = index;
@@ -1322,8 +1335,11 @@ namespace lang
 										}
 										else
 										{
-											index++;
-											binaryoperation++;
+											//TODO:何らかの修正でこうしてたが逆にバグになっていた
+											//何らかの詳細が思い出せない...
+											//print(hoge.a);でnullになる？
+											//index++;
+											//binaryoperation++;
 										}
 									}
 								}
