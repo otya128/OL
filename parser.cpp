@@ -212,6 +212,7 @@ namespace lang
 			//isparent = true;
 		}
 		int size = this->parsers.size();
+		bool endparent = false;
 		for (; endindex < size; endindex++)
 		{
 			parseObj* token = this->parsers[endindex];
@@ -224,6 +225,7 @@ namespace lang
 				if (parent < 0)
 				{
 					WARNING("式を返すラムダ式は;で終わる必要があります。", 1);
+					endparent = true;
 					break;
 				}
 			}
@@ -242,6 +244,7 @@ namespace lang
 				if (bracket < 0)
 				{
 					WARNING("式を返すラムダ式は;で終わる必要があります。", 1);
+					endparent = true;
 					break;
 				}
 			}
@@ -252,6 +255,7 @@ namespace lang
 				if (token->pEnum == rightparent)
 				{
 					WARNING("式を返すラムダ式は;で終わる必要があります。", 1);
+					endparent = true;
 					break;
 				}
 				if (token->pEnum == blockend)
@@ -262,6 +266,7 @@ namespace lang
 				if (token->pEnum == rightbracket)
 				{
 					WARNING("式を返すラムダ式は;で終わる必要があります。", 1);
+					endparent = true;
 					break;
 				}
 			}
@@ -269,8 +274,10 @@ namespace lang
 			{
 			}
 		}
+		//TODO:[0](()=>"Hello,World")()をうまく実行するにはこの方法とパース時のendindexを-1をする方法があるがパース時の方が自然なので変更
 		index = index + isparent;
 		std::stringstream ss;
+		endindex -= endparent;
 		ss << "lambda" << index + 1 << '-' << endindex;
 		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1, endindex/*-1/* + 1*/, isexp);
 		this->parsers[argindex]->ptr = l;

@@ -879,106 +879,134 @@ namespace lang
 			i = index + 1;
 			if (!lam)//(a)=>1みたいなラムダが動かなかったので
 				//変数限定じゃなくした
-			switch (this->parsers[index]->pEnum)
+				switch (this->parsers[index]->pEnum)
 			{
-				case parserEnum::identifier:
-					/*if(this->parsers.size()>binaryoperation&&this->parsers[binaryoperation]->pEnum==leftparent)
-					{
-					j=index;
-					i = this->parentSkip(binaryoperation);
-					std::vector<langObject> arg;
-					index = index + 2;
-					while (index<i)
-					{
-					arg.push_back(eval(NULLOBJECT,index,17));
-					index++;
-					if(this->parsers[index]->pEnum==parserEnum::comma)index++;
-					}
-					if(this->variable[*this->parsers[j]->name]!=nullptr && this->variable[*this->parsers[j]->name]->type->TypeEnum == PreType::_Function)
-					{
-					object = static_cast<Function*>(this->variable[*this->parsers[j]->name].get())->call(&arg);
-					}
-					else
-					object = BuitInFunction(*this->parsers[binaryoperation - 1]->name,arg);
-					//object =
-					index = i;
-					binaryoperation = index + 1;
-
-					}
-					else*/
-					if (*this->parsers[index]->name == "function")
-					{
-						object = /*std::make_shared<Function>*/(/**/anonymousFunction(index));
+					case parserEnum::identifier:
+						/*if(this->parsers.size()>binaryoperation&&this->parsers[binaryoperation]->pEnum==leftparent)
+						{
+						j=index;
+						i = this->parentSkip(binaryoperation);
+						std::vector<langObject> arg;
+						index = index + 2;
+						while (index<i)
+						{
+						arg.push_back(eval(NULLOBJECT,index,17));
+						index++;
+						if(this->parsers[index]->pEnum==parserEnum::comma)index++;
+						}
+						if(this->variable[*this->parsers[j]->name]!=nullptr && this->variable[*this->parsers[j]->name]->type->TypeEnum == PreType::_Function)
+						{
+						object = static_cast<Function*>(this->variable[*this->parsers[j]->name].get())->call(&arg);
+						}
+						else
+						object = BuitInFunction(*this->parsers[binaryoperation - 1]->name,arg);
+						//object =
+						index = i;
 						binaryoperation = index + 1;
-					}
-					else
-						object = this->variable[*this->parsers[index]->name];
-					break;
-				case parserEnum::leftparent:
-					i = this->parentSkip(index);
-					object = eval(NULLOBJECT, binaryoperation, 17);
-					//if (binaryoperation > i)
-					//{
-					//	i = binaryoperation;
-					//}//fix?
-					index = i;
-					binaryoperation = index + 1;
-					break;
-				case _new:
-					/*if (*this->parsers[binaryoperation]->name == "Array")
-					{
-					binaryoperation++;
-					object = eval(NULLOBJECT, binaryoperation, 17);
-					//binaryoperation+=2;
-					index = binaryoperation;
-					binaryoperation = index + 1;
-					object = newArray(Int::toInt(object));
-					}
-					else*/
-				{
-							 object = eval(NULLOBJECT, binaryoperation, 0);
-							 index = binaryoperation;
-							 binaryoperation = index + 1;
 
-							 {
-								 auto buf = (Class*)object;
-								 if (this->parsers[binaryoperation]->pEnum == parserEnum::leftparent)
+						}
+						else*/
+						if (*this->parsers[index]->name == "function")
+						{
+							object = /*std::make_shared<Function>*/(/**/anonymousFunction(index));
+							binaryoperation = index + 1;
+						}
+						else
+							object = this->variable[*this->parsers[index]->name];
+						break;
+					case parserEnum::leftparent:
+						i = this->parentSkip(index);
+						object = eval(NULLOBJECT, binaryoperation, 17);
+						//TODO:[0](()=>"Hello,World")()をうまく実行するにはこの方法とパース時のendindexを-1をする方法があるがパース時の方が自然なので変更
+						//if (binaryoperation > i)
+						//{
+						//	i = binaryoperation;
+						//}//fix?
+						index = i;
+						binaryoperation = index + 1;
+						break;
+					case _new:
+						/*if (*this->parsers[binaryoperation]->name == "Array")
+						{
+						binaryoperation++;
+						object = eval(NULLOBJECT, binaryoperation, 17);
+						//binaryoperation+=2;
+						index = binaryoperation;
+						binaryoperation = index + 1;
+						object = newArray(Int::toInt(object));
+						}
+						else*/
+					{
+								 object = eval(NULLOBJECT, binaryoperation, 0);
+								 index = binaryoperation;
+								 binaryoperation = index + 1;
+
 								 {
-									 int thisop = Operator(this->parsers[binaryoperation]->pEnum);
-									 j = index;
-									 i = this->parentSkip(binaryoperation);
-									 std::vector<langObject> arg;
-									 index = index + 2;
-									 while (index < i)
+									 auto buf = (Class*)object;
+									 if (this->parsers[binaryoperation]->pEnum == parserEnum::leftparent)
 									 {
-										 arg.push_back(eval(NULLOBJECT, index, 17));
-										 index++;
-										 if (this->parsers[index]->pEnum == parserEnum::comma)index++;
-									 }
-									 if (object->type->TypeEnum == PreType::_Class)
-									 {
-										 object = newClassObject(buf);
-										 auto ctor = ((langClassObject)object)->thisscope->variable["ctor"];
-										 if (ctor->type->TypeEnum == _Function)
+										 int thisop = Operator(this->parsers[binaryoperation]->pEnum);
+										 j = index;
+										 i = this->parentSkip(binaryoperation);
+										 std::vector<langObject> arg;
+										 index = index + 2;
+										 while (index < i)
 										 {
-											 try
+											 arg.push_back(eval(NULLOBJECT, index, 17));
+											 index++;
+											 if (this->parsers[index]->pEnum == parserEnum::comma)index++;
+										 }
+										 if (object->type->TypeEnum == PreType::_Class)
+										 {
+											 object = newClassObject(buf);
+											 auto ctor = ((langClassObject)object)->thisscope->variable["ctor"];
+											 if (ctor->type->TypeEnum == _Function)
 											 {
-												 object = langObject(static_cast<Function*>(ctor)->ctorcall(&arg));
-											 }
-											 catch (langRuntimeException ex)
-											 {
-												 throw langRuntimeException(ex.what(), ex.tokens, ex.funcstacktrace, static_cast<Function*>(ctor)->name.c_str(), ex.stacktrace);
+												 try
+												 {
+													 object = langObject(static_cast<Function*>(ctor)->ctorcall(&arg));
+												 }
+												 catch (langRuntimeException ex)
+												 {
+													 throw langRuntimeException(ex.what(), ex.tokens, ex.funcstacktrace, static_cast<Function*>(ctor)->name.c_str(), ex.stacktrace);
+												 }
 											 }
 										 }
+										 else
+										 {
+
+											 if (object->type->TypeEnum == _Type)
+											 {
+												 auto type = ((ObjectType*)object);
+												 try
+												 {
+													 object = type->create(arg);
+												 }
+												 catch (langRuntimeException ex)
+												 {
+													 std::stringstream ss;
+													 ss << lang::PreTypeName[type->TypeClass.TypeEnum] << " ctor";
+													 throw langRuntimeException(ex.what(), ex.tokens, ex.funcstacktrace, ss.str().c_str(), ex.stacktrace);
+												 }
+											 }
+										 }
+										 index = i;
+										 binaryoperation = index + 1;
+										 i = index - 1;
+										 OP4
 									 }
 									 else
 									 {
-
-										 if (object->type->TypeEnum == _Type)
+										 if (object->type->TypeEnum == PreType::_Class)
+										 {
+											 object = newClassObject(buf);
+										 }
+										 else if (object->type->TypeEnum == _Type)
 										 {
 											 auto type = ((ObjectType*)object);
 											 try
 											 {
+												 auto arg = std::vector<langObject>();
 												 object = type->create(arg);
 											 }
 											 catch (langRuntimeException ex)
@@ -989,87 +1017,60 @@ namespace lang
 											 }
 										 }
 									 }
-									 index = i;
-									 binaryoperation = index + 1;
-									 i = index - 1;
-									 OP4
 								 }
-								 else
-								 {
-									 if (object->type->TypeEnum == PreType::_Class)
-									 {
-										 object = newClassObject(buf);
-									 }
-									 else if (object->type->TypeEnum == _Type)
-									 {
-										 auto type = ((ObjectType*)object);
-										 try
-										 {
-											 auto arg = std::vector<langObject>();
-											 object = type->create(arg);
-										 }
-										 catch (langRuntimeException ex)
-										 {
-											 std::stringstream ss;
-											 ss << lang::PreTypeName[type->TypeClass.TypeEnum] << " ctor";
-											 throw langRuntimeException(ex.what(), ex.tokens, ex.funcstacktrace, ss.str().c_str(), ex.stacktrace);
-										 }
-									 }
-								 }
-							 }
-							 /*
-		else
-		{
-		throw lang::langRuntimeException("new はClass型でのみ有効です。");
-		}*/
-				}
-					break;
-				case parserEnum::_class:
-					if (this->parsers[index]->ptr)
-					{
-						object = this->parsers[index]->ptr;
-						index = this->blockSkip(index, -1);
-						binaryoperation = index + 1;
+								 /*
+			else
+			{
+			throw lang::langRuntimeException("new はClass型でのみ有効です。");
+			}*/
 					}
-					break;
-				case parserEnum::minus:
-					UOP;
-					buf = eval(object, i, 17, (evals)0, thisop);
-					object = (Object::unaryminus(buf));
-					index = i; binaryoperation = index + 1;
-					OP2
 						break;
-				case parserEnum::plus:
-					UOP;
-					buf = eval(object, i, 17, (evals)0, thisop);
-					object = (Object::unaryplus(buf));
-					index = i; binaryoperation = index + 1;
-					OP2
+					case parserEnum::_class:
+						if (this->parsers[index]->ptr)
+						{
+							object = this->parsers[index]->ptr;
+							index = this->blockSkip(index, -1);
+							binaryoperation = index + 1;
+						}
 						break;
-				case parserEnum::_this:
-					object = _this;
-					if (this->isClass())
-					{
+					case parserEnum::minus:
+						UOP;
+						buf = eval(object, i, 17, (evals)0, thisop);
+						object = (Object::unaryminus(buf));
+						index = i; binaryoperation = index + 1;
+						OP2
+							break;
+					case parserEnum::plus:
+						UOP;
+						buf = eval(object, i, 17, (evals)0, thisop);
+						object = (Object::unaryplus(buf));
+						index = i; binaryoperation = index + 1;
+						OP2
+							break;
+					case parserEnum::_this:
+						object = _this;
+						if (this->isClass())
+						{
 
-					}
-					else
-						throw lang::langRuntimeException("thisは使えません。");
-					index = index + 0;
-					//throw lang::langRuntimeException("new はClass型でのみ有効です。");
-					break;
-				case parserEnum::_false:
-					object = this->parsers[index]->ptr;
-					break;
-				case parserEnum::base:
-					object = this->_this->base;
-					break;
-				case parserEnum::_null:
-				case parserEnum::_true:
-				case parserEnum::num:
-				case parserEnum::str:
-				case parserEnum::chr:
-					object = this->parsers[index]->ptr;
-					break;
+						}
+						else
+							throw lang::langRuntimeException("thisは使えません。");
+						index = index + 0;
+						//throw lang::langRuntimeException("new はClass型でのみ有効です。");
+						break;
+					case parserEnum::_false:
+						object = this->parsers[index]->ptr;
+						break;
+					case parserEnum::base:
+						object = this->_this->base;
+						break;
+					case parserEnum::_null:
+					case parserEnum::_true:
+					case parserEnum::num:
+					case parserEnum::str:
+					case parserEnum::chr:
+						object = this->parsers[index]->ptr;
+						break;
 			}
 			if (this->parsers[index] != nullptr)
 			{
@@ -1119,7 +1120,22 @@ namespace lang
 						}
 						else
 						{
-							object = BuitInFunction(*this->parsers[binaryoperation - 1]->name, arg);
+							try
+							{
+								object = BuitInFunction(*this->parsers[binaryoperation - 1]->name, arg);
+							}
+							catch (langRuntimeException ex)
+							{
+								std::stringstream ss;
+								if (!object || object->type->TypeEnum != _Function)
+								{
+									if (object)
+										ss << ex.what() << ' ' << object->type->name << '[' << object->toString() << "]に対して関数呼び出しをしました。";
+									else
+										ss << ex.what() << " nullptrに対して関数呼び出しをしました。";
+								}
+								throw langRuntimeException(ss.str().c_str(), ex.tokens, ex.funcstacktrace, this->parsers[binaryoperation - 1]->name->c_str(), ex.stacktrace);
+							}
 							isBuilt = true;
 						}
 						//object = 
