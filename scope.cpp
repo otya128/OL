@@ -877,10 +877,11 @@ namespace lang
 			}
 			int thisop = UnaryOperator(this->parsers[index]->pEnum);
 			i = index + 1;
+			if (!lam)//(a)=>1みたいなラムダが動かなかったので
+				//変数限定じゃなくした
 			switch (this->parsers[index]->pEnum)
 			{
 				case parserEnum::identifier:
-					if (lam)break;
 					/*if(this->parsers.size()>binaryoperation&&this->parsers[binaryoperation]->pEnum==leftparent)
 					{
 					j=index;
