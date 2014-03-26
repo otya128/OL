@@ -91,7 +91,7 @@ Console.WriteLine("aho")("hoge")("huga")("hege")('A')(0)(false)(true)(false)(nul
 //OLRuntime::GC::BackgroundGC();
 var a=new haga;
 print("\na.static",a.static,"\na",a,"\nnew (a.static)",new (a.static));
-a.hogeõ"\nA\n"ö;
+//a.hogeõ"\nA\n"ö;
 print(threadid(),OL::Thread.ID(),OL::ID,Console);
 print(true,haga.lf);/*
 var fp = File::open("fopen.txt","wb+");

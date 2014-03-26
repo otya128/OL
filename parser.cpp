@@ -154,6 +154,11 @@ namespace lang
 	};
 	void parser::lambdaparse(int index)
 	{
+		if (index < 1)
+		{
+			WARNINGS(0, "syntax error[不正な位置のﾗﾑﾀﾞ][lambda]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
+			return;
+		}
 		int argindex = index - 1;
 		bool isparentlambda = false;
 		if (this->parsers[index - 1]->pEnum == rightparent)
@@ -206,7 +211,8 @@ namespace lang
 		{
 			//isparent = true;
 		}
-		for (;; endindex++)
+		int size = this->parsers.size();
+		for (; endindex < size; endindex++)
 		{
 			parseObj* token = this->parsers[endindex];
 			if (token->pEnum == leftparent)parent++;
@@ -266,7 +272,7 @@ namespace lang
 		index = index + isparent;
 		std::stringstream ss;
 		ss << "lambda" << index + 1 << '-' << endindex;
-		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1, endindex-1/* + 1*/, isexp);
+		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1, endindex/*-1/* + 1*/, isexp);
 		this->parsers[argindex]->ptr = l;
 	}
 	void parser::function()

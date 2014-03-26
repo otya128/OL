@@ -1357,6 +1357,9 @@ namespace lang
 										//else ; //staticクラスからstaticを取ろうとしている
 										index++;
 										binaryoperation++;
+										//index++;//.staticでstackoverflowしてたから対処
+										//binaryoperation++;//これが足りないかと思ったら違った
+										//下だった
 									}
 								}
 							}
@@ -1405,6 +1408,19 @@ namespace lang
 										}
 									}
 								}
+							}
+							else
+							{
+								if (bufbuf->name)
+								{
+									throw_langRuntimeException("%s.%sが出来ません", object->toString().c_str(), bufbuf->name->c_str());
+								}
+								else
+								{
+									throw_langRuntimeException("%s.%sが出来ません", object->toString().c_str(), bufbuf->ptr->toString().c_str());
+								}
+								//index++;//.staticでstackoverflowしてたから対処
+								//binaryoperation++;
 							}
 						}
 						//throw lang::langRuntimeException(".はClass型でのみ有効です。");
