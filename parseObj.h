@@ -32,5 +32,23 @@ namespace lang
         int line;
         #endif
     };
+	//exp ? true-exp : false-exp   ;
+	//               ^colonindex   ^endindex
+	//exp‚ªfalse‚È‚çgoto colon
+	//exp‚ªtrue‚È‚çŽŸ‚ÌŽ®‚ð•]‰¿‚µ‚Ägoto endindex
+	class Conditional : Object
+	{
+	private:
+		//void *__vfptr;
+		int _isconditional;
+		//Type* type;
+	public:
+		int colonindex;
+		int endindex;
+		Conditional(int, int);
+		~Conditional();
+		bool isconditional();
+	};
+
 }
 #endif

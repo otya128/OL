@@ -122,5 +122,20 @@ namespace lang
             return *this->name;
         }
         return this->ptr->toString();
-    }
+	}
+	Conditional::Conditional(int c, int e)
+	{
+		this->colonindex = c;
+		this->endindex = e;
+		this->_isconditional = 0x10000FF6;
+		this->type = NULLOBJECT->type;
+	}
+
+	Conditional::~Conditional()
+	{
+	}
+	bool Conditional::isconditional()
+	{
+		return this->_isconditional == 0x10000FF6;
+	}
 }

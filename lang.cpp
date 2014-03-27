@@ -174,6 +174,7 @@ char* enumtable[] = { "identifier", "num", "doublequote", "str", "leftparent", "
 "_is",
 "_as",
 "lambda",
+"conditional",
 };
 
 char* parserEnumToString(lang::parserEnum i)

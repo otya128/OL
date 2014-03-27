@@ -82,6 +82,7 @@ namespace lang
 		_is,
 		_as,
 		lambda,
+		conditional,//?
 	};
 }
 #endif

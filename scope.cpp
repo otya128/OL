@@ -823,6 +823,8 @@ namespace lang
 				return 13;
 			case parserEnum::oror:
 				return 14;
+			case parserEnum::conditional:
+				return 15;
 			case parserEnum::equal://=    ＼
 			case parserEnum::plusequal://+= ＼
 			case parserEnum::minusequal://-   ＼
@@ -1263,6 +1265,24 @@ namespace lang
 					index = i;
 					OP2
 						break;
+				case parserEnum::conditional:
+					OP;
+					if (this->parsers[binaryoperation]->ptr && ((Conditional*)this->parsers[binaryoperation]->ptr)->isconditional())
+					if(Int::toInt(object))//true?
+					{
+						object = eval(object, i, thisop);
+						index = ((Conditional*)this->parsers[binaryoperation]->ptr)->endindex;
+						binaryoperation = index + 1;
+					}
+					else
+					{
+						index = ((Conditional*)this->parsers[binaryoperation]->ptr)->colonindex + 1;
+						object = eval(object, index, thisop);
+						binaryoperation = index + 1;
+					}
+					i = index;
+					OP2
+					break;
 				case parserEnum::leftbracket:
 					OP;
 					{

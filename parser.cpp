@@ -152,6 +152,122 @@ namespace lang
 		return (BlockStruct&)(*this)/*BlockStruct(a)*//*;
 		}*/
 	};
+	void parser::conditionalparse(int index)
+	{
+		if (index < 1)
+		{
+			WARNINGS(0, "syntax error[式がありません][?:]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
+				return;
+		}
+		int size = this->parsers.size();
+		int colonindex = index + 1;
+		int parent = 0, block = 0, bracket = 0;
+		for (; colonindex < size; colonindex++)
+		{
+			parseObj* token = this->parsers[colonindex];
+			if (token->pEnum == leftparent)parent++;
+			else if (token->pEnum == blockstart)block++;
+			else if (token->pEnum == leftbracket)bracket++;
+			else if (token->pEnum == rightparent)
+			{
+				parent--;
+			}
+			else if (token->pEnum == blockend)
+			{
+				block--;
+			}
+			else if (token->pEnum == rightbracket)
+			{
+				bracket--;
+			}
+			//すべて0ならtrue
+			else if (parent <= 0 || block <= 0 || bracket <= 0)
+			{
+				if (parent < 0 || block < 0 || bracket < 0)
+				{
+					WARNINGS(0, "syntax error[不正な式][?:]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
+						return;
+				}
+				if (token->pEnum == colon)break;
+				if (token->pEnum == rightparent)
+				{
+					WARNINGS(0, "syntax error[不正な式][?:]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
+						return;
+				}
+				if (token->pEnum == blockend)
+				{
+					WARNINGS(0, "syntax error[不正な式][?:]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
+						return;
+				}
+				if (token->pEnum == rightbracket)
+				{
+					WARNINGS(0, "syntax error[不正な式][?:]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
+						return;
+				}
+			}
+			else
+			{
+			}
+		}
+		int endindex = colonindex + 1;
+		parent = 0, block = 0, bracket = 0;
+		for (; endindex < size; endindex++)
+		{
+			parseObj* token = this->parsers[endindex];
+			if (token->pEnum == leftparent)parent++;
+			else if (token->pEnum == blockstart)block++;
+			else if (token->pEnum == leftbracket)bracket++;
+			else if (token->pEnum == rightparent)
+			{
+				parent--;
+				if (parent < 0)
+				{
+					break;
+				}
+			}
+			else if (token->pEnum == blockend)
+			{
+				block--;
+				if (block < 0)
+				{
+					break;
+				}
+			}
+			else if (token->pEnum == rightbracket)
+			{
+				bracket--;
+				if (bracket < 0)
+				{
+					break;
+				}
+			}
+			//すべて0ならtrue
+			else if (parent <= 0 || block <= 0 || bracket <= 0)
+			{
+				if (parent < 0 || block < 0 || bracket < 0)
+				{
+					break;
+				}
+				if (token->pEnum == semicolon)break;
+				if (token->pEnum == rightparent)
+				{
+					break;
+				}
+				if (token->pEnum == blockend)
+				{
+					break;
+				}
+				if (token->pEnum == rightbracket)
+				{
+					break;
+				}
+			}
+			else
+			{
+			}
+		}
+		this->parsers[index]->ptr = (langObject)new lang::Conditional(colonindex, endindex);
+	}
 	void parser::lambdaparse(int index)
 	{
 		if (index < 1)
@@ -389,6 +505,9 @@ namespace lang
 					break;
 				case parserEnum::lambda:
 					this->lambdaparse(i);
+					break;
+				case parserEnum::conditional:
+					this->conditionalparse(i);
 					break;
 			}
 			switch (classRead)
@@ -932,6 +1051,9 @@ namespace lang
 							break;
 						case '}':
 							this->parsers.push_back(new parseObj(parserEnum::blockend, new std::string("}"), i, i));
+							break;
+						case '?':
+							this->parsers.push_back(new parseObj(parserEnum::conditional, new std::string("?"), i, i));
 							break;
 						case '"':
 							startindex = i;
