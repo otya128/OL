@@ -780,19 +780,19 @@ namespace lang
 	langObject Object::_is(langObject obj1, langObject obj2)
 	{
 		if (obj2->type->TypeEnum == _Type || obj2->type->TypeEnum == _Class)
-		switch (obj2->type->TypeEnum)
+			switch (obj2->type->TypeEnum)
 		{
-			case _Type:
-				if ((((ObjectType*)obj2)->TypeClass.TypeEnum == obj1->type->TypeEnum))return TRUEOBJECT;
-				return FALSEOBJECT;
-			case _Class:
-				auto instance = (langClassObject)obj1;
-				while (instance)
-				{
-					if (instance->staticClass == obj2)return TRUEOBJECT;
-					instance = (langClassObject)instance->base;
-				}
-				break;
+				case _Type:
+					if ((((ObjectType*)obj2)->TypeClass.TypeEnum == obj1->type->TypeEnum))return TRUEOBJECT;
+					return FALSEOBJECT;
+				case _Class:
+					auto instance = (langClassObject)obj1;
+					while (instance)
+					{
+						if (instance->staticClass == obj2)return TRUEOBJECT;
+						instance = (langClassObject)instance->base;
+					}
+					break;
 		}
 		return FALSEOBJECT;
 	}
@@ -845,5 +845,140 @@ namespace lang
 		}
 		throw langRuntimeException((std::string(obj1->type->name) + "as " + obj2->type->name + "出来ない").c_str());
 	}
-
+#define OBJECTOPERATOR(op,opname) langObject Object:: opname(langObject obj1, langObject obj2){\
+	LANG_OPERA_DEBUG_CHECK\
+	switch (obj1->type->TypeEnum)\
+	{\
+		case PreType::_Int:\
+		return newInt(Int::toInt(obj1) op Int::toInt(obj2)); \
+		case PreType::_Double:\
+		return newDouble(Double::toDouble(obj1) op Double::toDouble(obj2)); \
+		case PreType::_ClassObject:\
+		OPERA2ARG(#opname)\
+	}\
+	throw langRuntimeException((std::string(obj1->type->name) + #op + obj2->type->name + "出来ない").c_str()); \
+	}
+#define OBJECTOPERATORND(op,opname) langObject Object:: opname(langObject obj1, langObject obj2){\
+	LANG_OPERA_DEBUG_CHECK\
+	switch (obj1->type->TypeEnum)\
+	{\
+		case PreType::_Int:\
+		return newInt(Int::toInt(obj1) op Int::toInt(obj2)); \
+		case PreType::_ClassObject:\
+		OPERA2ARG(#opname)\
+	}\
+	throw langRuntimeException((std::string(obj1->type->name) + #op + obj2->type->name + "出来ない").c_str()); \
+	}
+#define OBJECTOPERATORNDNAME(op,opname,classname) langObject Object:: opname(langObject obj1, langObject obj2){\
+	LANG_OPERA_DEBUG_CHECK\
+	switch (obj1->type->TypeEnum)\
+	{\
+		case PreType::_Int:\
+		return newInt(Int::toInt(obj1) op Int::toInt(obj2)); \
+		case PreType::_ClassObject:\
+		OPERA2ARG(classname)\
+	}\
+	throw langRuntimeException((std::string(obj1->type->name) + #op + obj2->type->name + "出来ない").c_str()); \
+	}
+#define OBJECTOPERATORSINGLE(op,opname) langObject Object:: opname(langObject obj1){\
+	LANG_OPERA_DEBUG_SINGLE_CHECK\
+	switch (obj1->type->TypeEnum)\
+	{\
+		case PreType::_Int:\
+		return newInt(op Int::toInt(obj1)); \
+		case PreType::_Double:\
+		return newDouble(op Double::toDouble(obj1)); \
+		case PreType::_ClassObject:\
+		OPERA2ARGSINGLE(#opname)\
+	}\
+	throw langRuntimeException((#op + std::string(obj1->type->name) + "出来ない").c_str()); \
+	}
+#define OBJECTOPERATORSINGLEND(op,opname) langObject Object:: opname(langObject obj1){\
+	LANG_OPERA_DEBUG_SINGLE_CHECK\
+	switch (obj1->type->TypeEnum)\
+	{\
+		case PreType::_Int:\
+		return newInt(op Int::toInt(obj1)); \
+		case PreType::_ClassObject:\
+		OPERA2ARGSINGLE(#opname)\
+	}\
+	throw langRuntimeException((#op + std::string(obj1->type->name) + "出来ない").c_str()); \
+	}
+#define OBJECTOPERATORSINGLENDNAME(op,opname,classname) langObject Object:: opname(langObject obj1){\
+	LANG_OPERA_DEBUG_SINGLE_CHECK\
+	switch (obj1->type->TypeEnum)\
+	{\
+		case PreType::_Int:\
+		return newInt(op Int::toInt(obj1)); \
+		case PreType::_ClassObject:\
+		OPERA2ARGSINGLE(classname)\
+	}\
+	throw langRuntimeException((#op + std::string(obj1->type->name) + "出来ない").c_str()); \
+	}
+#define OBJECTOPERATOREQUALSINGLE(op,opname,value,opmark) langObject Object:: opname(langObject obj1){\
+	LANG_OPERA_DEBUG_SINGLE_CHECK\
+	switch (obj1->type->TypeEnum)\
+	{\
+		case PreType::_Int:\
+		return newInt(Int::toInt(obj1) op value); \
+		case PreType::_Double:\
+		return newDouble(Double::toDouble(obj1) op value); \
+		case PreType::_ClassObject:\
+		OPERA2ARGSINGLE(#opname)\
+	}\
+	throw langRuntimeException((std::string(obj1->type->name) + opmark + "出来ない").c_str()); \
+	}
+#define OBJECTOPERATOREQUALSINGLEND(op,opname,value,opmark) langObject Object:: opname(langObject obj1){\
+	LANG_OPERA_DEBUG_SINGLE_CHECK\
+	switch (obj1->type->TypeEnum)\
+	{\
+		case PreType::_Int:\
+		return newInt(Int::toInt(obj1) op value); \
+		case PreType::_ClassObject:\
+		OPERA2ARGSINGLE(#opname)\
+	}\
+	throw langRuntimeException((std::string(obj1->type->name) + opmark + "出来ない").c_str()); \
+	}
+#define OBJECTOPERATOREQUAL(op,opname) langObject Object:: opname(langObject obj1,langObject obj2){\
+	LANG_OPERA_DEBUG_CHECK\
+	switch (obj1->type->TypeEnum)\
+	{\
+		case PreType::_Int:\
+		return newInt(Int::toInt(obj1) op Int::toInt(obj2)); \
+		case PreType::_Double:\
+		return newDouble(Double::toDouble(obj1) op Double::toDouble(obj2)); \
+		case PreType::_ClassObject:\
+		OPERA2ARG(#opname)\
+	}\
+	throw langRuntimeException((std::string(obj1->type->name) + #op + "=" + obj1->type->name + "出来ない").c_str()); \
+	}
+#define OBJECTOPERATOREQUALND(op,opname) langObject Object:: opname(langObject obj1,langObject obj2){\
+	LANG_OPERA_DEBUG_CHECK\
+	switch (obj1->type->TypeEnum)\
+	{\
+		case PreType::_Int:\
+		return newInt(Int::toInt(obj1) op Int::toInt(obj2)); \
+		case PreType::_ClassObject:\
+		OPERA2ARG(#opname)\
+	}\
+	throw langRuntimeException((std::string(obj1->type->name) + #op + "=" + obj1->type->name + "出来ない").c_str()); \
+	}
+	OBJECTOPERATORNDNAME(&, _and, "and")
+		OBJECTOPERATORNDNAME(| , _or, "or")
+		OBJECTOPERATORNDNAME(^, _xor, "xor")
+		OBJECTOPERATORSINGLENDNAME(~, _not,"not")
+		OBJECTOPERATORSINGLEND(!, logicnot)
+		OBJECTOPERATORND(&&, logicand)
+		OBJECTOPERATORND(|| , logicor)
+		OBJECTOPERATOREQUALSINGLE(-, dec, 1, "--")
+		OBJECTOPERATOREQUAL(+, plusEqual)
+		OBJECTOPERATOREQUAL(-, minusEqual)
+		OBJECTOPERATOREQUAL(*, multiplyEqual)
+		OBJECTOPERATOREQUAL(/ , divisionEqual)
+		OBJECTOPERATOREQUALND(%, moduloEqual)
+		OBJECTOPERATOREQUALND(&, andEqual)
+		OBJECTOPERATOREQUALND(| , orEqual)
+		OBJECTOPERATOREQUALND(^, xorEqual)
+		OBJECTOPERATOREQUALND(<< , leftShiftEqual)
+		OBJECTOPERATOREQUALND(>> , rightShiftEqual)
 }

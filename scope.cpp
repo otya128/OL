@@ -842,6 +842,43 @@ namespace lang
 		}
 	}
 #endif
+#define DEFINEBINOP(enumname,funcname)\
+				case enumname:\
+				OP; \
+				buf = eval(object, i, thisop); \
+				object = (Object::funcname(object, buf)); \
+				index = i; \
+				OP2\
+				break;
+#define DEFINEEQUAL(enumname,funcname)\
+				case parserEnum::enumname:\
+				OP; \
+				buf = eval(object, i, thisop); \
+				object = this->variable.set(*this->parsers[index]->name, Object::funcname(object, buf)); \
+				index = i; \
+				OP2\
+				break;
+#define DEFINEPOSTFIX(enumname,funcname)\
+				case parserEnum::enumname:\
+				OP; \
+				object = Object::funcname(object); \
+				this->variable.set(*this->parsers[index]->name, object); \
+				index = i; \
+				OP2\
+				break;
+#define DEFINEDOTEQUAL(enumname,funcname)\
+				case enumname:\
+				binaryoperation += 2; \
+				object = buf->setMember(*bufbuf->name, Object::funcname(object, eval(NULLOBJECT, binaryoperation))); \
+				index = binaryoperation; \
+				binaryoperation++; \
+				break;
+#define DEFINEDOTPOSTFIX(enumname,funcname)\
+				case enumname:\
+				object = buf->setMember(*bufbuf->name, Object::funcname(object)); \
+				index = binaryoperation; \
+				binaryoperation++; \
+				break;
 #define OP if (opera </*=*/ thisop) break
 #define UOP if (unoopera </*=*/ thisop) break
 #define OP2 i = index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop) object = eval(object,i,17,evals::isbinaryoperation),index = i;
@@ -1243,14 +1280,6 @@ namespace lang
 					index = i;
 					OP2
 						break;
-				case parserEnum::plusplus:
-					OP;
-					//buf = newInt(1);
-					object = Object::inc(object);//Object::plus(object,buf);
-					this->variable.set(*this->parsers[index]->name, object);
-					index = i;
-					OP2
-						break;
 				case parserEnum::_is:
 					OP;
 					buf = eval(object, i, thisop);
@@ -1268,7 +1297,7 @@ namespace lang
 				case parserEnum::conditional:
 					OP;
 					if (this->parsers[binaryoperation]->ptr && ((Conditional*)this->parsers[binaryoperation]->ptr)->isconditional())
-					if(Int::toInt(object))//true?
+					if (Int::toInt(object))//true?
 					{
 						object = eval(object, i, thisop);
 						index = ((Conditional*)this->parsers[binaryoperation]->ptr)->endindex;
@@ -1282,7 +1311,7 @@ namespace lang
 					}
 					i = index;
 					OP2
-					break;
+						break;
 				case parserEnum::leftbracket:
 					OP;
 					{
@@ -1361,23 +1390,47 @@ namespace lang
 									binaryoperation++;
 									if (this->parsers.size() > binaryoperation + 1)
 									{
-										if (this->parsers[binaryoperation + 1]->pEnum == equal)
+										switch (this->parsers[binaryoperation + 1]->pEnum)
 										{
-											//binaryoperation++;
-											buf->setMember(*bufbuf->name, eval(NULLOBJECT, binaryoperation));//buf->thisscope->variable.set(*bufbuf->name, eval(NULLOBJECT, binaryoperation));
-											//object = buf->thisscope->variable[*bufbuf->name];
-											index = binaryoperation;
-											//index++;
-											binaryoperation++;
+											case equal:
+												binaryoperation += 2;
+												buf->setMember(*bufbuf->name, eval(NULLOBJECT, binaryoperation));//buf->thisscope->variable.set(*bufbuf->name, eval(NULLOBJECT, binaryoperation));
+												//object = buf->thisscope->variable[*bufbuf->name];
+												index = binaryoperation;
+												//index++;
+												binaryoperation++;
+												break;
+												DEFINEDOTEQUAL(plusequal, plusEqual)
+													DEFINEDOTEQUAL(minusequal, minusEqual)
+													DEFINEDOTEQUAL(multiplyequal, multiplyEqual)
+													DEFINEDOTEQUAL(divisionequal, divisionEqual)
+													DEFINEDOTEQUAL(moduloequal, moduloEqual)
+													DEFINEDOTEQUAL(leftshiftequal, leftShiftEqual)
+													DEFINEDOTEQUAL(rightshiftequal, rightShiftEqual)
+													DEFINEDOTEQUAL(andequal, andEqual)
+													DEFINEDOTEQUAL(orequal, orEqual)
+													DEFINEDOTEQUAL(xorequal, xorEqual)
+
+													DEFINEDOTPOSTFIX(plusplus, inc)
+													DEFINEDOTPOSTFIX(minusminus, dec)
+										}
+										/*if (this->parsers[binaryoperation + 1]->pEnum == equal)
+										{
+										//binaryoperation++;
+										buf->setMember(*bufbuf->name, eval(NULLOBJECT, binaryoperation));//buf->thisscope->variable.set(*bufbuf->name, eval(NULLOBJECT, binaryoperation));
+										//object = buf->thisscope->variable[*bufbuf->name];
+										index = binaryoperation;
+										//index++;
+										binaryoperation++;
 										}
 										else
 										{
-											//TODO:何らかの修正でこうしてたが逆にバグになっていた
-											//何らかの詳細が思い出せない...
-											//print(hoge.a);でnullになる？
-											//index++;
-											//binaryoperation++;
-										}
+										//TODO:何らかの修正でこうしてたが逆にバグになっていた
+										//何らかの詳細が思い出せない...
+										//print(hoge.a);でnullになる？
+										//index++;
+										//binaryoperation++;
+										}*/
 									}
 								}
 								else
@@ -1465,6 +1518,25 @@ namespace lang
 					OP3
 						//if(this->parsers.size() > index + 1 && Operator(this->parsers[index + 1]->pEnum) >= thisop) object = eval(object, i, 17, true), index = i;
 						break;
+					DEFINEBINOP(_and, _and)
+						DEFINEBINOP(_or, _or)
+						DEFINEBINOP(_xor, _xor)
+						DEFINEBINOP(andand, logicand)
+						DEFINEBINOP(oror, logicor)
+
+						DEFINEEQUAL(plusequal, plusEqual)
+						DEFINEEQUAL(minusequal, minusEqual)
+						DEFINEEQUAL(multiplyequal, multiplyEqual)
+						DEFINEEQUAL(divisionequal, divisionEqual)
+						DEFINEEQUAL(moduloequal, moduloEqual)
+						DEFINEEQUAL(leftshiftequal, leftShiftEqual)
+						DEFINEEQUAL(rightshiftequal, rightShiftEqual)
+						DEFINEEQUAL(andequal, andEqual)
+						DEFINEEQUAL(orequal, orEqual)
+						DEFINEEQUAL(xorequal, xorEqual)
+
+						DEFINEPOSTFIX(plusplus, inc)
+						DEFINEPOSTFIX(minusminus, dec)
 			}
 		}
 		return langObject(object);

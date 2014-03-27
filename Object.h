@@ -87,12 +87,24 @@ namespace lang
 
 		//ƒrƒbƒg‰‰ŽZŒn
 		static langObject _and(langObject obj1, langObject obj2);
-		static langObject _not(langObject obj1, langObject obj2);
-		static langObject logicnot(langObject obj1, langObject obj2);
+		static langObject _or(langObject obj1, langObject obj2);
+		static langObject _not(langObject obj1);
+		static langObject _xor(langObject obj1, langObject obj2);
+		static langObject logicnot(langObject obj1);
 		static langObject logicand(langObject obj1, langObject obj2);
 		static langObject logicor(langObject obj1, langObject obj2);
-		static langObject logicxor(langObject obj1, langObject obj2);
 		//?=Œn
+		static langObject plusEqual(langObject obj1, langObject obj2);
+		static langObject minusEqual(langObject obj1, langObject obj2);
+		static langObject multiplyEqual(langObject obj1, langObject obj2);
+		static langObject divisionEqual(langObject obj1, langObject obj2);
+		static langObject moduloEqual(langObject obj1, langObject obj2);
+		static langObject andEqual(langObject obj1, langObject obj2);
+		static langObject orEqual(langObject obj1, langObject obj2);
+		static langObject xorEqual(langObject obj1, langObject obj2);
+		static langObject leftShiftEqual(langObject obj1, langObject obj2);
+		static langObject rightShiftEqual(langObject obj1, langObject obj2);
+
 	};
     extern SpecialFunction* object_tostr;
     extern SpecialFunction* string_substr;

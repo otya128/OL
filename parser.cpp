@@ -273,7 +273,7 @@ namespace lang
 		if (index < 1)
 		{
 			WARNINGS(0, "syntax error[不正な位置のﾗﾑﾀﾞ][lambda]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
-			return;
+				return;
 		}
 		int argindex = index - 1;
 		bool isparentlambda = false;
@@ -285,7 +285,7 @@ namespace lang
 		int lambda_i = 0;
 		parseObj* token = this->parsers[argindex];
 		std::vector<std::string> arg;
-		for (;argindex >= 0; argindex--)
+		for (; argindex >= 0; argindex--)
 		{
 			parseObj* token = this->parsers[argindex];
 			if (token->pEnum != identifier && token->pEnum != comma)break;
@@ -318,7 +318,7 @@ namespace lang
 		std::reverse(arg.begin(), arg.end());
 		int endindex = index + 1;
 		int parent = 0, block = 0, bracket = 0;
-		bool isexp = false,isparent = false;
+		bool isexp = false, isparent = false;
 		if (this->parsers[index + 1]->pEnum == blockstart)
 		{
 			isexp = true;
@@ -1003,16 +1003,31 @@ namespace lang
 							if (nextchr == '+')
 								this->parsers.push_back(new parseObj(parserEnum::plusplus, new std::string("++"), i, i + 1)), i++;
 							else
+							if (nextchr == '=')
+								this->parsers.push_back(new parseObj(parserEnum::plusequal, new std::string("+="), i, i + 1)), i++;
+							else
 								this->parsers.push_back(new parseObj(parserEnum::plus, new std::string("+"), i, i));
 							break;
 						case '-':
-							this->parsers.push_back(new parseObj(parserEnum::minus, new std::string("-"), i, i));
+							if (nextchr == '-')
+								this->parsers.push_back(new parseObj(parserEnum::minusminus, new std::string("--"), i, i + 1)), i++;
+							else
+							if (nextchr == '=')
+								this->parsers.push_back(new parseObj(parserEnum::minusequal, new std::string("-="), i, i + 1)), i++;
+							else
+								this->parsers.push_back(new parseObj(parserEnum::minus, new std::string("-"), i, i));
 							break;
 						case '*':
-							this->parsers.push_back(new parseObj(parserEnum::multiply, new std::string("*"), i, i));
+							if (nextchr == '=')
+								this->parsers.push_back(new parseObj(parserEnum::multiplyequal, new std::string("*="), i, i + 1)), i++;
+							else
+								this->parsers.push_back(new parseObj(parserEnum::multiply, new std::string("*"), i, i));
 							break;
 						case '%':
-							this->parsers.push_back(new parseObj(parserEnum::modulo, new std::string("%"), i, i));
+							if (nextchr == '=')
+								this->parsers.push_back(new parseObj(parserEnum::moduloequal, new std::string("%="), i, i + 1)), i++;
+							else
+								this->parsers.push_back(new parseObj(parserEnum::modulo, new std::string("%"), i, i));
 							break;
 						case ',':
 							this->parsers.push_back(new parseObj(parserEnum::comma, new std::string(","), i, i));
@@ -1045,6 +1060,39 @@ namespace lang
 								this->parsers.push_back(new parseObj(parserEnum::rightshift, new std::string(">>"), i, i + 1)), i++;
 							else
 								this->parsers.push_back(new parseObj(parserEnum::greater, new std::string(">"), i, i));
+							break;
+						case '&':
+							if (nextchr == '=')
+								this->parsers.push_back(new parseObj(parserEnum::andequal, new std::string("&="), i, i + 1)), i++;
+							else
+							if (nextchr == '&')
+								this->parsers.push_back(new parseObj(parserEnum::andand, new std::string("&&"), i, i + 1)), i++;
+							else
+								this->parsers.push_back(new parseObj(parserEnum::_and, new std::string("&"), i, i));
+							break;
+						case '|':
+							if (nextchr == '=')
+								this->parsers.push_back(new parseObj(parserEnum::orequal, new std::string("|="), i, i + 1)), i++;
+							else
+							if (nextchr == '|')
+								this->parsers.push_back(new parseObj(parserEnum::oror, new std::string("||"), i, i + 1)), i++;
+							else
+								this->parsers.push_back(new parseObj(parserEnum::_or, new std::string("|"), i, i));
+							break;
+						case '^':
+							if (nextchr == '=')
+								this->parsers.push_back(new parseObj(parserEnum::xorequal, new std::string("^="), i, i + 1)), i++;
+							else
+								this->parsers.push_back(new parseObj(parserEnum::_xor, new std::string("^"), i, i));
+							break;
+						case '~':
+							this->parsers.push_back(new parseObj(parserEnum::_not, new std::string("~"), i, i));
+							break;
+						case '!':
+							if (nextchr == '=')
+								this->parsers.push_back(new parseObj(parserEnum::notequal, new std::string("!="), i, i + 1)), i++;
+							else
+								this->parsers.push_back(new parseObj(parserEnum::notnot, new std::string("!"), i, i));
 							break;
 						case '{':
 							this->parsers.push_back(new parseObj(parserEnum::blockstart, new std::string("{"), i, i));

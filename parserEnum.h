@@ -18,7 +18,6 @@ namespace lang
 		plus,//+
 		minus,//-
 		multiply,//*
-		equal,//=
 		equalequal,//==
 		semicolon,//;
 		blockstart,//{
@@ -27,20 +26,27 @@ namespace lang
 		minusminus,//--
 		greater,//>
 		less,//<
+		//equalŒn greaterequal~xorequal‚Ü‚Å
 		greaterequal,//>=
 		lessequal,//<=
 		modulo,//%
+		equal,//=
 		plusequal,//+=
 		minusequal,//-=
+		multiplyequal,//*=
+		divisionequal,// /=
+		moduloequal,//%=
+		leftshiftequal,//<<=
+		rightshiftequal,//>>=
+		andequal,//&=
+		orequal,//|=
+		xorequal,//^=
 		dot,//.
 		division,///
 		leftbracket,//[
 		rightbracket,//]
 		debbug_stop,//$
 		//’Ç‰Á‰‰ŽZŽq
-		multiplyequal,//*=
-		divisionequal,// /=
-		moduloequal,//%=
 		_or,//|
 		oror,//||
 		_and,//&
@@ -51,11 +57,6 @@ namespace lang
 		notnot,//!LogicalNot
 		leftshift,//<<
 		rightshift,//>>
-		leftshiftequal,//<<=
-		rightshiftequal,//>>=
-		andequal,//&=
-		orequal,//|=
-		xorequal,//^=
 		chr,//single str
 		none,
 		_class,
