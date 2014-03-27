@@ -46,7 +46,7 @@ namespace lang
 	{
 		isbinaryoperation = 1,
 		arrayset = 2,
-		dmmy1 = 4,
+		mage = 4,
 		dmmy2 = 8,
 	};
 #define isClass() _this

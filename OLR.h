@@ -50,6 +50,7 @@ namespace lang
 		langObject olruntime_gc_asyncgc(std::vector<langObject> arg);
 #endif
 		langObject exit(std::vector<langObject> arg);
+		langObject time(std::vector<langObject> arg);
 		void Add(std::string name, BuiltFunc func)
 		{
 			(*lang::BuiltFunction)[name] = func;
@@ -96,6 +97,7 @@ namespace lang
 			Add("OLRuntime::GUI::CheckBox::Create", checkbox_create);
 			Add("OLRuntime::GUI::MessageBox", messagebox);
 			Add("exit", exit);
+			Add("time", time);
 		}
 	}
 }

@@ -13,6 +13,11 @@ namespace lang
     typedef std::recursive_mutex GCmutex;
 #endif
     class scope;
+	//このクラスは
+	//┏━★┏━☆┏━★┏━☆┏━★┏━☆┏━★
+	//┃ス┃┃レ┃┃ッ┃┃ド┃┃セ┃┃ー┃┃フ┃
+	//☆━┛★━┛☆━┛★━┛☆━┛★━┛☆━┛
+	//です。
     class GC
     {
     private:

@@ -293,3 +293,4 @@ namespace OL
 		}
 	}
 }
+void srand(long s){seed = s;}long rand() { seed=seed*1103515245+12345; return seed&2147483647; }static seed=time();

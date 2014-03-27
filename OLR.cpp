@@ -407,5 +407,9 @@ namespace lang
 			else
 				throw langExitException(0);//::exit(0);
 		}
+		langObject time(std::vector<langObject> arg)
+		{
+			return newInt(::time(NULL));
+		}
 	}
 }
