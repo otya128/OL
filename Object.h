@@ -62,6 +62,7 @@ namespace lang
 		Object(void);
 		virtual ~Object(void);
 		static langObject inc(langObject obj1);
+		static langObject dec(langObject obj1);
 		static langObject bracket(langObject obj1, langObject obj2);
 		static langObject bracketequal(langObject obj1, langObject obj2, langObject obj3);
 		static langObject bracket(langObject obj1, std::vector<langObject> obj2);
@@ -82,6 +83,16 @@ namespace lang
 		static langObject rightShift(langObject obj1, langObject obj2);
 		static langObject _is(langObject obj1, langObject obj2);
 		static langObject as(langObject obj1, langObject obj2);
+
+
+		//ƒrƒbƒg‰‰ŽZŒn
+		static langObject _and(langObject obj1, langObject obj2);
+		static langObject _not(langObject obj1, langObject obj2);
+		static langObject logicnot(langObject obj1, langObject obj2);
+		static langObject logicand(langObject obj1, langObject obj2);
+		static langObject logicor(langObject obj1, langObject obj2);
+		static langObject logicxor(langObject obj1, langObject obj2);
+		//?=Œn
 	};
     extern SpecialFunction* object_tostr;
     extern SpecialFunction* string_substr;

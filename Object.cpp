@@ -510,7 +510,7 @@ namespace lang
 				case PreType::_Double:
 					return newDouble(Double::toDouble(obj1) / Double::toDouble(obj2));
 				case PreType::_ClassObject:
-					OPERA2ARG("multiply")
+					OPERA2ARG("division")
 		}
 		throw langRuntimeException((std::string(obj1->type->name) + "/" + obj2->type->name + "出来ない").c_str());
 		//変換不可
