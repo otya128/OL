@@ -305,8 +305,9 @@ namespace OL
 		}
 		var ToString()
 		{
-			return this._what;
+			return this._what + OLRuntime::GetStack(1);
 		}
 	}
 }
 void srand(long s){seed = s;}long rand() { seed=seed*1103515245+12345; return seed&2147483647; }static seed=time();
+var If(var exp,var then,var e){if(exp){return then();}return e();}

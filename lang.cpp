@@ -355,7 +355,7 @@ void gui(void)
 			escapetable[13] = "\\r";
 			escapetable[(int)'\"'] = "\\\"";
 			//([](int x){return x*x;})();
-#if !defined(_DEBUG) && defined(_WIN32)
+#if !defined(_DEBUG___) && defined(_WIN32)
 			//スレッド毎に変換関数を登録する
 			_set_se_translator(se_translator_function);
 #endif

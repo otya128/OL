@@ -285,6 +285,7 @@ namespace lang
 		std::string* foreach_var = 0;
 		langObject foreach_object = 0;
 		langFunction Current = 0, MoveNext = 0;
+		int foreacharyindex;
 		try
 		{
 			for (this->index = this->startIndex; index < parsers.size(); index++)
@@ -747,6 +748,12 @@ namespace lang
 									foreachscope->startIndex = this->index + 1;
 									foreachscope->refinc();
 									foreachscope->variable.add(*foreach_var, NULLOBJECT);
+									if (foreach_object is _Array)
+									{
+										foreacharyindex = 0;
+										foreahflag = 8;
+										goto _foreach_8;
+									}
 									goto _foreach_7;
 								}
 								else
@@ -755,7 +762,6 @@ namespace lang
 								}
 								break;
 							case 7:
-								;
 							_foreach_7:
 								{
 									auto arg = std::vector<langObject>();
@@ -799,7 +805,46 @@ namespace lang
 									break;
 								}
 								break;
+							case 8:
+							_foreach_8 :
+								if (foreacharyindex < ((langArray)foreach_object)->ary.size())
+								{
+									foreachscope->variable.add(*foreach_var, ((langArray)foreach_object)->ary[foreacharyindex]);
+									foreacharyindex++;
+									auto buf = foreachscope->run();
+									if (foreachscope->status == en::returnStatus::_return)
+									{
+										this->status = foreachscope->status;
+										foreachscope->refdec();
+										return buf;
+									}
+									else
+									if (foreachscope->status == en::returnStatus::_break)
+									{
+										this->index = this->blockSkip(this->index);
+										status = en::none;
+										foreachscope->refdec();
+										foreahflag = 0;
+										continue;
+									}
+									else
+									if (foreachscope->status != en::returnStatus::_continue && foreachscope->status != en::returnStatus::none_)
+									{
+										this->status = foreachscope->status;
+										foreachscope->refdec();
+										return buf;
+									}
+									this->index--;
+								}
+								else
+								{
+									this->index = this->blockSkip(this->index);
+									status = en::none;
+									foreachscope->refdec();
+									foreahflag = 0;
+								}
 						}
+						break;
 #pragma endregion
 				}
 			}
@@ -1045,11 +1090,11 @@ namespace lang
 #define UOP if (unoopera <= thisop) break
 #define OP2 i = index;if(this->parsers.size()>index+1&&\
 	opera == 17/*Operator(this->parsers[index+1]->pEnum) >= thisop && !((int)ev & 4)*/\
-	) object = eval(object,i,17,evals::isbinaryoperation),index = i;
+	) object = eval(object, i, 17, evals::isbinaryoperation), index = i;
 	//dot演算子は無理っぽい...
 #define OP3 i=index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop/* && !((int)ev & 4)*//*true/*opera==17*/||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2
 #define OP4 if(this->parsers.size()>index+1&&opera==17||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
-//	Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/ && !((int)ev & 4)||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
+	//	Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/ && !((int)ev & 4)||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 	//#define OP4 if(this->parsers.size()>index+1&&(Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/||this->parsers[index+1]->pEnum==leftparent)/*&&(this->parsers[index+1]->pEnum!=leftparent || object->type->TypeEnum == _Function))*/) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 #define OP5 i = index;if(this->parsers.size()>index+1/*Operator(this->parsers[index+1]->pEnum) >= thisop && !((int)ev & 4)*/&&opera==17||this->parsers[index+1]->pEnum==leftbracket) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 	langObject scope::eval(langObject object, int& index, int opera, evals ev, int unoopera)
@@ -1348,6 +1393,7 @@ namespace lang
 							arg.push_back(eval(NULLOBJECT, index, 17));
 							index++;
 							if (index > i)break;
+							//if (this->parsers[index+1]->pEnum == parserEnum::rightparent)index++;
 							if (this->parsers[index]->pEnum == parserEnum::comma)index++;
 						}
 						/*if(this->variable[*this->parsers[j]->name]!=nullptr && this->variable[*this->parsers[j]->name]->type->TypeEnum == PreType::_Function)
@@ -1646,15 +1692,43 @@ namespace lang
 								{
 									if (bufbuf->pEnum == base)
 									{
+										langClassObject cls = ((langClassObject)object);
 										object = ((langClassObject)object)->base;
+										index++;
+										binaryoperation++;
+										if (this->parsers.size() > binaryoperation + 1)
+										{
+											switch (this->parsers[binaryoperation + 1]->pEnum)
+											{
+												case equal:
+													binaryoperation += 2;
+													object = cls->base = (langClass)(eval(NULLOBJECT, binaryoperation));
+													index = binaryoperation;
+													binaryoperation++;
+													break;
+											}
+										}
 									}
 									else
 									{
+										langClassObject cls = ((langClassObject)object);
 										if (object->type->TypeEnum == PreType::_ClassObject)
 											object = ((langClassObject)object)->staticClass;
 										//else ; //staticクラスからstaticを取ろうとしている
 										index++;
 										binaryoperation++;
+										if (this->parsers.size() > binaryoperation + 1)
+										{
+											switch (this->parsers[binaryoperation + 1]->pEnum)
+											{
+												case equal:
+													binaryoperation += 2;
+													object = cls->staticClass = (langClass)(eval(NULLOBJECT, binaryoperation));
+													index = binaryoperation;
+													binaryoperation++;
+													break;
+											}
+										}
 										//index++;//.staticでstackoverflowしてたから対処
 										//binaryoperation++;//これが足りないかと思ったら違った
 										//下だった

@@ -198,6 +198,7 @@ namespace lang
 		for (int i = 0; i < this->argList->size(); i++) sc->variable.add((*this->argList)[i], (*argList)[i]);
 		auto buf = sc->run();
 		sc->del();
+		lang::stacktrace->pop_back();
 		return buf;
 	}
 	langFunction scope::anonymousFunction(int& index)

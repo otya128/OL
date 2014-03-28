@@ -16,7 +16,7 @@ catch(object ex)
 print("object",ex);
 }
 }
-for(;;){}
+//for(;;){}
 class MyException : OL::Exception{}
 print((-(+(-1))),"\t",OL::Math.cos(1));
 var list = new OL::List();

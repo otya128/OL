@@ -413,5 +413,20 @@ namespace lang
 		{
 			return newInt(::time(NULL));
 		}
+		langObject getstack(std::vector<langObject> arg)
+		{
+			std::vector<langObject> *stack = (std::vector<langObject>*)lang::stacktrace;
+			langArray ary = newArray(0);
+			ary->ary = *stack;
+			if (arg.size() > 0)
+			{
+				int j = Int::toInt(arg[0]);
+				for (int i = 0; i < j; i++)
+				{
+					ary->ary.pop_back();
+				}
+			}
+			return ary;
+		}
 	}
 }

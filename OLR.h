@@ -51,6 +51,7 @@ namespace lang
 #endif
 		langObject exit(std::vector<langObject> arg);
 		langObject time(std::vector<langObject> arg);
+		langObject getstack(std::vector<langObject> arg);
 		void Add(std::string name, BuiltFunc func)
 		{
 			(*lang::BuiltFunction)[name] = func;
@@ -98,6 +99,7 @@ namespace lang
 			Add("OLRuntime::GUI::MessageBox", messagebox);
 			Add("exit", exit);
 			Add("time", time);
+			Add("OLRuntime::GetStack", getstack);
 		}
 	}
 }
