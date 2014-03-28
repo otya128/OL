@@ -14,6 +14,7 @@ namespace lang
 	GC::GC(scope* root)
 	{
 		GCtimig = 65536;
+		baseGCtimig = GCtimig;
 		this->NowGabekore = false;
 		//this->NowAddRoot = false;
 		//this->NowAddObject = false;
@@ -62,38 +63,40 @@ namespace lang
 		FOREACH(root, this->roots)//for(auto root : this->roots)
 			//{
 			this->search(root.first);
-	}
-	FOREACH(o, this->constroot)//for(auto o : this->constroot)
-		//{
-		this->search(o);
-}
-FOREACH(obj, this->object)//for(auto obj : this->object)
-//{
-if (obj.second != count)
-{
-	obj.second = count;
-	erased.push_back(obj.first);
-}
+		ENDFOREACH
+			FOREACH(o, this->constroot)//for(auto o : this->constroot)
+			//{
+			this->search(o);
+		ENDFOREACH
+			FOREACH(obj, this->object)//for(auto obj : this->object)
+			//{
+		if (obj.second != count)
+		{
+			obj.second = count;
+			erased.push_back(obj.first);
 		}
-		FOREACH(obj, erased)//for(auto obj : erased)
+		ENDFOREACH
+			FOREACH(obj, erased)//for(auto obj : erased)
 			//{
 		if (this->object.find(obj) != this->object.end())
 		{
-			if (obj is _Function && ((langFunction)obj)->working)
+			if (obj && obj is _Function && ((langFunction)obj)->working)
 				//マルチスレッドなどでどこからも参照されていないが動いている状態の時は開放しない
 				;
 			else
+			{
 				object.erase(obj);
-			delete obj;
+				delete obj;
+			}
 		}
-		}
-		erased.clear();
+		ENDFOREACH
+			erased.clear();
 #if _DEBUG
 		if (gc_view)
 			std::cout << "がべこれ終了" << std::endl;
 #endif
 		objectCount = object.size();
-		if (objectCount <= GCtimig / 4) GCtimig /= 2;
+		if (objectCount <= GCtimig / 4 && baseGCtimig <= GCtimig / 4) GCtimig /= 2;
 		if (objectCount >= GCtimig / 2) GCtimig *= 2;
 		//_TCHAR buf[256];
 		//_tprintf_s(buf,"count:%d\tmax%d\n",objectCount,GCtimig);
@@ -150,8 +153,8 @@ if (obj.second != count)
 	}
 
 	break;
-				}
-				this->object[obj.second] = count;//++;//this->object[obj] = 0;4
+}
+this->object[obj.second] = count;//++;//this->object[obj] = 0;4
 			}
 		}
 	}
@@ -172,6 +175,13 @@ if (obj.second != count)
 			case lang::_Class:
 				this->object[object] = count;
 				FOREACH(i, *((langClass)object)->member)//            foreach_(var_ i in_ *((langClass)object)->member)
+					//            {
+				if (this->object[i.second] != count)
+				{
+					this->search(i.second);//
+				}
+				ENDFOREACH
+					FOREACH(i, ((langClass)object)->thisscope->variable._variable)//            foreach_(var_ i in_ *((langClass)object)->member)
 					//            {
 				if (this->object[i.second] != count)
 				{

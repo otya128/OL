@@ -586,6 +586,9 @@ namespace lang
 		LANG_OPERA_DEBUG_CHECK
 			switch (obj1->type->TypeEnum)
 		{
+				case PreType::_String:
+					if (obj2 is _String)return newInt(obj1->toString() == obj2->toString());
+					else return newInt(obj1->getPointer() == obj2->getPointer());
 				case PreType::_Int:
 					if (obj2 is _Int)return newInt(Int::toInt(obj1) == Int::toInt(obj2));
 					else return newInt(obj1->getPointer() == obj2->getPointer());
@@ -593,28 +596,29 @@ namespace lang
 					if (obj2 is _Double)return newInt(Double::toDouble(obj1) == Double::toDouble(obj2));
 					else return newInt(obj1->getPointer() == obj2->getPointer());
 				case PreType::_ClassObject:
-				{
-											  auto clas = (langClassObject)obj1;
-											  auto func = (langFunction)clas->thisscope->variable["equal"];
-											  if (func != nullptr && func is _Function)
-											  {
-												  auto vec = new std::vector<langObject>();
-												  vec->push_back(obj2);
-												  try
-												  {
-													  auto ret = func->call(vec);
-													  delete vec;
-													  return ret;
-												  }
-												  catch (...)
-												  {
-													  delete vec;
-													  throw;
-												  }
-											  }
-											  else
-												  return newInt(obj1 == obj2);
-				}
+					;
+					{
+						auto clas = (langClassObject)obj1;
+						auto func = (langFunction)clas->thisscope->variable["equal"];
+						if (func != nullptr && func is _Function)
+						{
+							auto vec = new std::vector<langObject>();
+							vec->push_back(obj2);
+							try
+							{
+								auto ret = func->call(vec);
+								delete vec;
+								return ret;
+							}
+							catch (...)
+							{
+								delete vec;
+								throw;
+							}
+						}
+						else
+							return newInt(obj1 == obj2);
+					}
 				default:
 					return newInt(obj1 == obj2);
 					break;
@@ -966,7 +970,7 @@ namespace lang
 	OBJECTOPERATORNDNAME(&, _and, "and")
 		OBJECTOPERATORNDNAME(| , _or, "or")
 		OBJECTOPERATORNDNAME(^, _xor, "xor")
-		OBJECTOPERATORSINGLENDNAME(~, _not,"not")
+		OBJECTOPERATORSINGLENDNAME(~, _not, "not")
 		OBJECTOPERATORSINGLEND(!, logicnot)
 		OBJECTOPERATORND(&&, logicand)
 		OBJECTOPERATORND(|| , logicor)

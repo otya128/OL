@@ -32,7 +32,8 @@ namespace lang
     public:
         std::vector<langObject> constroot;
         size_t objectCount;
-        int GCtimig;
+		int GCtimig;
+		int baseGCtimig;
         void addRoot(scope* root);
         bool removeRoot(scope* root);
         bool NowGabekore;

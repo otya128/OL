@@ -165,7 +165,7 @@ namespace lang
 		}
 		int catcher = index - 1;
 		int parent = 0, block = 1, bracket = 0;
-		
+
 		for (; catcher >= 0; catcher--)
 		{
 			parseObj* token = this->parsers[catcher];
@@ -179,7 +179,8 @@ namespace lang
 			{
 				if (token->pEnum == blockstart)
 				{
-					catcher++; break; }
+					catcher++; break;
+				}
 			}
 		}
 		if (catcher < 0)catcher = 0;
@@ -281,8 +282,8 @@ namespace lang
 					this->conditionalparse(colonindex);
 					if (this->parsers[colonindex]->ptr && ((lang::Conditional*)this->parsers[colonindex]->ptr)->isconditional())
 					{
-						colonindex = ((lang::Conditional*)this->parsers[colonindex]->ptr)->endindex - 2;
-						break;
+					colonindex = ((lang::Conditional*)this->parsers[colonindex]->ptr)->endindex - 2;
+					break;
 					}*/
 				}
 				if (token->pEnum == colon)
@@ -499,24 +500,27 @@ namespace lang
 			ss << '#' << *this->parsers[argindex]->name;
 		}
 		else
-		ss << "lambda" << index + 1 << '-' << endindex;
+			ss << "lambda" << index + 1 << '-' << endindex;
 		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1, endindex/*-1/* + 1*/, isexp);
 		this->parsers[argindex]->ptr = l;
 	}
 	void parser::function()
 	{
 		this->runner = new scope(this->parsers);
-		this->runner->variable.add("string", new StringType());
-		ObjectTypeObject = new lang::ObjectType();
-		this->runner->variable.add("object", ObjectTypeObject);
-		this->runner->variable.add("int", new IntType());
-		this->runner->variable.add("double", new DoubleType());
-		this->runner->variable.add("char", new CharType());
-		this->runner->variable.add("wchar", new WCharType());
-		ArrayTypeObject = new ArrayType();
-		this->runner->variable.add("array", ArrayTypeObject);
-		this->runner->variable.add("Array", ArrayTypeObject);
-		lang::gc = new gabekore(this->runner);
+		if (!lang::gc)
+		{
+			this->runner->variable.add("string", new StringType());
+			ObjectTypeObject = new lang::ObjectType();
+			this->runner->variable.add("object", ObjectTypeObject);
+			this->runner->variable.add("int", new IntType());
+			this->runner->variable.add("double", new DoubleType());
+			this->runner->variable.add("char", new CharType());
+			this->runner->variable.add("wchar", new WCharType());
+			ArrayTypeObject = new ArrayType();
+			this->runner->variable.add("array", ArrayTypeObject);
+			this->runner->variable.add("Array", ArrayTypeObject);
+			lang::gc = new gabekore(this->runner);
+		}
 		int funcRead = 0, classRead = 0;
 		std::string funcName; std::string className;
 		std::vector<std::string>* argList = nullptr;//new std::vector<std::string>();
@@ -1070,7 +1074,7 @@ namespace lang
 	{
 		errcount = 0;
 		int line = 0;
-		lang::gc = nullptr;
+		//lang::gc = nullptr;
 		this->program = (input);
 #if _DEBUG
 		if (lang::parserresult) std::cout << "Now Parsing...";
@@ -1159,14 +1163,32 @@ namespace lang
 							if (nextchr == '=')
 								this->parsers.push_back(new parseObj(parserEnum::lessequal, new std::string("<="), i, i + 1)), i++;
 							else if (nextchr == '<')
-								this->parsers.push_back(new parseObj(parserEnum::leftshift, new std::string("<<"), i, i + 1)), i++;
+							{
+								i++;
+								char nextnextchr = 0;
+								if (input.size() >= i + 1)
+									nextnextchr = input[i + 1];
+								if (nextnextchr == '=')
+									this->parsers.push_back(new parseObj(parserEnum::leftshiftequal, new std::string("<<="), i, i + 1)), i++;
+								else
+									this->parsers.push_back(new parseObj(parserEnum::leftshift, new std::string("<<"), i, i + 1));
+							}
 							else this->parsers.push_back(new parseObj(parserEnum::less, new std::string("<"), i, i));
 							break;
 						case '>':
 							if (nextchr == '=')
 								this->parsers.push_back(new parseObj(parserEnum::greaterequal, new std::string(">="), i, i + 1)), i++;
 							else if (nextchr == '>')
-								this->parsers.push_back(new parseObj(parserEnum::rightshift, new std::string(">>"), i, i + 1)), i++;
+							{
+								i++;
+								char nextnextchr = 0;
+								if (input.size() >= i + 1)
+									nextnextchr = input[i + 1];
+								if (nextnextchr == '=')
+									this->parsers.push_back(new parseObj(parserEnum::rightshiftequal, new std::string(">>="), i, i + 1)), i++;
+								else
+									this->parsers.push_back(new parseObj(parserEnum::rightshift, new std::string(">>"), i, i + 1));
+							}
 							else
 								this->parsers.push_back(new parseObj(parserEnum::greater, new std::string(">"), i, i));
 							break;
@@ -1535,7 +1557,7 @@ namespace lang
 	{
 		try
 		{
-			delete lang::gc;
+			//delete lang::gc;
 
 			//delete this->runner;
 			//delete(&this->program);
