@@ -84,6 +84,19 @@ namespace lang
 		this->thisscope->refdec();
 		//delete this->type->name;
 	}
+	bool Class::trygetMember(std::string& name, langObject& obj)
+	{
+		if (this->thisscope->variable.definedVar(name))
+		{
+			obj = this->thisscope->variable[name];
+			return true;
+		}
+		else
+		{
+			if (this->base)return this->base->trygetMember(name, obj);
+			return false;
+		}
+	}
 	langObject Class::getMember(std::string& name)
 	{
 		if (this->thisscope->variable.definedVar(name))
@@ -140,10 +153,12 @@ namespace lang
 
 	std::string ClassObject::toString(void)
 	{
-		if (this->thisscope->variable["ToString"] is _Function)
+		langObject tostr;
+		std::string tostrs("ToString");
+		if (this->trygetMember(tostrs,tostr) && tostr is _Function)//this->thisscope->variable["ToString"] is _Function)
 		{
 			auto arg = std::vector<langObject>();//普通にローカル変数のポインタ私で良かった
-			auto result = ((langFunction)this->thisscope->variable["ToString"])->call(&arg);
+			auto result = ((langFunction)/*this->thisscope->variable["ToString"]*/tostr)->call(&arg);
 			return result->toString();
 			/*
 			auto arg = new std::vector<langObject>;//例外処理で逆に冗長になる例

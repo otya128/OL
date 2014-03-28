@@ -67,6 +67,7 @@ namespace lang
 		this->startIndex = 0;
 		this->status = en::returnStatus::none_;
 		this->type = en::scopeType::_none_;
+		this->iscatcher = false;
 #if _DEBUG
 		if (gc_view)
 			std::cout << "変数スコープを作成" << this << std::endl;
@@ -84,6 +85,7 @@ namespace lang
 		this->startIndex = 0;
 		this->status = en::returnStatus::none_;
 		this->type = en::scopeType::_none_;
+		this->iscatcher = false;
 #if _DEBUG
 		if (gc_view)
 			std::cout << "変数スコープを作成" << this << std::endl;
@@ -213,11 +215,66 @@ namespace lang
 			}
 		}
 	}
+	int get_extend_count(langClass m)
+	{
+		int count = 0;
+		while (m->base)
+		{
+			count++;
+			m = m->base;
+		}
+		return count;
+	}
+	int object_distance(langObject m, langObject n)
+	{
+		switch (n->type->TypeEnum)
+		{
+			case _Type:
+				;
+				{
+					ObjectType* type = (ObjectType*)n;
+					if (m->type->TypeEnum != _Class || m->type->TypeEnum != _ClassObject)
+					{
+						if (type->TypeClass.TypeEnum == n->type->TypeEnum)return 0;//同時だと1番目近い
+						if (type->TypeClass.TypeEnum == _Object)return 1;//Objectだと2番目
+						return INT_MAX;
+					}
+					else
+					{
+						if (type->TypeClass.TypeEnum == _Object)return get_extend_count((langClass)m) + 1;
+						return INT_MAX;
+					}
+				}
+				return INT_MAX;
+			case _Class:
+				if (m->type->TypeEnum == _Class || m->type->TypeEnum == _ClassObject)
+				{
+					int count = -1;
+					langClass c = (langClass)m;
+					while (c)
+					{
+						count++;
+						if (((langClassObject)c)->staticClass == n)
+						{
+							return count;
+						}
+						c = c->base;
+					}
+					return INT_MAX;
+				}
+			default:
+				return INT_MAX;
+		}
+	}
 #define LANG_SCOPE_RUN_RET return result ? result : NULLOBJECT
 	langObject scope::run(void)
 	{
 		langObject result = nullptr;
 		this->index = this->startIndex;
+		if (this->parsers[this->index]->ptr && ((lang::Catcher*)this->parsers[this->index]->ptr)->iscatcher())
+		{
+			this->iscatcher = true;
+		}
 		auto status = en::scopeStatus::none;
 		/*std::shared_ptr<scope>*/scope* forscope = 0;
 		scope* whilescope = 0;
@@ -245,6 +302,10 @@ namespace lang
 								else
 									index = this->blockSkip(index, -1);
 								break;
+							case parserEnum::_catch:
+								index = this->blockSkip(index, -1);
+								break;
+							case parserEnum::_throw:
 							case parserEnum::num:
 							case parserEnum::chr:
 							case parserEnum::str:
@@ -287,12 +348,14 @@ namespace lang
 								break;
 							case parserEnum::_return:
 								//こう自動成形されるのはバグ？
-							{
-														this->status = en::returnStatus::_return;
-														index++;
-														auto buf = eval(NULLOBJECT, index);
-														return /*langObject*/(buf);
-							}
+								//{	//とりあえずセミコロン入れると大丈夫
+								;
+								{
+									this->status = en::returnStatus::_return;
+									index++;
+									auto buf = eval(NULLOBJECT, index);
+									return /*langObject*/(buf);
+								}
 								break;
 							case parserEnum::_break:
 								this->status = en::_break;
@@ -319,22 +382,23 @@ namespace lang
 							case parserEnum::semicolon:
 								break;
 							case parserEnum::blockstart:
-							{
-														   auto sc = /*std::make_shared<scope>*/new scope(this->parsers, this, this->_this);
-														   sc->refinc();
-														   sc->startIndex = this->index + 1;
-														   auto buf = sc->run();
-														   this->index = sc->index;
-														   if (sc->status != en::returnStatus::none_)
-														   {
-															   this->status = sc->status;
-															   sc->refdec();
-															   //delete sc;
-															   return /*langObject*/(buf);
-														   }
-														   //delete sc;
-														   sc->refdec();
-							}
+								;
+								{
+									auto sc = /*std::make_shared<scope>*/new scope(this->parsers, this, this->_this);
+									sc->refinc();
+									sc->startIndex = this->index + 1;
+									auto buf = sc->run();
+									this->index = sc->index;
+									if (sc->status != en::returnStatus::none_)
+									{
+										this->status = sc->status;
+										sc->refdec();
+										//delete sc;
+										return /*langObject*/(buf);
+									}
+									//delete sc;
+									sc->refdec();
+								}
 								break;
 							default:
 								result = eval(this->parsers[this->index]->ptr, this->index);
@@ -477,7 +541,7 @@ namespace lang
 										forindex[0] = index + 1;
 										findex = 1;
 									}
-									else throw "forの後には(が必要";
+									else throw langRuntimeException("forの後には(が必要");
 									break;
 						}
 						break;
@@ -741,6 +805,43 @@ namespace lang
 		{
 			throw langRuntimeException(ex.what(), startIndex, index, this->parsers, ex.stacktrace, ex.funcstacktrace);
 		}
+		catch (langUserException ex)
+		{
+			if (!this->iscatcher)
+			{
+				throw;
+			}
+			else
+			{
+				Catcher *c = static_cast<Catcher*>(this->parsers[this->startIndex]->ptr);
+				int mincount = INT_MAX, mindex = -1;
+				for (int i = 0; i < c->Catchers.size(); i++)
+				{
+					langObject type = c->Catchers[i].type ? this->variable[*c->Catchers[i].type] : ObjectTypeObject;
+					int count = object_distance(ex.object, type);
+					if (mincount > count)
+					{
+						mincount = count;
+						mindex = i;
+					}
+				}
+				if (mindex == -1) throw;
+				auto sc = new scope(this->parsers, this, this->_this);
+				sc->refinc();
+				sc->startIndex = c->Catchers[mindex].index + 1;
+				if (c->Catchers[mindex].varname)sc->variable.add(*c->Catchers[mindex].varname, ex.object);
+				auto buf = sc->run();
+				this->index = this->blockSkip(index, 0);//sc->index;
+				if (sc->status != en::returnStatus::none_)
+				{
+					this->status = sc->status;
+					sc->refdec();
+					return buf;
+				}
+				sc->refdec();
+				return buf;
+			}
+		}
 		LANG_SCOPE_RUN_RET;
 		//auto buf = eval(this->parsers[0]->ptr,this->index);
 		//if(buf!=nullptr)std::cout<<"result:"<<(buf)->toString()<<std::endl;
@@ -777,6 +878,8 @@ namespace lang
 			case parserEnum::multiply:
 			case parserEnum::_new:
 				return 3;
+			case parserEnum::_throw:
+				return 16;
 		}
 		return 0;
 	}
@@ -879,6 +982,47 @@ namespace lang
 				index = binaryoperation; \
 				binaryoperation++; \
 				break;
+#define DEFINEARYEQUAL(enumname,funcname)\
+				case enumname:\
+				set = (langArray)object; \
+				binaryoperation++; \
+				set->ary[ind] = Object::funcname(set->ary[ind], eval(NULLOBJECT, binaryoperation)); \
+				object = set->ary[Int::toInt(object)]; \
+				index = binaryoperation; \
+				binaryoperation++; break;
+#define DEFINEARYPOSTFIX(enumname,funcname)\
+				case enumname:\
+				set = (langArray)object; \
+				binaryoperation++; \
+				set->ary[ind] = Object::funcname(set->ary[ind]); \
+				object = set->ary[Int::toInt(object)]; \
+				index = binaryoperation; \
+				binaryoperation++; break;
+#define DEFINEARYCLASSEQUAL(enumname, funcname)\
+				case parserEnum::enumname:\
+				i = i + 2; \
+				arg.push_back(Object::funcname(Object::bracket(object, arg), eval(NULLOBJECT, i, 17))); \
+				object = Object::bracketequal(object, arg); \
+				break;
+#define DEFINEARYCLASSPOSTFIX(enumname, funcname)\
+				case parserEnum::enumname:\
+				arg.push_back(Object::funcname(Object::bracket(object, arg))); \
+				object = Object::bracketequal(object, arg); \
+				break;
+#define DEFINEOPERATORS(opname)\
+	opname##EQUAL(plusequal, plusEqual)\
+	opname##EQUAL(minusequal, minusEqual)\
+	opname##EQUAL(multiplyequal, multiplyEqual)\
+	opname##EQUAL(divisionequal, divisionEqual)\
+	opname##EQUAL(moduloequal, moduloEqual)\
+	opname##EQUAL(leftshiftequal, leftShiftEqual)\
+	opname##EQUAL(rightshiftequal, rightShiftEqual)\
+	opname##EQUAL(andequal, andEqual)\
+	opname##EQUAL(orequal, orEqual)\
+	opname##EQUAL(xorequal, xorEqual)\
+	\
+	opname##POSTFIX(plusplus, inc)\
+	opname##POSTFIX(minusminus, dec)
 	//1+1+1 ? "TRUE":"FALSE"が1になるからevals::mage堂宇入
 	//</*=*/にしたのは何故
 	//https://github.com/otya128/OL/commit/fc679f99fc2981c56b1a1b58102eaed663649e67#diff-43660f740e82e2deed81b7966c353520R826
@@ -968,6 +1112,40 @@ namespace lang
 						index = i;
 						binaryoperation = index + 1;
 						break;
+					case parserEnum::leftbracket:
+						i = this->bracketSkip(index); j = index;
+						{
+							auto ary = newArray(0);
+							object = ary;//std::vector<langObject> arg;
+							index = index + 1;
+							while (index < i)
+							{
+								ary->ary.push_back(eval(NULLOBJECT, index, 17));
+								index++;
+								if (index > i)break;
+								if (this->parsers[index]->pEnum == parserEnum::comma)index++;
+							}
+						}
+						index = i;
+						binaryoperation = index + 1;
+						break;
+					case parserEnum::blockstart:
+						i = this->blockSkip(index); j = index;
+						{
+							auto ary = newArray(0);
+							object = ary;//std::vector<langObject> arg;
+							index = index + 1;
+							while (index < i)
+							{
+								ary->ary.push_back(eval(NULLOBJECT, index, 17));
+								index++;
+								if (index > i)break;
+								if (this->parsers[index]->pEnum == parserEnum::comma)index++;
+							}
+						}
+						index = i;
+						binaryoperation = index + 1;
+						break;
 					case _new:
 						/*if (*this->parsers[binaryoperation]->name == "Array")
 						{
@@ -1002,7 +1180,8 @@ namespace lang
 										 if (object->type->TypeEnum == PreType::_Class)
 										 {
 											 object = newClassObject(buf);
-											 auto ctor = ((langClassObject)object)->thisscope->variable["ctor"];
+											 std::string ctors("ctor");
+											 auto ctor = ((langClassObject)object)->getMember(ctors);//thisscope->variable["ctor"];
 											 if (ctor->type->TypeEnum == _Function)
 											 {
 												 try
@@ -1100,6 +1279,13 @@ namespace lang
 							throw lang::langRuntimeException("thisは使えません。");
 						index = index + 0;
 						//throw lang::langRuntimeException("new はClass型でのみ有効です。");
+						break;
+					case parserEnum::_throw:
+						UOP;
+						object = eval(object, i, 17, (evals)0, thisop);
+						index = i; binaryoperation = index + 1;
+						OP2
+							throw langUserException(object);
 						break;
 					case parserEnum::_false:
 						object = this->parsers[index]->ptr;
@@ -1328,27 +1514,35 @@ namespace lang
 							index = i + 1;
 							binaryoperation = index + 1;
 							//object = ((langArray)object)->ary[Int::toInt(object)];
+							int ind = Int::toInt(buf);
+							if (((langArray)ob)->ary.size() <= ind)
+								throw_langRuntimeException("配列の範囲外にアクセス%xのサイズは%dで、 %dにアクセスしようとしました。:VAR_DUMP%s", ob, ((langArray)ob)->ary.size(), ind, ob->toString().c_str())
 							if (this->parsers.size() > index + 1)
 							{
-								if (this->parsers[index + 1]->pEnum == equal)
+								//if (this->parsers[index + 1]->pEnum == equal)
+								langArray set;
+								switch (this->parsers[index + 1]->pEnum)
 								{
-									//binaryoperation++;
-									auto set = (langArray)object;
-									//index++;
-									binaryoperation++;
-									int ind = Int::toInt(buf);
-									if (set->ary.size() <= ind)
+									case equal:
+										//binaryoperation++;
+										set = (langArray)object;
+										//index++;
+										binaryoperation++;/*
+										int ind = Int::toInt(buf);
+										if (set->ary.size() <= ind)
 
-										throw_langRuntimeException("配列の範囲外にアクセス%xのサイズは%dで、 %dにアクセスしようとしました。:VAR_DUMP%s", set, set->ary.size(), ind, set->toString().c_str())
+										throw_langRuntimeException("配列の範囲外にアクセス%xのサイズは%dで、 %dにアクセスしようとしました。:VAR_DUMP%s", set, set->ary.size(), ind, set->toString().c_str())*/
 
 										set->ary[ind] = eval(NULLOBJECT, binaryoperation);
-									object = set->ary[Int::toInt(object)];
-									//object = buf->thisscope->variable[*bufbuf->name];
-									index = binaryoperation;
-									binaryoperation++;
+										object = set->ary[Int::toInt(object)];
+										//object = buf->thisscope->variable[*bufbuf->name];
+										index = binaryoperation;
+										binaryoperation++;
+										break;
+										DEFINEOPERATORS(DEFINEARY)
 								}
 							}
-							object = ((langArray)ob)->ary[Int::toInt(buf)];
+							object = ((langArray)ob)->ary[ind];
 						}
 						else
 						if (object is _ClassObject)
@@ -1363,14 +1557,18 @@ namespace lang
 								index++;
 								if (this->parsers[index]->pEnum == parserEnum::comma)index++;
 							}
-							if (this->parsers[i + 1]->pEnum == parserEnum::equal)
+							switch (this->parsers[i + 1]->pEnum)
 							{
-								i = i + 2;
-								arg.push_back(eval(NULLOBJECT, i, 17));
-								object = Object::bracketequal(object, arg);
+								case parserEnum::equal:
+									i = i + 2;
+									arg.push_back(eval(NULLOBJECT, i, 17));
+									object = Object::bracketequal(object, arg);
+									break;
+									DEFINEOPERATORS(DEFINEARYCLASS)
+								default:
+									object = Object::bracket(object, arg);
+									break;
 							}
-							else
-								object = Object::bracket(object, arg);
 						}
 						else
 							throw langRuntimeException("[]を使えない");
@@ -1404,19 +1602,7 @@ namespace lang
 												//index++;
 												binaryoperation++;
 												break;
-												DEFINEDOTEQUAL(plusequal, plusEqual)
-													DEFINEDOTEQUAL(minusequal, minusEqual)
-													DEFINEDOTEQUAL(multiplyequal, multiplyEqual)
-													DEFINEDOTEQUAL(divisionequal, divisionEqual)
-													DEFINEDOTEQUAL(moduloequal, moduloEqual)
-													DEFINEDOTEQUAL(leftshiftequal, leftShiftEqual)
-													DEFINEDOTEQUAL(rightshiftequal, rightShiftEqual)
-													DEFINEDOTEQUAL(andequal, andEqual)
-													DEFINEDOTEQUAL(orequal, orEqual)
-													DEFINEDOTEQUAL(xorequal, xorEqual)
-
-													DEFINEDOTPOSTFIX(plusplus, inc)
-													DEFINEDOTPOSTFIX(minusminus, dec)
+												DEFINEOPERATORS(DEFINEDOT)
 										}
 										/*if (this->parsers[binaryoperation + 1]->pEnum == equal)
 										{
@@ -1527,7 +1713,8 @@ namespace lang
 						DEFINEBINOP(_xor, _xor)
 						DEFINEBINOP(andand, logicand)
 						DEFINEBINOP(oror, logicor)
-
+						DEFINEOPERATORS(DEFINE)
+						/*
 						DEFINEEQUAL(plusequal, plusEqual)
 						DEFINEEQUAL(minusequal, minusEqual)
 						DEFINEEQUAL(multiplyequal, multiplyEqual)
@@ -1540,7 +1727,7 @@ namespace lang
 						DEFINEEQUAL(xorequal, xorEqual)
 
 						DEFINEPOSTFIX(plusplus, inc)
-						DEFINEPOSTFIX(minusminus, dec)
+						DEFINEPOSTFIX(minusminus, dec)*/
 			}
 		}
 		return langObject(object);

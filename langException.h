@@ -51,7 +51,16 @@ namespace lang
             : langException(_Message)
         {	// construct from message string
         }
-    };
+	};
+	class langUserException : public langException
+	{
+	public:
+		langObject object;
+		langUserException(langObject object) : langException("langUserException")
+		{
+			this->object = object;
+		}
+	};
 #ifdef _WIN32
 #define throw_langRuntimeException(...) {char buf[512];sprintf_s(buf,__VA_ARGS__);throw langRuntimeException(buf);}
 #else

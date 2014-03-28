@@ -38,7 +38,7 @@ namespace lang
 		};
 		enum scopeType
 		{
-			_none_, _function, for_, ctor,
+			_none_, _function, for_, ctor, 
 		};
 	}
 
@@ -62,6 +62,7 @@ namespace lang
 		std::vector<parseObj*>& parsers;
 		int startIndex;
 		int index;
+		bool iscatcher;
 		en::scopeType type;
 		en::returnStatus status;
 		variable variable;

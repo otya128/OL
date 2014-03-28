@@ -45,8 +45,8 @@ LONG dump_exception(_EXCEPTION_POINTERS *ep, char*& a)
 {
 	PEXCEPTION_RECORD rec = ep->ExceptionRecord;
 
-	TCHAR buf[1024];
-	wsprintf(buf, TEXT("code:%x flag:%x addr:%p params:%d\n"),
+	char buf[1024];
+	sprintf_s(buf, ("code:%x flag:%x addr:%p params:%d\n"),
 		rec->ExceptionCode,
 		rec->ExceptionFlags,
 		rec->ExceptionAddress,
@@ -55,11 +55,12 @@ LONG dump_exception(_EXCEPTION_POINTERS *ep, char*& a)
 	/*::OutputDebugString*/std::wcout << (buf);
 
 	for (DWORD i = 0; i < rec->NumberParameters; i++){
-		wsprintf(buf, TEXT("param[%d]:%x\n"),
+		sprintf_s(buf, ("param[%d]:%x\n"),
 			i,
 			rec->ExceptionInformation[i]
 			);
-		/*::OutputDebugString*/std::wcout << (buf);
+		std::cerr << buf;
+		//*::OutputDebugString*/std::wcout << (buf);
 	}
 	a = "?";
 	switch (rec->ExceptionCode)
@@ -150,31 +151,7 @@ namespace lang
 }
 using namespace lang;
 #pragma once
-char* enumtable[] = { "identifier", "num", "doublequote", "str", "leftparent", "rightparent", "comma", "plus", "minus", "multiply", "equal", "equalequal", "semicolon", "blockstart", "blockend", "plusplus", "minusminus", "greater", "less", "greaterequal", "lessequal", "modulo", "plusequal", "minusequal", "dot", "division", "leftbracket", "rightbracket", "debbug_stop", "multiplyequal", "divisionequal", "moduloequal", "or", "oror", "and", "andand", "xor", "notequal", "not", "notnot", "leftshift", "rightshift", "leftshiftequal", "rightshiftequal", "andequal", "orequal", "xorequal", "chr", "none",
-"_class",
-"_new",
-"_this",
-"_namespace",
-"_using",
-"_static",
-"_true",
-"_false",
-"_null",
-"_break",
-"_continue",
-"_else",
-"_while",
-"_for",
-"_if",
-"_return",
-"base",
-"colon",
-"_foreach",
-"_in",
-"_is",
-"_as",
-"lambda",
-"conditional",
+char* enumtable[] = { "identifier", "num", "doublequote", "str", "leftparent", "rightparent", "comma", "plus", "minus", "multiply", "equalequal", "semicolon", "blockstart", "blockend", "plusplus", "minusminus", "greater", "less", "greaterequal", "lessequal", "modulo", "equal", "plusequal", "minusequal", "multiplyequal", "divisionequal", "moduloequal", "leftshiftequal", "rightshiftequal", "andequal", "orequal", "xorequal", "dot", "division", "leftbracket", "rightbracket", "debbug_stop", "_or", "oror", "_and", "andand", "_xor", "notequal", "_not", "notnot", "leftshift", "rightshift", "chr", "none", "_class", "_new", "_this", "_namespace", "_using", "_static", "_true", "_false", "_null", "_break", "_continue", "_else", "_while", "_for", "_if", "_return", "base", "colon", "_foreach", "_in", "_is", "_as", "lambda", "conditional", "_catch", "_throw",
 };
 
 char* parserEnumToString(lang::parserEnum i)
@@ -357,8 +334,6 @@ void gui(void)
 	//#pragma comment(lib, "comctl32.lib")
 	int main(int argc, char *argv[])
 	{
-#define plus__(x) 1  x  1
-		std::cout << plus__(+);
 		//INITCOMMONCONTROLSEX    stICCEx;
 		//stICCEx.dwSize = sizeof (INITCOMMONCONTROLSEX);
 		//stICCEx.dwICC = INT_MAX;//ICC_WIN95_CLASSES;                                // ICC_STANDARD_CLASSES
@@ -747,6 +722,12 @@ void gui(void)
 			{
 				if (!prompt)
 					::exit(ex.code);
+			}
+			catch (lang::langUserException ex)
+			{
+				if(!ex.object)std::cerr<<"Exception:nullptr"<<std::endl;
+				else
+				std::cerr<<"Exception:"<<ex.object->toString()<<std::endl;
 			}
 #if !defined(_DEBUG)//デバッグならデバッガの機能を利用する
 			catch (std::exception ex)

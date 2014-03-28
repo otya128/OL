@@ -89,5 +89,6 @@ namespace lang
 	class WCharType;
 	class ArrayType;
 	extern ArrayType* ArrayTypeObject;
+	extern ObjectType* ObjectTypeObject;
 }
 #endif

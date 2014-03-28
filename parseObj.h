@@ -49,6 +49,25 @@ namespace lang
 		~Conditional();
 		bool isconditional();
 	};
+	struct Catcherc
+	{
+		std::string *type;
+		std::string *varname;
+		int index;
+	};
+	class Catcher : public Object
+	{
+	private:
+		//void *__vfptr;
+		int _iscatcher;
+		//Type* type;
+	public:
+		std::vector<Catcherc> Catchers;
+		Catcher();
+		~Catcher();
+		bool iscatcher();
+		void Add(std::string *type, std::string *varname, int index);
+	};
 
 }
 #endif

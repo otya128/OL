@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include <sstream>
+#include <algorithm>
 #include "parser.h"
 #include <stdlib.h>
 #include <stack>
@@ -42,6 +43,7 @@ namespace lang
 namespace lang
 {
 	ArrayType* ArrayTypeObject;
+	ObjectType* ObjectTypeObject;
 #define HASHCLASS   1107
 #define HASHTHIS    659
 #define HASHNEW     339
@@ -63,6 +65,8 @@ namespace lang
 #define HASHIN      110
 #define HASHIS      115
 #define HASHAS      115
+#define HASHTHROW   1141
+#define HASHCATCH   1042
 #define ERROR(a) WARNING(a,0)//langObject NULLOBJECT = newObject(nullptr);
 	enum ENUMCLASS parserStatus
 	{
@@ -152,8 +156,92 @@ namespace lang
 		return (BlockStruct&)(*this)/*BlockStruct(a)*//*;
 		}*/
 	};
+	void parser::catchparse(int index)
+	{
+		if (!index)
+		{
+			WARNINGS(0, "syntax error[不正な場所][catch]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
+				return;
+		}
+		int catcher = index - 1;
+		int parent = 0, block = 1, bracket = 0;
+		
+		for (; catcher >= 0; catcher--)
+		{
+			parseObj* token = this->parsers[catcher];
+			if (token->pEnum == blockend) block++;
+			else if (token->pEnum == rightparent) parent++;
+			else if (token->pEnum == rightbracket) bracket++;
+			else if (token->pEnum == blockstart) block--;
+			else if (token->pEnum == leftparent) parent--;
+			else if (token->pEnum == leftbracket) bracket--;
+			if (parent <= 0 && block <= 0 && bracket <= 0)
+			{
+				if (token->pEnum == blockstart)
+				{
+					catcher++; break; }
+			}
+		}
+		if (catcher < 0)catcher = 0;
+		int catchindex = index + 1;
+		std::string *type = nullptr;
+		std::string *varname = nullptr;
+		if (this->parsers[catchindex]->pEnum == leftparent)
+		{
+			catchindex++;
+			if (this->parsers.size() > catchindex && this->parsers[catchindex]->pEnum == identifier)
+			{
+				type = this->parsers[catchindex]->name;
+				catchindex++;
+				if (this->parsers.size() > catchindex && this->parsers[catchindex]->pEnum == identifier)
+				{
+					varname = this->parsers[catchindex]->name;
+					catchindex++;
+					if (this->parsers.size() > catchindex && this->parsers[catchindex]->pEnum == rightparent)
+					{
+						catchindex++;
+					}
+					else
+					{
+						WARNINGS(0, "syntax error[catch]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
+							return;
+					}
+				}
+				else
+				{
+					if (this->parsers.size() > catchindex && this->parsers[catchindex]->pEnum == rightparent)
+					{
+						catchindex++;
+					}
+					else
+					{
+						WARNINGS(0, "syntax error[catch]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
+							return;
+					}
+				}
+			}
+			else
+			{
+				if (this->parsers.size() > catchindex && this->parsers[catchindex]->pEnum == rightparent)
+				{
+				}
+				else
+				{
+					WARNINGS(0, "syntax error[catch]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
+						return;
+				}
+			}
+		}
+		if (!this->parsers[catcher]->ptr)this->parsers[catcher]->ptr = new Catcher();
+		Catcher *c = (Catcher*)this->parsers[catcher]->ptr;
+		c->Add(type, varname, catchindex);
+	}
 	void parser::conditionalparse(int index)
 	{
+		if (this->parsers[index]->ptr && ((lang::Conditional*)this->parsers[index])->isconditional())
+		{
+			return;
+		}
 		if (index < 1)
 		{
 			WARNINGS(0, "syntax error[式がありません][?:]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
@@ -181,14 +269,24 @@ namespace lang
 				bracket--;
 			}
 			//すべて0ならtrue
-			else if (parent <= 0 || block <= 0 || bracket <= 0)
+			else if (parent <= 0 && block <= 0 && bracket <= 0)
 			{
 				if (parent < 0 || block < 0 || bracket < 0)
 				{
 					WARNINGS(0, "syntax error[不正な式][?:]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
 						return;
 				}
-				if (token->pEnum == colon)break;
+				if (token->pEnum == conditional)
+				{/*
+					this->conditionalparse(colonindex);
+					if (this->parsers[colonindex]->ptr && ((lang::Conditional*)this->parsers[colonindex]->ptr)->isconditional())
+					{
+						colonindex = ((lang::Conditional*)this->parsers[colonindex]->ptr)->endindex - 2;
+						break;
+					}*/
+				}
+				if (token->pEnum == colon)
+					break;
 				if (token->pEnum == rightparent)
 				{
 					WARNINGS(0, "syntax error[不正な式][?:]%s", getlinestring(this->program, this->parsers[0]->sourcestartindex).c_str())
@@ -242,13 +340,14 @@ namespace lang
 				}
 			}
 			//すべて0ならtrue
-			else if (parent <= 0 || block <= 0 || bracket <= 0)
+			else if (parent <= 0 && block <= 0 && bracket <= 0)
 			{
 				if (parent < 0 || block < 0 || bracket < 0)
 				{
 					break;
 				}
 				if (token->pEnum == semicolon)break;
+				if (token->pEnum == colon)break;
 				if (token->pEnum == rightparent)
 				{
 					break;
@@ -394,6 +493,12 @@ namespace lang
 		index = index + isparent;
 		std::stringstream ss;
 		endindex -= endparent;
+		if (argindex && this->parsers[argindex - 1]->pEnum == identifier)
+		{
+			argindex--;
+			ss << '#' << *this->parsers[argindex]->name;
+		}
+		else
 		ss << "lambda" << index + 1 << '-' << endindex;
 		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1, endindex/*-1/* + 1*/, isexp);
 		this->parsers[argindex]->ptr = l;
@@ -402,7 +507,8 @@ namespace lang
 	{
 		this->runner = new scope(this->parsers);
 		this->runner->variable.add("string", new StringType());
-		this->runner->variable.add("object", new lang::ObjectType());
+		ObjectTypeObject = new lang::ObjectType();
+		this->runner->variable.add("object", ObjectTypeObject);
 		this->runner->variable.add("int", new IntType());
 		this->runner->variable.add("double", new DoubleType());
 		this->runner->variable.add("char", new CharType());
@@ -508,6 +614,9 @@ namespace lang
 					break;
 				case parserEnum::conditional:
 					this->conditionalparse(i);
+					break;
+				case parserEnum::_catch:
+					this->catchparse(i);
 					break;
 			}
 			switch (classRead)
@@ -968,7 +1077,7 @@ namespace lang
 #endif
 		auto sts = parserStatus::None;
 		auto iden = new std::string();
-		bool shiftJis = !!!true, ASCII = true;
+		bool shiftJis = !!!!true, ASCII = true;
 		int startindex = 0;
 		int blockComment = 0;
 		bool isWChar = false;
@@ -1209,6 +1318,8 @@ namespace lang
 									break;
 								case HASHWHILE:
 									if (*iden == "while"){ this->parsers.push_back(new parseObj(parserEnum::_while, iden, startindex, i - 1)); ok = true; }
+									else
+									if (*iden == "catch"){ this->parsers.push_back(new parseObj(parserEnum::_catch, iden, startindex, i - 1)); ok = true; }
 									break;
 								case HASHIF:
 									if (*iden == "if"){ this->parsers.push_back(new parseObj(parserEnum::_if, iden, startindex, i - 1)); ok = true; }
@@ -1229,6 +1340,9 @@ namespace lang
 									if (*iden == "is"){ this->parsers.push_back(new parseObj(parserEnum::_is, iden, startindex, i - 1)); ok = true; }
 									else
 									if (*iden == "as"){ this->parsers.push_back(new parseObj(parserEnum::_as, iden, startindex, i - 1)); ok = true; }
+									break;
+								case HASHTHROW:
+									if (*iden == "throw"){ this->parsers.push_back(new parseObj(parserEnum::_throw, iden, startindex, i - 1)); ok = true; }
 									break;
 							}
 							if (!ok) this->parsers.push_back(new parseObj(parserEnum::identifier, iden, startindex, i - 1));

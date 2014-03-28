@@ -292,5 +292,21 @@ namespace OL
 			return 0;
 		}
 	}
+	class Exception
+	{
+		var _what;
+		var What()
+		{
+			return _what;
+		}
+		Exception(var what)
+		{
+			this._what = what;
+		}
+		var ToString()
+		{
+			return this._what;
+		}
+	}
 }
 void srand(long s){seed = s;}long rand() { seed=seed*1103515245+12345; return seed&2147483647; }static seed=time();

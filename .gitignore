@@ -43,3 +43,4 @@ makefile~
 *.o
 *.stackdump
 *.9860
+#Object.o#

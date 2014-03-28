@@ -25,6 +25,7 @@ namespace lang
         //スコープ
 		lang::scope* thisscope;
 		Class* base;
+		virtual bool trygetMember(std::string& name,langObject& obj);
 		virtual langObject getMember(std::string& name);
 		virtual langObject setMember(std::string& name, langObject obj);
     };

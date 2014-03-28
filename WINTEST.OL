@@ -1,4 +1,27 @@
+{
+throw new OL::Exception("Exception!!!!!!!");
+catch(OL::Exception ex)
+{
+print(ex,"UMM");
+}
+catch(object ex)
+{
+print(ex);
+}
+}
+for(;;){}
 print((-(+(-1))),"\t",OL::Math.cos(1));
+var list = new OL::List();
+for(int i=0;i<31;i++)
+{
+	list.Add(i);
+}
+for(int i=0;i<31;i++)
+{
+	list[i]++;
+	print(list[i],'\t');
+}
+
 //new hoge();exit();class hoge : OL::GUI::Window{hoge(){base.ctor(this,512,512)base.Show()}}
 //HiddenFaxWindow????????????????????????????
 //ADD char,wchar type

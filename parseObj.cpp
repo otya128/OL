@@ -138,4 +138,25 @@ namespace lang
 	{
 		return this->_isconditional == 0x10000FF6;
 	}
+	Catcher::Catcher()
+	{
+		this->_iscatcher = 0x10000FF4;
+		this->type = NULLOBJECT->type;
+	}
+	Catcher::~Catcher()
+	{
+
+	}
+	bool Catcher::iscatcher()
+	{
+		return this->_iscatcher == 0x10000FF4;
+	}
+	void Catcher::Add(std::string *type, std::string *varname, int index)
+	{
+		Catcherc cc;
+		cc.type = type;
+		cc.varname = varname;
+		cc.index = index;
+		this->Catchers.push_back(cc);
+	}
 }
