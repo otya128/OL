@@ -32,7 +32,7 @@
 #define strncpy_s(a,b,c,d) strncpy(a,c,d)
 #define freopen_s(a,b,c,d) *a = freopen(b,c,d) 
 #endif
-#ifndef _DEBUG
+#ifndef _DEBUG___
 #ifdef _WIN32
 #include <eh.h>
 //構造化例外が発生すると、この関数が呼ばれる
@@ -126,8 +126,8 @@ LONG dump_exception(_EXCEPTION_POINTERS *ep, char*& a)
 }
 #endif
 #endif
-#define END if(lang::prompt)goto theend
-#define FAILEND if(lang::prompt){result = 1;goto theend;}
+#define END if(!lang::prompt)goto theend
+#define FAILEND if(!lang::prompt){result = 1;goto theend;}
 //#include "parseObj.h"
 //#include "parserEnum.h"
 namespace lang
@@ -520,6 +520,7 @@ void gui(void)
 			if (leakcheck) _CrtSetReportHook((_CRT_REPORT_HOOK)hook);
 #endif
 			lib::init();
+			lang::stacktrace = new std::vector<langFunction>();
 			lang::NULLOBJECT = new lang::Object();
 			lang::NULLOBJECT->type->name = "null";
 			lang::TRUEOBJECT = new lang::Int(true);
@@ -725,11 +726,19 @@ void gui(void)
 			}
 			catch (lang::langUserException ex)
 			{
-				if(!ex.object)std::cerr<<"Exception:nullptr"<<std::endl;
+				if (!ex.object)std::cerr << "Exception:nullptr" << std::endl;
 				else
-				std::cerr<<"Exception:"<<ex.object->toString()<<std::endl;
+					std::cerr << "Exception:" << ex.object->toString() << std::endl;
+				if (lang::stacktrace->size())
+				{
+					std::cerr<<"StackTrace"<<std::endl;
+					for(int i=0;i<lang::stacktrace->size();i++)
+					{
+						std::cerr<<lang::stacktrace->at(i)->toString()<<std::endl;
+					}
+				}
 			}
-#if !defined(_DEBUG)//デバッグならデバッガの機能を利用する
+#if !defined(_DEBUG___)//デバッグならデバッガの機能を利用する
 			catch (std::exception ex)
 			{
 				std::cerr << "BUG!!!" << ex.what() << std::endl;
@@ -776,6 +785,7 @@ void gui(void)
 			{
 				delete del[i];
 			}
+			lang::stacktrace->clear();
 			delete pars;
 			if (prompt)std::cout << std::endl;
 			//(new lang::scope(pars->parsers))->run();
@@ -792,6 +802,7 @@ void gui(void)
 #if _DEBUG
 		BreakPoint.~vector();
 #endif
+		delete lang::stacktrace;
 		delete BuiltFunction;
 		delete lang::NULLOBJECT;
 		delete lang::TRUEOBJECT;

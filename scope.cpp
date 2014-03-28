@@ -269,6 +269,7 @@ namespace lang
 #define LANG_SCOPE_RUN_RET return result ? result : NULLOBJECT
 	langObject scope::run(void)
 	{
+		int stackindex = lang::stacktrace->size();
 		langObject result = nullptr;
 		this->index = this->startIndex;
 		if (this->parsers[this->index]->ptr && ((lang::Catcher*)this->parsers[this->index]->ptr)->iscatcher())
@@ -754,48 +755,50 @@ namespace lang
 								}
 								break;
 							case 7:
-							_foreach_7 :
-							{auto arg = std::vector<langObject>();
-									   int result = Int::toInt(MoveNext->call(&arg));
-									   if (result)
-									   {
-										   auto arg = std::vector<langObject>();
-										   foreachscope->variable.add(*foreach_var, Current->call(&arg));
-										   auto buf = foreachscope->run();
-										   if (foreachscope->status == en::returnStatus::_return)
-										   {
-											   this->status = foreachscope->status;
-											   foreachscope->refdec();
-											   return buf;
-										   }
-										   else
-										   if (foreachscope->status == en::returnStatus::_break)
-										   {
-											   this->index = this->blockSkip(this->index);
-											   status = en::none;
-											   foreachscope->refdec();
-											   foreahflag = 0;
-											   continue;
-										   }
-										   else
-										   if (foreachscope->status != en::returnStatus::_continue && foreachscope->status != en::returnStatus::none_)
-										   {
-											   this->status = foreachscope->status;
-											   foreachscope->refdec();
-											   return buf;
-										   }
-										   this->index--;
-									   }
-									   else
-									   {
-										   this->index = this->blockSkip(this->index);
-										   status = en::none;
-										   foreachscope->refdec();
-										   foreahflag = 0;
-									   }
-									   break;
-							}
-									   break;
+								;
+							_foreach_7:
+								{
+									auto arg = std::vector<langObject>();
+									int result = Int::toInt(MoveNext->call(&arg));
+									if (result)
+									{
+										auto arg = std::vector<langObject>();
+										foreachscope->variable.add(*foreach_var, Current->call(&arg));
+										auto buf = foreachscope->run();
+										if (foreachscope->status == en::returnStatus::_return)
+										{
+											this->status = foreachscope->status;
+											foreachscope->refdec();
+											return buf;
+										}
+										else
+										if (foreachscope->status == en::returnStatus::_break)
+										{
+											this->index = this->blockSkip(this->index);
+											status = en::none;
+											foreachscope->refdec();
+											foreahflag = 0;
+											continue;
+										}
+										else
+										if (foreachscope->status != en::returnStatus::_continue && foreachscope->status != en::returnStatus::none_)
+										{
+											this->status = foreachscope->status;
+											foreachscope->refdec();
+											return buf;
+										}
+										this->index--;
+									}
+									else
+									{
+										this->index = this->blockSkip(this->index);
+										status = en::none;
+										foreachscope->refdec();
+										foreahflag = 0;
+									}
+									break;
+								}
+								break;
 						}
 #pragma endregion
 				}
@@ -839,6 +842,14 @@ namespace lang
 					return buf;
 				}
 				sc->refdec();
+				if (stackindex != lang::stacktrace->size())
+				{
+					int pop_count = lang::stacktrace->size() - stackindex;
+					while (pop_count--)
+					{
+						lang::stacktrace->pop_back();
+					}
+				}
 				return buf;
 			}
 		}
@@ -1027,13 +1038,20 @@ namespace lang
 	//</*=*/にしたのは何故
 	//https://github.com/otya128/OL/commit/fc679f99fc2981c56b1a1b58102eaed663649e67#diff-43660f740e82e2deed81b7966c353520R826
 	//この時に追加したらしい
+	//mageじゃなくてopera==17の時で良い
+	//new i(1);class i{v k;i(v ii){k=new i;k.k=new i;k.k.k=()=>1;print(1<=k.k.k())}}が動かなかった
+	//                                                                    ^^^^^^^三段dot演算から
 #define OP if (opera <= thisop) break
 #define UOP if (unoopera <= thisop) break
-#define OP2 i = index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop && !((int)ev & 4)) object = eval(object,i,17,evals::isbinaryoperation),index = i;
-#define OP3 i=index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop && !((int)ev & 4)||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2
-#define OP4 if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/ && !((int)ev & 4)||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
+#define OP2 i = index;if(this->parsers.size()>index+1&&\
+	opera == 17/*Operator(this->parsers[index+1]->pEnum) >= thisop && !((int)ev & 4)*/\
+	) object = eval(object,i,17,evals::isbinaryoperation),index = i;
+	//dot演算子は無理っぽい...
+#define OP3 i=index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop/* && !((int)ev & 4)*//*true/*opera==17*/||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2
+#define OP4 if(this->parsers.size()>index+1&&opera==17||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
+//	Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/ && !((int)ev & 4)||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 	//#define OP4 if(this->parsers.size()>index+1&&(Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/||this->parsers[index+1]->pEnum==leftparent)/*&&(this->parsers[index+1]->pEnum!=leftparent || object->type->TypeEnum == _Function))*/) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
-#define OP5 i = index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop && !((int)ev & 4)||this->parsers[index+1]->pEnum==leftbracket) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
+#define OP5 i = index;if(this->parsers.size()>index+1/*Operator(this->parsers[index+1]->pEnum) >= thisop && !((int)ev & 4)*/&&opera==17||this->parsers[index+1]->pEnum==leftbracket) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 	langObject scope::eval(langObject object, int& index, int opera, evals ev, int unoopera)
 	{
 		//int index = object->index;
@@ -1185,8 +1203,9 @@ namespace lang
 											 if (ctor->type->TypeEnum == _Function)
 											 {
 												 try
-												 {
-													 object = langObject(static_cast<Function*>(ctor)->ctorcall(&arg));
+												 {//基底クラスになってしまうから無かったことに[return this;]
+													 //object = 
+													 langObject(static_cast<Function*>(ctor)->ctorcall(&arg));
 												 }
 												 catch (langRuntimeException ex)
 												 {
@@ -1365,7 +1384,7 @@ namespace lang
 								}
 								throw langRuntimeException(ss.str().c_str(), ex.tokens, ex.funcstacktrace, this->parsers[binaryoperation - 1]->name->c_str(), ex.stacktrace);
 							}
-							isBuilt = true;
+							isBuilt = !!!true;
 						}
 						//object = 
 						index = i;

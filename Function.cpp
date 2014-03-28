@@ -5,6 +5,12 @@
 namespace lang
 {
 
+#ifdef _MSC_VER
+	__declspec(thread)
+#else
+	__thread
+#endif
+		std::vector<langFunction>* stacktrace;
 	void FunctionArgThrow(Function *func, std::vector<langObject>* argList)
 	{
 		std::stringstream ss;
@@ -111,6 +117,7 @@ namespace lang
 	}
 	langObject Function::call(std::vector<langObject>* argList)
 	{
+		lang::stacktrace->push_back(this);
 		working = true;
 		auto sc = new lang::scope(this->scope->parsers, this->scope/*.get()*/, this->scope->_this);
 		if (name.size() && name.at(0) == '#')sc->variable.add(name.substr(1), this);//new Function(this,sc));
@@ -124,9 +131,11 @@ namespace lang
 		{
 			sc->variable.add((*this->argList)[i], (*argList)[i]);
 		}
-		auto buf = sc->run();
+		langObject buf;
+		buf = sc->run();
 		sc->del();
 		working = false;
+		lang::stacktrace->pop_back();
 		return /*std::shared_ptr<Object>*/(buf);
 	}
 	Lambda::Lambda(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index, int endindex, bool isexp)
@@ -158,6 +167,7 @@ namespace lang
 	}
 	langObject Lambda::call(std::vector<langObject>* argList)
 	{
+		lang::stacktrace->push_back(this);
 		if (this->NoExpLambda) return Function::call(argList);
 		working = true;
 		auto sc = new lang::scope(this->scope->parsers, this->scope/*.get()*/, this->scope->_this);
@@ -170,13 +180,16 @@ namespace lang
 		{
 			sc->variable.add((*this->argList)[i], (*argList)[i]);
 		}
-		auto buf = sc->eval(NULLOBJECT, sc->startIndex);//run();
+		langObject buf;
+		buf = sc->eval(NULLOBJECT, sc->startIndex);//run();
 		sc->del();
 		working = false;
+		lang::stacktrace->pop_back();
 		return /*std::shared_ptr<Object>*/(buf);
 	}
 	langObject Function::ctorcall(std::vector<langObject>* argList)
 	{
+		lang::stacktrace->push_back(this);
 		auto sc = new lang::scope(this->scope->parsers, this->scope, this->scope->_this);
 		sc->type = en::scopeType::ctor;
 		sc->startIndex = this->index + 1;//+1ÇµÇÒÇ†Ç¢Ç∆returnÇ™ñ≥Ç¢ä÷êîÇ≈returnÇ≥ÇÍÇ»Ç≠Ç»ÇÈ

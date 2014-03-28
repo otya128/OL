@@ -1,15 +1,23 @@
+var list = new OL::List();list.Add(1);list.Add(2);list.Add(3);
+print(list.Count());
+foreach(var aa in list){print(aa);}
 {
-throw new OL::Exception("Exception!!!!!!!");
+throw new MyException("Exception!!!!!!!");
+catch(MyException ex)
+{
+print("MyException",ex);
+}
 catch(OL::Exception ex)
 {
-print(ex,"UMM");
+print("OL::Exception",ex);
 }
 catch(object ex)
 {
-print(ex);
+print("object",ex);
 }
 }
 for(;;){}
+class MyException : OL::Exception{}
 print((-(+(-1))),"\t",OL::Math.cos(1));
 var list = new OL::List();
 for(int i=0;i<31;i++)

@@ -131,11 +131,13 @@ namespace lang
 			bool thread_end = false;
 			std::thread* thd = new std::thread([threadFunc, &thread_end]
 			{
+				lang::stacktrace = new std::vector<langFunction>();
 				std::vector<langObject> rarg;
 				threadFunc->call(&rarg);
 				threadFunc->thread->detach();
 				lang::gc->free_(threadFunc);
 				thread_end = true;
+				delete lang::stacktrace;
 			});
 			threadFunc->thread = thd;
 			try

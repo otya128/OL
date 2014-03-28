@@ -6,9 +6,17 @@
 #endif
 #include "scope.h"
 #include "GC.h"
+#include <vector>
 //#include "Object.h"
 namespace lang
 {
+	extern
+#ifdef _MSC_VER
+		__declspec(thread)
+#else
+		__thread
+#endif
+		std::vector<langFunction>* stacktrace;
     class Function : public Object
     {
     public:

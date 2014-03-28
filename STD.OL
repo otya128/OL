@@ -71,7 +71,7 @@ namespace OL
 			}
 			this._current = this._list[_index];
 			_index = _index + 1;
-			return (_index) <= this._list.Count();
+			return _index <= this._list.Count();
 		}
 	}
 	namespace GUI
