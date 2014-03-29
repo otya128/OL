@@ -67,6 +67,10 @@ namespace lang
 #define HASHAS      115
 #define HASHTHROW   1141
 #define HASHCATCH   1042
+#define HASHPUBLIC  1552
+#define HASHPRIVATE 2252
+#define HASHPROTECTED 3786
+#define HASHCONST   1040
 #define ERROR(a) WARNING(a,0)//langObject NULLOBJECT = newObject(nullptr);
 	enum ENUMCLASS parserStatus
 	{
@@ -512,16 +516,16 @@ namespace lang
 		this->runner = new scope(this->parsers);
 		if (!lang::gc)
 		{
-			this->runner->variable.add("string", new StringType());
+			this->runner->variable.add("string", new StringType(),qualifier::const_);
 			ObjectTypeObject = new lang::ObjectType();
-			this->runner->variable.add("object", ObjectTypeObject);
-			this->runner->variable.add("int", new IntType());
-			this->runner->variable.add("double", new DoubleType());
-			this->runner->variable.add("char", new CharType());
-			this->runner->variable.add("wchar", new WCharType());
+			this->runner->variable.add("object", ObjectTypeObject, qualifier::const_);
+			this->runner->variable.add("int", new IntType(), qualifier::const_);
+			this->runner->variable.add("double", new DoubleType(), qualifier::const_);
+			this->runner->variable.add("char", new CharType(), qualifier::const_);
+			this->runner->variable.add("wchar", new WCharType(), qualifier::const_);
 			ArrayTypeObject = new ArrayType();
-			this->runner->variable.add("array", ArrayTypeObject);
-			this->runner->variable.add("Array", ArrayTypeObject);
+			this->runner->variable.add("array", ArrayTypeObject, qualifier::const_);
+			this->runner->variable.add("Array", ArrayTypeObject, qualifier::const_);
 			lang::gc = new gabekore(this->runner);
 		}
 		int funcRead = 0, classRead = 0;
@@ -536,6 +540,9 @@ namespace lang
 		membertype staticmember = nullptr;
 		int classanonymous = 0;//0の位置では宣言できないので問題ない
 		bool isstatic = false;
+		qualifier typequalifier;
+		//省略フラグ
+		bool typeset = false;
 		for (int i = 0; i < this->parsers.size(); i++)
 		{
 			parseObj *token = this->parsers[i];
@@ -688,6 +695,21 @@ namespace lang
 						{
 							isstatic = true;
 						}
+						switch (token->pEnum)
+						{
+							case _public:
+								typequalifier = qualifier::public_;
+								typeset = true;
+								break;
+							case _private:
+								typequalifier = qualifier::private_;
+								typeset = true;
+								break;
+							case _protected:
+								typequalifier = qualifier::protected_;
+								typeset = true;
+								break;
+						}
 					}
 					if (class_read_stack_index > funcStack.size())
 					if (token->pEnum == blockend)
@@ -703,22 +725,34 @@ namespace lang
 					}
 					break;
 				case 4:
-					if (token->pEnum == identifier)
+					if (token->pEnum == identifier || (typeset && token->pEnum == semicolon))
 					{
-						if (i + 1 < this->parsers.size() && this->parsers[i + 1]->pEnum == semicolon)
+						if (i + 1 < this->parsers.size() && this->parsers[i + 1]->pEnum == semicolon || (typeset && token->pEnum == semicolon))
 						{
-							if (isstatic)
-								staticmember->push_back(std::pair<std::string, langObject>(*token->name, NULLOBJECT));
+							if (!(typeset && token->pEnum == semicolon))
+							{
+								if (isstatic)
+									staticmember->push_back(MEMBERTYPEITEM(*token->name, NULLOBJECT, typequalifier));
+								else
+									member->push_back(MEMBERTYPEITEM(*token->name, NULLOBJECT, typequalifier));
+							}
 							else
-								member->push_back(std::pair<std::string, langObject>(*token->name, NULLOBJECT));
+							{
+								if (isstatic)
+									staticmember->push_back(MEMBERTYPEITEM(*this->parsers[i - 1]->name, NULLOBJECT, typequalifier));
+								else
+									member->push_back(MEMBERTYPEITEM(*this->parsers[i - 1]->name, NULLOBJECT, typequalifier));
+							}
 							isstatic = false;
 							classRead = 3;
+							typequalifier = qualifier::public_;
 						}
+						typeset = false;
 						if (i + 1 < this->parsers.size() && this->parsers[i + 1]->pEnum == equal)
 						{
 							if (isstatic)
 							{
-								staticmember->push_back(std::pair<std::string, langObject>(*token->name, NULLOBJECT));
+								staticmember->push_back(MEMBERTYPEITEM(*token->name, NULLOBJECT,typequalifier));
 #ifdef CPP11
 								staticmemberevals.push_back(std::tuple<int, std::string&, std::string>(i + 2, *token->name, className));
 #else
@@ -726,9 +760,10 @@ namespace lang
 #endif
 							}
 							else
-								std::cout << "未実装" << std::endl, member->push_back(std::pair<std::string, langObject>(*token->name, NULLOBJECT));
-							isstatic = false;
+								std::cout << "未実装" << std::endl, member->push_back(MEMBERTYPEITEM(*token->name, NULLOBJECT,typequalifier));
+							isstatic = false; 
 							classRead = 3;
+							typequalifier = qualifier::public_;
 						}
 						if (i + 1 < this->parsers.size() && this->parsers[i + 1]->pEnum == leftparent)
 						{
@@ -825,10 +860,10 @@ namespace lang
 					{
 						if (isstatic)
 						{
-							staticmember->push_back(std::pair<std::string, langObject>(funcName, newFunction(funcName, argList, this->runner, i)));
+							staticmember->push_back(MEMBERTYPEITEM(funcName, newFunction(funcName, argList, this->runner, i),typequalifier));
 						}
 						else
-							member->push_back(std::pair<std::string, langObject>(funcName, newFunction(funcName, argList, this->runner, i)));
+							member->push_back(MEMBERTYPEITEM(funcName, newFunction(funcName, argList, this->runner, i),typequalifier));
 					}
 					else if (func <= 0)
 					{
@@ -962,7 +997,7 @@ namespace lang
 		for (int i = 0; i < this->extendslist.size(); i++)
 		{
 			auto&& j = this->extendslist[i];
-			j.second->base = (langClass)this->runner->variable[*this->parsers[j.first]->name];
+			j.second->base = (langClass)this->runner->variable(*this->parsers[j.first]->name,this->runner);
 			if (j.second->base == NULLOBJECT)
 			{
 				WARNINGS(0, "継承元になる%sクラスが存在しません。", this->parsers[j.first]->name->c_str())
@@ -977,9 +1012,9 @@ namespace lang
 			auto i = *it;
 #endif
 #if CPP11
-			((langClass)this->runner->variable[std::get<2>(i)])->thisscope->variable.set(std::get<1>(i), this->runner->eval(NULLOBJECT, std::get<0>(i)));
+			((langClass)this->runner->variable(std::get<2>(i), this->runner))->thisscope->variable.set(std::get<1>(i), this->runner->eval(NULLOBJECT, std::get<0>(i)), this->runner);
 #else
-			((langClass)this->runner->variable[i.second.second])->thisscope->variable.set(i.second.first, this->runner->eval(NULLOBJECT, i.first));
+			((langClass)this->runner->variable(i.second.second,this->runner))->thisscope->variable.set(i.second.first, this->runner->eval(NULLOBJECT, i.first),this->runner);
 #endif
 		}
 	}
@@ -1384,6 +1419,18 @@ namespace lang
 								case HASHTHROW:
 									if (*iden == "throw"){ this->parsers.push_back(new parseObj(parserEnum::_throw, iden, startindex, i - 1)); ok = true; }
 									break;
+								case HASHPUBLIC:
+									if (*iden == "public"){ this->parsers.push_back(new parseObj(parserEnum::_public, iden, startindex, i - 1)); ok = true; }
+									break;
+								case HASHPRIVATE:
+									if (*iden == "private"){ this->parsers.push_back(new parseObj(parserEnum::_private, iden, startindex, i - 1)); ok = true; }
+									break;
+								case HASHPROTECTED:
+									if (*iden == "protected"){ this->parsers.push_back(new parseObj(parserEnum::_protected, iden, startindex, i - 1)); ok = true; }
+									break;
+								case HASHCONST:
+									if (*iden == "const"){ this->parsers.push_back(new parseObj(parserEnum::identifier, iden, startindex, i - 1)); ok = true; WARNING("const is not implemented", 1); }
+									break;
 							}
 							if (!ok) this->parsers.push_back(new parseObj(parserEnum::identifier, iden, startindex, i - 1));
 							iden = new std::string();//!!!!コピーされないのでnew する!!!!
@@ -1532,6 +1579,9 @@ namespace lang
 						case '\'':
 							*iden += chr;
 							break;
+						case '\\':
+							*iden += chr;
+							break;
 						default:
 							WARNING((std::string("認識できないエスケープシーケンス") + chr).c_str(), 1);
 							break;
@@ -1551,6 +1601,9 @@ namespace lang
 							*iden += chr;
 							break;
 						case '\'':
+							*iden += chr;
+							break;
+						case '\\':
 							*iden += chr;
 							break;
 						default:

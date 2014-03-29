@@ -79,7 +79,7 @@ namespace lang
 		langClassObject _this;
 		scope *parent;
 	};
-#define DEFINEDSCPEVAR(scope, name) (scope->variable.definedVar(name))
+#define DEFINEDSCPEVAR(scope, name) (scope->variable.definedVar(name,scope))
 	langObject BuidInFunction(std::string name, std::vector<langObject> arg);
 }
 #endif

@@ -308,7 +308,7 @@ namespace lang
 #define LANG_OPERA_DEBUG_SINGLE_CHECK if (!obj1)throw langRuntimeException(__FUNCTION__"式がありません。");
 #endif
 #define OPERA2ARG(name) {auto clas = (langClassObject)obj1;\
-	auto func = (langFunction)clas->thisscope->variable[name]; \
+	auto func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
 	if (func != nullptr && func is _Function)\
 	{\
 	auto vec = new std::vector<langObject>(); \
@@ -328,7 +328,7 @@ namespace lang
 			else\
 			throw langRuntimeException((std::string("関数") + name + "が定義されていません").c_str()); }
 #define OPERA2ARGSINGLE(name) {auto clas = (langClassObject)obj1;\
-	auto func = (langFunction)clas->thisscope->variable[name]; \
+	auto func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
 	if (func != nullptr && func is _Function)\
 	{auto arg = std::vector<langObject>(); \
 	auto ret = func->call(&arg); \
@@ -338,7 +338,7 @@ namespace lang
 			throw langRuntimeException((std::string("関数") + name + "が定義されていません").c_str()); }
 
 #define OPERA2ARG2(name) {auto clas = (langClassObject)obj2;\
-	auto func = (langFunction)clas->thisscope->variable[name]; \
+	auto func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
 	if (func != nullptr && func is _Function)\
 	{\
 	auto vec = new std::vector<langObject>(); \
@@ -416,7 +416,7 @@ namespace lang
 					return newString((obj1->toString() + obj2->toString()));
 				case PreType::_ClassObject:
 				{auto clas = (langClassObject)obj1;
-				auto func = (langFunction)clas->thisscope->variable["plus"];
+				auto func = (langFunction)clas->thisscope->variable("plus", clas->thisscope);
 				if (func != nullptr && func is _Function)
 				{
 					auto vec = new std::vector<langObject>();
@@ -599,7 +599,7 @@ namespace lang
 					;
 					{
 						auto clas = (langClassObject)obj1;
-						auto func = (langFunction)clas->thisscope->variable["equal"];
+						auto func = (langFunction)clas->thisscope->variable("equal", clas->thisscope);
 						if (func != nullptr && func is _Function)
 						{
 							auto vec = new std::vector<langObject>();
@@ -645,7 +645,7 @@ namespace lang
 					if (obj2 is _ClassObject)
 					{
 						auto clas = (langClassObject)obj2;
-						auto func = (langFunction)clas->thisscope->variable["leftShift"];
+						auto func = (langFunction)clas->thisscope->variable("leftShift", clas->thisscope);
 						if (func != nullptr && func is _Function)
 						{
 							auto vec = new std::vector<langObject>();
@@ -673,7 +673,7 @@ namespace lang
 					if (obj2 is _ClassObject)
 					{
 						auto clas = (langClassObject)obj2;
-						auto func = (langFunction)clas->thisscope->variable["leftShift"];
+						auto func = (langFunction)clas->thisscope->variable("leftShift", clas->thisscope);
 						if (func != nullptr && func is _Function)
 						{
 							auto vec = new std::vector<langObject>();

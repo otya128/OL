@@ -86,6 +86,10 @@ namespace lang
 		conditional,//?
 		_catch,
 		_throw,
+		_public,
+		_private,
+		_protected,
+		_const,
 	};
 }
 #endif

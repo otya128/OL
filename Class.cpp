@@ -6,6 +6,7 @@
 #include "langException.h"
 namespace lang
 {
+	class scope;
 	Class::Class(std::string name, int index, membertype member, lang::scope* scope, membertype staticmember)
 	{
 		this->base = nullptr;
@@ -26,9 +27,9 @@ namespace lang
 #endif
 			if (i.first == "finalize")
 			{
-				if (i.second is _Function)
+				if (i.second.first is _Function)
 				{
-					this->finalize = (langFunction)i.second;
+					this->finalize = (langFunction)i.second.first;
 					break;
 				}
 			}
@@ -38,14 +39,14 @@ namespace lang
 		this->thisscope->refinc();
 		FOREACH(i, *staticmember)//        foreach_(var_ i in_ *staticmember)//C# style foreach
 			//        {
-		if (i.second->type->TypeEnum == _Function)
+		if (i.second.first->type->TypeEnum == _Function)
 		{
-			auto buf = new Function((langFunction)i.second, this->thisscope);
+			auto buf = new Function((langFunction)i.second.first, this->thisscope);
 			buf->scope = thisscope;
-			this->thisscope->variable.add(i.first, buf);
+			this->thisscope->variable.add(i.first, buf, i.second.second);
 		}
 		else
-			this->thisscope->variable.add(i.first, i.second);
+			this->thisscope->variable.add(i.first, i.second.first, i.second.second);
 		ENDFOREACH
 			/*
 			if(this->finalize != nullptr)
@@ -84,40 +85,42 @@ namespace lang
 		this->thisscope->refdec();
 		//delete this->type->name;
 	}
-	bool Class::trygetMember(std::string& name, langObject& obj)
+	bool Class::trygetMember(std::string& name, langObject& obj, lang::scope *access)
 	{
-		if (this->thisscope->variable.definedVar(name))
+		if (this->thisscope->variable.definedVar(name, access))
 		{
-			obj = this->thisscope->variable[name];
+			obj = this->thisscope->variable(name, access);
 			return true;
 		}
 		else
 		{
-			if (this->base)return this->base->trygetMember(name, obj);
+			if (this->base)return this->base->trygetMember(name, obj, access);
 			return false;
 		}
 	}
-	langObject Class::getMember(std::string& name)
+	langObject Class::getMember(std::string& name, lang::scope *access)
 	{
-		if (this->thisscope->variable.definedVar(name))
+		if (this->thisscope->variable.definedVar(name, access))
 		{
-			return this->thisscope->variable[name];
+			return this->thisscope->variable(name, access);
 		}
 		else
 		{
-			if (this->base)return this->base->getMember(name);
-			return NULLOBJECT;
+			if (this->base)return this->base->getMember(name, access);
+			throw_langRuntimeException("%sというmemberは存在しません", name.c_str());
 		}
 	}
-	langObject Class::setMember(std::string& name, langObject obj)
+	langObject Class::setMember(std::string& name, langObject obj, lang::scope *access)
 	{
-		if (this->thisscope->variable.definedVar(name))
+		if (this->thisscope->variable.definedVar(name, access))
 		{
-			return this->thisscope->variable.set(name, obj);
+			return this->thisscope->variable.set(name, obj, access);
 		}
 		else
 		{
-			return this->base->setMember(name, obj);
+			if (base)
+			return this->base->setMember(name, obj, access);
+			throw_langRuntimeException("%sというmemberは存在しません %s",name.c_str(),obj->toString().c_str());
 		}
 	}
 	ClassObject::ClassObject(Class* type) : Class(type), staticClass(type)//type->name,type->index,type->member,type->scope)
@@ -132,17 +135,17 @@ namespace lang
 		this->type->TypeEnum = _ClassObject;
 		FOREACH(i, *member)//foreach_(var_ i in_ *this->member)//C# style foreach
 			//{
-		if (i.second->type->TypeEnum == _Function)
+		if (i.second.first->type->TypeEnum == _Function)
 		{
-			if (i.second != type->finalize)
+			if (i.second.first != type->finalize)
 			{
-				auto buf = new Function((langFunction)i.second, this->thisscope);
+				auto buf = new Function((langFunction)i.second.first, this->thisscope);
 				buf->scope = thisscope;
-				this->thisscope->variable.add(i.first, buf);
+				this->thisscope->variable.add(i.first, buf, i.second.second);
 			}
 		}
 		else
-			this->thisscope->variable.add(i.first, i.second);
+			this->thisscope->variable.add(i.first, i.second.first, i.second.second);
 		ENDFOREACH//}
 		if (type->finalize != nullptr)
 		{
@@ -158,7 +161,7 @@ namespace lang
 	{
 		langObject tostr;
 		std::string tostrs("ToString");
-		if (this->trygetMember(tostrs,tostr) && tostr is _Function)//this->thisscope->variable["ToString"] is _Function)
+		if (this->trygetMember(tostrs,tostr,this->thisscope) && tostr is _Function)//this->thisscope->variable["ToString"] is _Function)
 		{
 			auto arg = std::vector<langObject>();//普通にローカル変数のポインタ私で良かった
 			auto result = ((langFunction)/*this->thisscope->variable["ToString"]*/tostr)->call(&arg);
@@ -198,9 +201,9 @@ namespace lang
 		switch (obj1->type->TypeEnum)
 		{
 			case PreType::_ClassObject:
-				if (((langClass)obj1)->thisscope->variable.definedVar("bracket"))
+				if (((langClass)obj1)->thisscope->variable.definedVar("bracket", ((langClass)obj1)->thisscope))
 				{
-					auto func = (langFunction)((langClass)obj1)->thisscope->variable["bracket"];
+					auto func = (langFunction)((langClass)obj1)->thisscope->variable("bracket", ((langClass)obj1)->thisscope);
 					if (func is _Function)
 					{
 						return func->call(&obj2);
@@ -215,9 +218,9 @@ namespace lang
 		switch (obj1->type->TypeEnum)
 		{
 			case PreType::_ClassObject:
-				if (((langClass)obj1)->thisscope->variable.definedVar("bracketequal"))
+				if (((langClass)obj1)->thisscope->variable.definedVar("bracketequal", ((langClass)obj1)->thisscope))
 				{
-					auto func = (langFunction)((langClass)obj1)->thisscope->variable["bracketequal"];
+					auto func = (langFunction)((langClass)obj1)->thisscope->variable("bracketequal", ((langClass)obj1)->thisscope);
 					if (func is _Function)
 					{
 						return func->call(&obj2);

@@ -56,7 +56,7 @@ namespace lang
 				delete this;
 		}
 	}
-	scope::scope(std::vector<parseObj*>& v) :parsers(v)
+	scope::scope(std::vector<parseObj*>& v) :parsers(v), variable(this)
 	{
 		parent = nullptr;
 		this->isClass() = nullptr;
@@ -73,7 +73,7 @@ namespace lang
 			std::cout << "変数スコープを作成" << this << std::endl;
 #endif
 	}
-	scope::scope(std::vector<parseObj*>& v, scope* parent, langClassObject _this) :parsers(v)
+	scope::scope(std::vector<parseObj*>& v, scope* parent, langClassObject _this) :parsers(v), variable(this)
 	{
 		this->parent = parent;
 		this->isClass() = isClass();
@@ -438,7 +438,7 @@ namespace lang
 								;
 								{
 									int i = index - 1;
-									if (!this->variable.definedVar(*this->parsers[this->index - 1]->name))this->variable.add(*this->parsers[this->index - 1]->name, NULLOBJECT);
+									if (!this->variable.definedVar(*this->parsers[this->index - 1]->name, this))this->variable.add(*this->parsers[this->index - 1]->name, NULLOBJECT);
 									//this->variable[*this->parsers[this->index-1]->name]=
 									result = eval(this->parsers[this->index - 1]->ptr, i);
 									index = i;
@@ -447,7 +447,7 @@ namespace lang
 								}
 								break;
 							case parserEnum::comma://comma区切りも可
-								if (this->index + 1 < this->parsers.size() && !this->variable.definedVar(*this->parsers[this->index + 1]->name))this->variable.add(*this->parsers[this->index + 1]->name, NULLOBJECT);
+								if (this->index + 1 < this->parsers.size() && !this->variable.definedVar(*this->parsers[this->index + 1]->name, this))this->variable.add(*this->parsers[this->index + 1]->name, NULLOBJECT);
 								index++;
 								break;
 							case parserEnum::leftparent:
@@ -718,17 +718,17 @@ namespace lang
 									if (foreach_object is _ClassObject)
 									{
 										auto instance = (langClassObject)foreach_object;
-										if (instance->thisscope->variable.definedVar("GetEnumerator"))
+										if (instance->thisscope->variable.definedVar("GetEnumerator", this))
 										{
-											auto e = instance->thisscope->variable["GetEnumerator"];
+											auto e = instance->thisscope->variable("GetEnumerator", this);
 											if (e is _Function)
 											{
 												auto arg = std::vector<langObject>();
 												auto en = (langClassObject)((langFunction)e)->call(&arg);
 												if (en is _ClassObject)
 												{
-													Current = (langFunction)(en->thisscope->variable["Current"]);
-													MoveNext = (langFunction)(en->thisscope->variable["MoveNext"]);
+													Current = (langFunction)(en->thisscope->variable("Current",this));
+													MoveNext = (langFunction)(en->thisscope->variable("MoveNext", this));
 													if (!(MoveNext is _Function))
 													{
 														throw langRuntimeException("MoveNextは関数である必要があります。");
@@ -875,7 +875,7 @@ namespace lang
 				int mincount = INT_MAX, mindex = -1;
 				for (int i = 0; i < c->Catchers.size(); i++)
 				{
-					langObject type = c->Catchers[i].type ? this->variable[*c->Catchers[i].type] : ObjectTypeObject;
+					langObject type = c->Catchers[i].type ? this->variable(*c->Catchers[i].type, this) : ObjectTypeObject;
 					if (type == NULLOBJECT)type = ObjectTypeObject;
 					int count = object_distance(ex.object, type);
 					if (mincount > count)
@@ -1024,7 +1024,7 @@ namespace lang
 				case parserEnum::enumname:\
 				OP; \
 				buf = eval(object, i, thisop, evals::mage); \
-				object = this->variable.set(*this->parsers[index]->name, Object::funcname(object, buf)); \
+				object = this->variable.set(*this->parsers[index]->name, Object::funcname(object, buf), this); \
 				index = i; \
 				OP2\
 				break;
@@ -1032,20 +1032,20 @@ namespace lang
 				case parserEnum::enumname:\
 				OP; \
 				object = Object::funcname(object); \
-				this->variable.set(*this->parsers[index]->name, object); \
+				this->variable.set(*this->parsers[index]->name, object, this); \
 				index = i; \
 				OP2\
 				break;
 #define DEFINEDOTEQUAL(enumname,funcname)\
 				case enumname:\
 				binaryoperation += 2; \
-				object = buf->setMember(*bufbuf->name, Object::funcname(object, eval(NULLOBJECT, binaryoperation, 17, evals::mage))); \
+				object = buf->setMember(*bufbuf->name, Object::funcname(object, eval(NULLOBJECT, binaryoperation, 17, evals::mage)), this); \
 				index = binaryoperation; \
 				binaryoperation++; \
 				break;
 #define DEFINEDOTPOSTFIX(enumname,funcname)\
 				case enumname:\
-				object = buf->setMember(*bufbuf->name, Object::funcname(object)); \
+				object = buf->setMember(*bufbuf->name, Object::funcname(object), this); \
 				index = binaryoperation; \
 				binaryoperation++; \
 				break;
@@ -1173,7 +1173,7 @@ namespace lang
 							binaryoperation = index + 1;
 						}
 						else
-							object = this->variable[*this->parsers[index]->name];
+							object = this->variable(*this->parsers[index]->name, this);
 						break;
 					case parserEnum::leftparent:
 						i = this->parentSkip(index);
@@ -1255,7 +1255,7 @@ namespace lang
 										 {
 											 object = newClassObject(buf);
 											 std::string ctors("ctor");
-											 auto ctor = ((langClassObject)object)->getMember(ctors);//thisscope->variable["ctor"];
+											 auto ctor = ((langClassObject)object)->getMember(ctors, this);//thisscope->variable["ctor"];
 											 if (ctor->type->TypeEnum == _Function)
 											 {
 												 try
@@ -1542,7 +1542,7 @@ namespace lang
 				case parserEnum::equal:
 					OP;
 					object = eval(object, i, thisop, evals::mage);
-					this->variable.set(*this->parsers[index]->name, object);//this->variable[*this->parsers[index]->name] = object;
+					this->variable.set(*this->parsers[index]->name, object, this);//this->variable[*this->parsers[index]->name] = object;
 					index = i;
 					OP2
 						break;
@@ -1663,7 +1663,7 @@ namespace lang
 							{
 								if (bufbuf->pEnum == identifier)
 								{
-									object = buf->getMember(*bufbuf->name);//buf->thisscope->variable[*bufbuf->name];
+									object = buf->getMember(*bufbuf->name, this);//buf->thisscope->variable[*bufbuf->name];
 									index++;
 									binaryoperation++;
 									if (this->parsers.size() > binaryoperation + 1)
@@ -1672,7 +1672,7 @@ namespace lang
 										{
 											case equal:
 												binaryoperation += 2;
-												buf->setMember(*bufbuf->name, eval(NULLOBJECT, binaryoperation));//buf->thisscope->variable.set(*bufbuf->name, eval(NULLOBJECT, binaryoperation));
+												buf->setMember(*bufbuf->name, eval(NULLOBJECT, binaryoperation), this);//buf->thisscope->variable.set(*bufbuf->name, eval(NULLOBJECT, binaryoperation));
 												//object = buf->thisscope->variable[*bufbuf->name];
 												index = binaryoperation;
 												//index++;

@@ -362,7 +362,7 @@ namespace lang
 				kyoricount = 0;
 				for (int j = 0; j < argList->size(); j++)
 				{
-					langObject typo = this->functions[i]->scope->variable[(this->functions[i]->argList->at(j).first)];
+					langObject typo = this->functions[i]->scope->variable((this->functions[i]->argList->at(j).first), this->functions[i]->scope);
 					if (typo == NULLOBJECT) typo = ObjectTypeObject;
 					int dis = object_distance(argList->at(j), typo);
 					if (dis == INT_MAX)

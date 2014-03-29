@@ -152,7 +152,10 @@ namespace lang
 using namespace lang;
 #pragma once
 char* enumtable[] = { "identifier", "num", "doublequote", "str", "leftparent", "rightparent", "comma", "plus", "minus", "multiply", "equalequal", "semicolon", "blockstart", "blockend", "plusplus", "minusminus", "greater", "less", "greaterequal", "lessequal", "modulo", "equal", "plusequal", "minusequal", "multiplyequal", "divisionequal", "moduloequal", "leftshiftequal", "rightshiftequal", "andequal", "orequal", "xorequal", "dot", "division", "leftbracket", "rightbracket", "debbug_stop", "_or", "oror", "_and", "andand", "_xor", "notequal", "_not", "notnot", "leftshift", "rightshift", "chr", "none", "_class", "_new", "_this", "_namespace", "_using", "_static", "_true", "_false", "_null", "_break", "_continue", "_else", "_while", "_for", "_if", "_return", "base", "colon", "_foreach", "_in", "_is", "_as", "lambda", "conditional", "_catch", "_throw",
-};
+"_public",
+"_private",
+"_protected",
+"_const", };
 
 char* parserEnumToString(lang::parserEnum i)
 {

@@ -117,35 +117,35 @@ namespace lang
 	{
 		//        for(auto obj : root->variable._variable)
 		FOREACH(obj, root->variable._variable)//        {
-		if (obj.second->type->TypeEnum == PreType::_ClassObject)
+		if (obj.second.first->type->TypeEnum == PreType::_ClassObject)
 		{
-			obj.second->type->TypeEnum = PreType::_ClassObject;
+			obj.second.first->type->TypeEnum = PreType::_ClassObject;
 		}
-		if (this->object.find(obj.second) != this->object.end() && this->object[obj.second] != count)
+		if (this->object.find(obj.second.first) != this->object.end() && this->object[obj.second.first] != count)
 		{
-			switch (obj.second->type->TypeEnum)
+			switch (obj.second.first->type->TypeEnum)
 			{
 				case lang::_Class://íœ‚µ‚È‚¢
 					//Ä‹A‚·‚é•K—v‚ª
-					FOREACH(i, *((langClass)obj.second)->member)//                    foreach_(var_ i in_ *((langClass)obj.second)->member)
+					FOREACH(i, *((langClass)obj.second.first)->member)//                    foreach_(var_ i in_ *((langClass)obj.second)->member)
 						//                    {
-					if (this->object[i.second] != count)
+					if (this->object[i.second.first] != count)
 					{
-						this->search(i.second);//
+						this->search(i.second.first);//
 					}
 					ENDFOREACH
-					if (((langClass)obj.second)->thisscope)
-						FOREACH(i, ((langClass)obj.second)->thisscope->variable._variable)// foreach_(var_ i in_ ((langClass)obj.second)->thisscope->variable._variable)
+					if (((langClass)obj.second.first)->thisscope)
+						FOREACH(i, ((langClass)obj.second.first)->thisscope->variable._variable)// foreach_(var_ i in_ ((langClass)obj.second)->thisscope->variable._variable)
 						//{
-					if (this->object[i.second] != count)
+					if (this->object[i.second.first] != count)
 					{
-						this->search(i.second);//
+						this->search(i.second.first);//
 					}
 					ENDFOREACH
 						break;
 				case lang::_Array:
 					//                    foreach_(var_ i in_ ((langArray)obj.second)->ary)
-					FOREACH(i, ((langArray)obj.second)->ary)//                    {
+					FOREACH(i, ((langArray)obj.second.first)->ary)//                    {
 					if (this->object[i] != count)
 					{
 						this->search(i);//
@@ -154,7 +154,7 @@ namespace lang
 
 						break;
 			}
-			this->object[obj.second] = count;//++;//this->object[obj] = 0;4
+			this->object[obj.second.first] = count;//++;//this->object[obj] = 0;4
 		}
 	}
 }
@@ -184,16 +184,16 @@ void GC::search(langObject object)
 			this->object[object] = count;
 			FOREACH(i, *((langClass)object)->member)//            foreach_(var_ i in_ *((langClass)object)->member)
 				//            {
-			if (this->object[i.second] != count)
+			if (this->object[i.second.first] != count)
 			{
-				this->search(i.second);//
+				this->search(i.second.first);//
 			}
 			ENDFOREACH
 				FOREACH(i, ((langClass)object)->thisscope->variable._variable)//            foreach_(var_ i in_ *((langClass)object)->member)
 				//            {
-			if (this->object[i.second] != count)
+			if (this->object[i.second.first] != count)
 			{
-				this->search(i.second);//
+				this->search(i.second.first);//
 			}
 			ENDFOREACH
 			if (((langClass)object)->base)
@@ -226,11 +226,11 @@ void GC::search(langClassObject object)
 	//foreach_(var_ i in_ *object->member)
 	//{
 	FOREACH(i, *object->member)
-	if (this->object[i.second] == count) continue;//mark
+	if (this->object[i.second.first] == count) continue;//mark
 	//for(auto root : this->roots)
 	//{
 	FOREACH(root, this->roots)
-		this->search(i.second);
+		this->search(i.second.first);
 	ENDFOREACH
 		ENDFOREACH
 }
