@@ -876,6 +876,7 @@ namespace lang
 				for (int i = 0; i < c->Catchers.size(); i++)
 				{
 					langObject type = c->Catchers[i].type ? this->variable[*c->Catchers[i].type] : ObjectTypeObject;
+					if (type == NULLOBJECT)type = ObjectTypeObject;
 					int count = object_distance(ex.object, type);
 					if (mincount > count)
 					{

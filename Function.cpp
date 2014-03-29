@@ -352,13 +352,14 @@ namespace lang
 	{
 		int index = 0;
 		int kyorimin = INT_MAX;//int *kyori = (int*)alloca(argList->size() * sizeof(int));
-		int kyoricount = 0,kyorin = -1;
+		int kyoricount,kyorin = -1;
 		for (int i = 0; i < this->functions.size(); i++)
 		{
 			if (this->functions[i]->argList->size() == argList->size() ||
 				//‰Â•Ï’·ˆø”‚Ìê‡
 				(this->functions[i]->argList->size() <= argList->size() && this->functions[i]->isvar_arg()))
 			{
+				kyoricount = 0;
 				for (int j = 0; j < argList->size(); j++)
 				{
 					langObject typo = this->functions[i]->scope->variable[(this->functions[i]->argList->at(j).first)];

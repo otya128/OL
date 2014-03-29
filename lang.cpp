@@ -52,7 +52,7 @@ LONG dump_exception(_EXCEPTION_POINTERS *ep, char*& a)
 		rec->ExceptionAddress,
 		rec->NumberParameters
 		);
-	/*::OutputDebugString*/std::wcout << (buf);
+	/*::OutputDebugString*/std::cerr << (buf);
 
 	for (DWORD i = 0; i < rec->NumberParameters; i++){
 		sprintf_s(buf, ("param[%d]:%x\n"),

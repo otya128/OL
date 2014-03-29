@@ -1403,7 +1403,14 @@ namespace lang
 							sts = parserStatus::ReadDouble;
 							break;
 						}
-						this->parsers.push_back(new parseObj(atoi(iden->c_str()), startindex, i - 1));
+						try
+						{
+							this->parsers.push_back(new parseObj(std::stoi(*iden), startindex, i - 1));
+						}
+						catch (std::out_of_range)
+						{
+							this->parsers.push_back(new parseObj(std::stod(*iden), startindex, i - 1));
+						}
 						iden->clear();//!!!!コピーされるのでclear する!!!!
 						sts = parserStatus::None;
 						goto None;
