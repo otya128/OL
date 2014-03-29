@@ -4,6 +4,14 @@ namespace OL
 	class Math
 	{
 		static double cos(r r){r x=r*r; return ((((((0.000000002087675699)*x -0.00000027557319223989)*x +0.00024801587301587)*x -0.0013888888888888889)*x +0.041666666666666666)*x -0.5)*x +1.0;}
+		static double pow(double p,double p2)
+		{
+			return p ^^ p2;
+		}
+		static int pow(int p,int p2)
+		{
+			return p ^^ p2;
+		}
 	}
 	class List : Enumerable
 	{
@@ -56,9 +64,9 @@ namespace OL
 			this._list = list;
 			this._index = 0;
 		}
-		var _list;
-		var _index;
-		var _current;
+		protected var _list;
+		protected var _index;
+		protected var _current;
 		var Current()
 		{
 			return _current;
@@ -228,21 +236,28 @@ namespace OL
 	{
 		//empty class
 	}
-	static Console = OL::IO::MakeFile(File::stdout());
+	static Console = new IO::FileStream(File::stdout());
 	namespace IO
 	{
+		//ŒÃ‚¢
+		/*
 		FileStream MakeFile(var fp)
 		{
 			var file = new FileStream;
 			file._fp = fp;
 			return file;
 		}
+		*/
 		class FileStream
 		{
-			var _fp;
-			File(var name,var ac)
+			protected var _fp;
+			FileStream(var name,var ac)
 			{
 				_fp = File::open(name,ac);
+			}
+			FileStream(var fp)
+			{
+				this._fp = fp;
 			}
 			var leftShift(var arg)
 			{

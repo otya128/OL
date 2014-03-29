@@ -120,8 +120,8 @@ OLRuntime::GUI::Window::Show(window);
 Console.WriteLine("aho")("hoge")("huga")("hege")('A')(0)(false)(true)(false)(null)('\n');
 //thread(function(){GC();});
 //OLRuntime::GC::BackgroundGC();
-var a=new haga;
-print("\na.static",a.static,"\na",a,"\nnew (a.static)",new (a.static));
+//var a=new haga;
+//print("\na.static",a.static,"\na",a,"\nnew (a.static)",new (a.static));
 //a.hogeõ"\nA\n"ö;
 print(threadid(),OL::Thread.ID(),OL::ID,Console);
 print(true,haga.lf);/*

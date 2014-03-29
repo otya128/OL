@@ -90,6 +90,7 @@ namespace lang
 		_private,
 		_protected,
 		_const,
+		pow,
 	};
 }
 #endif

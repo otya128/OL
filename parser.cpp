@@ -1267,6 +1267,9 @@ namespace lang
 							if (nextchr == '=')
 								this->parsers.push_back(new parseObj(parserEnum::xorequal, new std::string("^="), i, i + 1)), i++;
 							else
+							if (nextchr == '^')
+								this->parsers.push_back(new parseObj(parserEnum::pow, new std::string("^^"), i, i + 1)), i++;
+							else
 								this->parsers.push_back(new parseObj(parserEnum::_xor, new std::string("^"), i, i));
 							break;
 						case '~':

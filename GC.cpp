@@ -172,6 +172,7 @@ void GC::search(langObject object)
 			this->object[object] = count;
 			break;
 		case lang::_Function:
+			this->object[object] = count;
 			if (static_cast<unsigned char>(static_cast<langFunction>(object)->Ftype) & static_cast<unsigned char>(functype::overload))
 			{
 				std::vector<langFunction>& funcs = (static_cast<OverloadFunction*>(object)->functions);

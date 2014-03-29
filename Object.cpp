@@ -10,6 +10,7 @@
 #include "langException.h"
 #include "Array.h"
 #include <stdlib.h>
+#include <cmath>
 #define newInt(a) new Int(a)
 #define newString(a) new String(a)
 #ifndef _WIN32
@@ -985,4 +986,21 @@ namespace lang
 		OBJECTOPERATOREQUALND(^, xorEqual)
 		OBJECTOPERATOREQUALND(<< , leftShiftEqual)
 		OBJECTOPERATOREQUALND(>> , rightShiftEqual)
+
+		//
+		langObject Object::pow(langObject obj1, langObject obj2)
+	{
+			LANG_OPERA_DEBUG_CHECK
+				switch (obj1->type->TypeEnum)
+			{
+					case PreType::_Int:
+						return newInt(static_cast<int>(std::powl(Int::toInt(obj1),Int::toInt(obj2))));
+					case PreType::_Double:
+						return newDouble(std::pow(Double::toDouble(obj1) , Double::toDouble(obj2)));
+					case PreType::_ClassObject:
+						OPERA2ARG("pow")
+			}
+			throw langRuntimeException((std::string(obj1->type->name) + "^^" + obj2->type->name + "出来ない").c_str());
+			//変換不可
+		}
 }

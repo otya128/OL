@@ -105,6 +105,7 @@ namespace lang
 		static langObject leftShiftEqual(langObject obj1, langObject obj2);
 		static langObject rightShiftEqual(langObject obj1, langObject obj2);
 
+		static langObject pow(langObject obj1, langObject obj2);
 	};
     extern SpecialFunction* object_tostr;
     extern SpecialFunction* string_substr;

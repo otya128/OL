@@ -453,7 +453,7 @@ namespace lang
 							case parserEnum::leftparent:
 								index = this->parentSkip(index);
 								index = this->blockSkip(index);//関数を飛ばす？
-																//悪影響を及ぼさないか要検証
+								//悪影響を及ぼさないか要検証
 								status = en::none;
 								break;
 							default:
@@ -727,7 +727,7 @@ namespace lang
 												auto en = (langClassObject)((langFunction)e)->call(&arg);
 												if (en is _ClassObject)
 												{
-													Current = (langFunction)(en->thisscope->variable("Current",this));
+													Current = (langFunction)(en->thisscope->variable("Current", this));
 													MoveNext = (langFunction)(en->thisscope->variable("MoveNext", this));
 													if (!(MoveNext is _Function))
 													{
@@ -965,6 +965,8 @@ namespace lang
 			case parserEnum::_is:
 			case parserEnum::_as:
 				return 7;
+			case parserEnum::pow:
+				return 4;
 			case parserEnum::modulo:
 			case parserEnum::multiply:
 			case parserEnum::division:
@@ -1817,6 +1819,7 @@ namespace lang
 						DEFINEBINOP(_xor, _xor)
 						DEFINEBINOP(andand, logicand)
 						DEFINEBINOP(oror, logicor)
+						DEFINEBINOP(pow, pow)
 						DEFINEOPERATORS(DEFINE)
 						/*
 						DEFINEEQUAL(plusequal, plusEqual)
