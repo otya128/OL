@@ -430,6 +430,7 @@ namespace lang
 								break;
 						}
 						break;
+						//var iden[####]
 					case en::var:
 						switch (j->pEnum)
 						{
@@ -440,21 +441,29 @@ namespace lang
 									if (!this->variable.definedVar(*this->parsers[this->index - 1]->name))this->variable.add(*this->parsers[this->index - 1]->name, NULLOBJECT);
 									//this->variable[*this->parsers[this->index-1]->name]=
 									result = eval(this->parsers[this->index - 1]->ptr, i);
-									status = en::none; index = i;
+									index = i;
+									if (this->index + 1 < this->parsers.size() && this->parsers[this->index + 1]->pEnum == parserEnum::comma)break;
+									status = en::none;
 								}
-
+								break;
+							case parserEnum::comma://comma区切りも可
+								if (this->index + 1 < this->parsers.size() && !this->variable.definedVar(*this->parsers[this->index + 1]->name))this->variable.add(*this->parsers[this->index + 1]->name, NULLOBJECT);
+								index++;
 								break;
 							case parserEnum::leftparent:
 								index = this->parentSkip(index);
+								index = this->blockSkip(index);//関数を飛ばす？
+																//悪影響を及ぼさないか要検証
 								status = en::none;
 								break;
 							default:
-							{
-									   int i = index - 2;
-									   result = eval(this->parsers[i]->ptr, i);
-									   index = i; status = en::none;
-									   //if(buf!=nullptr)std::cout<<"result:"<<(buf)->toString()<<std::endl;
-							}
+								;
+								{
+									int i = index - 2;
+									result = eval(this->parsers[i]->ptr, i);
+									index = i; status = en::none;
+									//if(buf!=nullptr)std::cout<<"result:"<<(buf)->toString()<<std::endl;
+								}
 								break;
 						}
 						break;

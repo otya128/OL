@@ -116,6 +116,8 @@ namespace lang
 #else
 #define WARNINGS(level, ...) {char buf[512];sprintf(buf,__VA_ARGS__);WARNING(buf, level);}
 #endif
+#define PARSE_ERROR(index,format,...)do{WARNINGS(0,format "%s",__VA_ARGS__,getlinestring(this->program,index).c_str())}while(false);
+#define PARSE_WARNING(index,format,...)do{WARNINGS(1,format "%s",__VA_ARGS__,getlinestring(this->program,index).c_str())}while(false);
 	void parser::WARNING(const char* param, int level)
 	{
 		if (level <= error_level)
@@ -768,7 +770,7 @@ namespace lang
 						funcRead++;
 						funcName = *token->name;
 					}
-					else funcRead = 0;
+					else  funcRead = 0;
 					break;
 				case 2://(
 					if (token->pEnum == parserEnum::leftparent)funcRead++; else funcRead = 0;
@@ -778,18 +780,31 @@ namespace lang
 					if (token->pEnum == parserEnum::rightparent)funcRead = 6;
 					break;
 				case 4://name
+					if (token->pEnum == parserEnum::comma)
+					{
+						if (argList == nullptr)argList = new FunctionArg();
+						argList->push_back(FunctionArgUnWrap(emptystr, *prevtoken->name));
+						funcRead--;
+					}
+					else if (token->pEnum == parserEnum::rightparent)
+					{
+						if (argList == nullptr)argList = new FunctionArg();
+						argList->push_back(FunctionArgUnWrap(emptystr, *prevtoken->name));
+						funcRead += 2;
+					}
+					else
 					if (token->pEnum == parserEnum::identifier)
 					{
 						if (argList == nullptr)argList = new FunctionArg();
 						argList->push_back(FunctionArgUnWrap(*prevtoken->name,*token->name));
 						funcRead++;
 					}
-					else funcRead = 0;
+					else PARSE_ERROR(i, "syntax error[function]") //funcRead = 0;
 					break;
 				case 5://, or )
 					if (token->pEnum == parserEnum::comma)funcRead -= 2;
 					else if (token->pEnum == parserEnum::rightparent)funcRead++;
-					else funcRead = 0;
+					else PARSE_ERROR(i, "syntax error[function]") //funcRead = 0;
 					break;
 				case 6://{
 					if (argList == nullptr)argList = new FunctionArg();
