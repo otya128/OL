@@ -235,7 +235,7 @@ namespace lang
 					ObjectType* type = (ObjectType*)n;
 					if (m->type->TypeEnum != _Class || m->type->TypeEnum != _ClassObject)
 					{
-						if (type->TypeClass.TypeEnum == n->type->TypeEnum)return 0;//同時だと1番目近い
+						if (type->TypeClass.TypeEnum == m->type->TypeEnum)return 0;//同時だと1番目近い
 						if (type->TypeClass.TypeEnum == _Object)return 1;//Objectだと2番目
 						return INT_MAX;
 					}
@@ -434,13 +434,14 @@ namespace lang
 						switch (j->pEnum)
 						{
 							case parserEnum::equal:
-							{
-													  int i = index - 1;
-													  this->variable.add(*this->parsers[this->index - 1]->name, NULLOBJECT);
-													  //this->variable[*this->parsers[this->index-1]->name]=
-													  result = eval(this->parsers[this->index - 1]->ptr, i);
-													  status = en::none; index = i;
-							}
+								;
+								{
+									int i = index - 1;
+									if (!this->variable.definedVar(*this->parsers[this->index - 1]->name))this->variable.add(*this->parsers[this->index - 1]->name, NULLOBJECT);
+									//this->variable[*this->parsers[this->index-1]->name]=
+									result = eval(this->parsers[this->index - 1]->ptr, i);
+									status = en::none; index = i;
+								}
 
 								break;
 							case parserEnum::leftparent:
@@ -762,49 +763,49 @@ namespace lang
 								}
 								break;
 							case 7:
-							_foreach_7:
-								{
-									auto arg = std::vector<langObject>();
-									int result = Int::toInt(MoveNext->call(&arg));
-									if (result)
-									{
-										auto arg = std::vector<langObject>();
-										foreachscope->variable.add(*foreach_var, Current->call(&arg));
-										auto buf = foreachscope->run();
-										if (foreachscope->status == en::returnStatus::_return)
-										{
-											this->status = foreachscope->status;
-											foreachscope->refdec();
-											return buf;
-										}
-										else
-										if (foreachscope->status == en::returnStatus::_break)
-										{
-											this->index = this->blockSkip(this->index);
-											status = en::none;
-											foreachscope->refdec();
-											foreahflag = 0;
-											continue;
-										}
-										else
-										if (foreachscope->status != en::returnStatus::_continue && foreachscope->status != en::returnStatus::none_)
-										{
-											this->status = foreachscope->status;
-											foreachscope->refdec();
-											return buf;
-										}
-										this->index--;
-									}
-									else
-									{
-										this->index = this->blockSkip(this->index);
-										status = en::none;
-										foreachscope->refdec();
-										foreahflag = 0;
-									}
-									break;
-								}
-								break;
+							_foreach_7 :
+							{
+										   auto arg = std::vector<langObject>();
+										   int result = Int::toInt(MoveNext->call(&arg));
+										   if (result)
+										   {
+											   auto arg = std::vector<langObject>();
+											   foreachscope->variable.add(*foreach_var, Current->call(&arg));
+											   auto buf = foreachscope->run();
+											   if (foreachscope->status == en::returnStatus::_return)
+											   {
+												   this->status = foreachscope->status;
+												   foreachscope->refdec();
+												   return buf;
+											   }
+											   else
+											   if (foreachscope->status == en::returnStatus::_break)
+											   {
+												   this->index = this->blockSkip(this->index);
+												   status = en::none;
+												   foreachscope->refdec();
+												   foreahflag = 0;
+												   continue;
+											   }
+											   else
+											   if (foreachscope->status != en::returnStatus::_continue && foreachscope->status != en::returnStatus::none_)
+											   {
+												   this->status = foreachscope->status;
+												   foreachscope->refdec();
+												   return buf;
+											   }
+											   this->index--;
+										   }
+										   else
+										   {
+											   this->index = this->blockSkip(this->index);
+											   status = en::none;
+											   foreachscope->refdec();
+											   foreahflag = 0;
+										   }
+										   break;
+							}
+									   break;
 							case 8:
 							_foreach_8 :
 								if (foreacharyindex < ((langArray)foreach_object)->ary.size())
@@ -1113,7 +1114,7 @@ namespace lang
 			{
 				//ラムダ式だ
 				langLambda l = (langLambda)this->parsers[index]->ptr;// new Lambda((langLambda)this->parsers[index]->ptr, this);
-				if (l->is_lambda)
+				if (static_cast<unsigned char>(l->Ftype) & static_cast<unsigned char>(functype::lambda))
 				{
 					index = l->endindex;
 					binaryoperation = index + 1;

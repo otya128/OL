@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "parseObj.h"
+#include "GC.h"
 //#include "parserEnum.h"
 //#include "Object.h"
 namespace lang
@@ -73,8 +74,13 @@ namespace lang
 
     parseObj::~parseObj(void)
     {
-        if(!(this->pEnum >= _true && this->pEnum <= _null)) delete this->ptr;
-        delete this->name;
+		if (!(this->pEnum >= _true && this->pEnum <= _null))
+		{
+			if (lang::gc->object.find(this->ptr) != lang::gc->object.end())
+				delete this->ptr;
+			lang::gc->uncontroll(this->ptr);
+		}
+		delete this->name;
     }
 
     int parseObj::getInt(void)

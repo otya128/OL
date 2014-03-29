@@ -19,11 +19,11 @@ namespace lang
 		{
 			if (i)
 			{
-				ss << ',' << (*func->argList)[i];
+				ss << ',' << (*func->argList)[i].second;
 			}
 			else
 			{
-				ss << (*func->argList)[i];
+				ss << (*func->argList)[i].second;
 			}
 		}
 		ss << std::endl;
@@ -40,24 +40,56 @@ namespace lang
 		}
 		throw langRuntimeException(ss.str().c_str());
 	}
-	Function::Function(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index)
+	void FunctionArgThrow(OverloadFunction *func, std::vector<langObject>* argList)
 	{
-		this->is_lambda = false;
+		std::stringstream ss;
+		ss << "Function:" << func->name << "‚Ìˆê’v‚·‚éŠÖ”‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ";
+		for (int j = 0; j < func->functions.size(); j++)
+		{
+			for (int i = 0; i < func->functions[j]->argList->size(); i++)
+			{
+				if (i)
+				{
+					ss << ',' << (*func->functions[j]->argList)[i].first << ' ' << (*func->functions[j]->argList)[i].second;
+				}
+				else
+				{
+					ss << (*func->functions[j]->argList)[i].first << ' ' << (*func->functions[j]->argList)[i].second;
+				}
+			}
+		}
+		ss << std::endl;
+		for (int i = 0; i < argList->size(); i++)
+		{
+			if (i)
+			{
+				ss << ',' << (*argList)[i]->toString();
+			}
+			else
+			{
+				ss << (*argList)[i]->toString();
+			}
+		}
+		throw langRuntimeException(ss.str().c_str());
+	}
+	Function::Function(std::string name, std::vector<std::pair<std::string, std::string>>& argList, lang::scope* scope, int index)
+	{
+		this->Ftype = functype::normal;
 		this->working = false;
 #ifdef CPP11
 		this->thread = nullptr;
 #endif
 		this->type = new Type(PreType::_Function);
 		this->name = name;
-		this->argList = new std::vector<std::string>(argList);
+		this->argList = new FunctionArg(argList);
 		this->thisscope = nullptr;
 		this->scope = scope;//std::make_shared<lang::scope>(*scope);
 		if (this->scope != nullptr)scope->refinc();
 		this->index = index;
 	}
-	Function::Function(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index)
+	Function::Function(std::string name, FunctionArg* argList, lang::scope* scope, int index)
 	{
-		this->is_lambda = false;
+		this->Ftype = functype::normal;
 		this->working = false;
 #ifdef CPP11
 		this->thread = nullptr;
@@ -72,7 +104,7 @@ namespace lang
 	}
 	Function::Function(Function* f, lang::scope* this_scope)
 	{
-		this->is_lambda = false;
+		this->Ftype = f->Ftype;
 		this->working = false;
 #ifdef CPP11
 		this->thread = nullptr;
@@ -80,7 +112,7 @@ namespace lang
 		//if(f is _Function){}
 		this->type = new Type(f->type->TypeEnum, (char*)f->type->name);
 		this->name = f->name;
-		this->argList = new std::vector<std::string>(*f->argList);
+		this->argList = new FunctionArg(*f->argList);
 		this->scope = f->scope;
 		this->index = f->index;
 		this->thisscope = this_scope;
@@ -129,7 +161,7 @@ namespace lang
 		}
 		for (int i = 0; i < this->argList->size(); i++)
 		{
-			sc->variable.add((*this->argList)[i], (*argList)[i]);
+			sc->variable.add((*this->argList)[i].second, (*argList)[i]);
 		}
 		langObject buf;
 		buf = sc->run();
@@ -138,19 +170,19 @@ namespace lang
 		lang::stacktrace->pop_back();
 		return /*std::shared_ptr<Object>*/(buf);
 	}
-	Lambda::Lambda(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index, int endindex, bool isexp)
+	Lambda::Lambda(std::string name, FunctionArg* argList, lang::scope* scope, int index, int endindex, bool isexp)
 		: Function(name, argList, scope, index)
 	{
-		this->is_lambda = true;
+		this->Ftype = functype::lambda;
 		this->type->name = this->name.c_str();
 		this->endindex = endindex;
 		this->NoExpLambda = isexp;
 		//this->type->TypeEnum = _Lambda;
 	}
-	Lambda::Lambda(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index, int endindex, bool isexp)
+	Lambda::Lambda(std::string name, FunctionArg& argList, lang::scope* scope, int index, int endindex, bool isexp)
 		: Function(name, argList, scope, index)
 	{
-		this->is_lambda = true;
+		this->Ftype = functype::lambda;
 		this->type->name = this->name.c_str();
 		this->endindex = endindex;
 		this->NoExpLambda = isexp;
@@ -158,7 +190,7 @@ namespace lang
 	}
 	Lambda::Lambda(Lambda* f, lang::scope* this_scope) : Function(f, this_scope)
 	{
-		this->is_lambda = true;
+		this->Ftype = f->Ftype;
 		this->type->name = this->name.c_str();
 		this->endindex = f->endindex;
 		this->NoExpLambda = f->NoExpLambda;
@@ -178,7 +210,7 @@ namespace lang
 			FunctionArgThrow(this, argList);
 		for (int i = 0; i < this->argList->size(); i++)
 		{
-			sc->variable.add((*this->argList)[i], (*argList)[i]);
+			sc->variable.add((*this->argList)[i].second, (*argList)[i]);
 		}
 		langObject buf;
 		buf = sc->eval(NULLOBJECT, sc->startIndex);//run();
@@ -195,7 +227,7 @@ namespace lang
 		sc->startIndex = this->index + 1;//+1‚µ‚ñ‚ ‚¢‚Æreturn‚ª–³‚¢ŠÖ”‚Åreturn‚³‚ê‚È‚­‚È‚é
 		if (this->argList->size() != argList->size())
 			FunctionArgThrow(this, argList);
-		for (int i = 0; i < this->argList->size(); i++) sc->variable.add((*this->argList)[i], (*argList)[i]);
+		for (int i = 0; i < this->argList->size(); i++) sc->variable.add((*this->argList)[i].second, (*argList)[i]);
 		auto buf = sc->run();
 		sc->del();
 		lang::stacktrace->pop_back();
@@ -208,8 +240,8 @@ namespace lang
 		//str=;
 		std::string name = str.str();
 		int funcRead = 2;
-		std::vector<std::string>* argList = new std::vector<std::string>();
-
+		FunctionArg* argList = new FunctionArg();
+		std::string type = "";
 		langFunction func = /*std::make_shared<Function>*/new Function(name, nullptr, this, index + 1);
 		for (int i = index + 1; i < this->parsers.size(); i++)
 		{
@@ -236,14 +268,14 @@ namespace lang
 				case 4://name
 					if (token->pEnum == parserEnum::identifier)
 					{
-						argList->push_back(*token->name);
+						argList->push_back(FunctionArgUnWrap(emptystr, *token->name));
 						funcRead++;
 					}
 					else
 					if (token->pEnum == parserEnum::comma || token->pEnum == parserEnum::rightparent)
 					{
 						funcRead--;
-						argList->push_back(*((this->parsers[i - 1])->name));
+						argList->push_back(FunctionArgUnWrap(type, *((this->parsers[i - 1])->name)));
 						if (token->pEnum == parserEnum::rightparent)funcRead = 6;
 					}
 					else
@@ -296,5 +328,63 @@ namespace lang
 	};
 	SpecialFunction::~SpecialFunction(void)
 	{
+	}
+	Function::Function()
+	{
+	}
+	OverloadFunction::OverloadFunction(langFunction f1, langFunction f2) : Function()
+	{
+		this->Ftype = functype::overload;
+		this->functions.push_back(f1);
+		this->functions.push_back(f2);
+		this->working = false;
+#ifdef CPP11
+		this->thread = nullptr;
+#endif
+		this->type = new Type(PreType::_Function);
+		this->name = f1->name;
+		this->argList = nullptr;
+		this->thisscope = nullptr;
+		this->scope = nullptr;
+	}
+	int object_distance(langObject m, langObject n);
+	langObject OverloadFunction::call(std::vector<langObject>* argList)
+	{
+		int index = 0;
+		int kyorimin = INT_MAX;//int *kyori = (int*)alloca(argList->size() * sizeof(int));
+		int kyoricount = 0,kyorin = -1;
+		for (int i = 0; i < this->functions.size(); i++)
+		{
+			if (this->functions[i]->argList->size() == argList->size() ||
+				//‰Â•Ï’·ˆø”‚Ìê‡
+				(this->functions[i]->argList->size() <= argList->size() && this->functions[i]->isvar_arg()))
+			{
+				for (int j = 0; j < argList->size(); j++)
+				{
+					langObject typo = this->functions[i]->scope->variable[(this->functions[i]->argList->at(j).first)];
+					if (typo == NULLOBJECT) typo = ObjectTypeObject;
+					int dis = object_distance(argList->at(j), typo);
+					if (dis == INT_MAX)
+					{
+						kyoricount = INT_MAX; break;
+					}
+					kyoricount += dis;
+				}
+				if (kyorimin > kyoricount)
+				{
+					kyorimin = kyoricount;
+					kyorin = i;
+				}
+			}
+		}
+		if (kyorin == -1)
+		{
+			FunctionArgThrow(this,argList);
+		}
+		return this->functions[kyorin]->call(argList);
+	}
+	langObject OverloadFunction::ctorcall(std::vector<langObject>* argList)
+	{
+		return this->call(argList);
 	}
 }

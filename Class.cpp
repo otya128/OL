@@ -134,9 +134,12 @@ namespace lang
 			//{
 		if (i.second->type->TypeEnum == _Function)
 		{
-			auto buf = new Function((langFunction)i.second, this->thisscope);
-			buf->scope = thisscope;
-			this->thisscope->variable.add(i.first, buf);
+			if (i.second != type->finalize)
+			{
+				auto buf = new Function((langFunction)i.second, this->thisscope);
+				buf->scope = thisscope;
+				this->thisscope->variable.add(i.first, buf);
+			}
 		}
 		else
 			this->thisscope->variable.add(i.first, i.second);

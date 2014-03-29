@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "variable.h"
+#include "Function.h"
 //#include "Object.h"
 namespace lang{
     variable::variable(variable* s)
@@ -54,8 +55,20 @@ namespace lang{
         return lang::NULLOBJECT;
     }
     langObject variable::set(std::string name,langObject object)
-    {
-        if(this->_variable.find(name) != this->_variable.end()){
+	{
+		auto f = this->_variable.find(name);
+		if (object && object is _Function && f != this->_variable.end() && f->second is _Function)
+		{
+			langFunction f1 = (langFunction)f->second;
+			if (f1->isoverload())
+			{
+				((OverloadFunction*)f1)->functions.push_back((langFunction)object);
+				return f1;
+			}
+			this->_variable[name] = new OverloadFunction(f1, (langFunction)object);
+			return this->_variable[name];
+		}
+        if(f != this->_variable.end()){
             this->_variable[name] = object;return this->_variable[name];}
         else
         {
@@ -65,7 +78,19 @@ namespace lang{
         }
     }
     void variable::add(std::string name,langObject object)
-    {
-        this->_variable[name] = object;
+	{
+		auto f = this->_variable.find(name);
+		if (object is _Function && f != this->_variable.end() && f->second is _Function)
+		{
+			langFunction f1 = (langFunction)f->second;
+			if (f1->isoverload())
+			{
+				((OverloadFunction*)f1)->functions.push_back((langFunction)object);
+				return;
+			}
+			this->_variable[name] = new OverloadFunction(f1, (langFunction)object);
+			return;
+		}
+		this->_variable[name] = object;
     }
 }

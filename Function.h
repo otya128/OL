@@ -10,6 +10,13 @@
 //#include "Object.h"
 namespace lang
 {
+	enum ENUMCLASS functype : unsigned char
+	{
+		normal = 0,
+		lambda = 1,
+		var_arg = 2,
+		overload = 4,
+	};
 	extern
 #ifdef _MSC_VER
 		__declspec(thread)
@@ -17,6 +24,9 @@ namespace lang
 		__thread
 #endif
 		std::vector<langFunction>* stacktrace;
+	typedef std::pair<std::string, std::string> FunctionArgUnWrap;
+	typedef std::vector<FunctionArgUnWrap> FunctionArg;
+	const std::string const emptystr;
     class Function : public Object
     {
     public:
@@ -28,18 +38,32 @@ namespace lang
         //std::string* getString();
         //void setString(std::string* i);
         std::string name;
-        std::vector<std::string>* argList;
+		//type,name
+		FunctionArg* argList;
         int index;
         scope* scope;
         lang::scope* thisscope;
-		Function(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index);
-		Function(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index);
+		Function(std::string name, FunctionArg* argList, lang::scope* scope, int index);
+		Function(std::string name, FunctionArg& argList, lang::scope* scope, int index);
         Function(Function* f,lang::scope* this_scope);
         virtual ~Function(void);
         virtual std::string toString();
         virtual langObject call(std::vector<langObject>* argList);
         virtual langObject ctorcall(std::vector<langObject>* argList);
-		bool is_lambda;
+		functype Ftype;
+		Function();
+		inline bool islambda()
+		{
+			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::lambda));
+		}
+		inline bool isvar_arg()
+		{
+			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::var_arg));
+		}
+		inline bool isoverload()
+		{
+			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::overload));
+		}
     };
 	//Ów¯Îw«
 	class Lambda :public Function
@@ -47,8 +71,8 @@ namespace lang
 	public:
 		int endindex;
 		virtual langObject call(std::vector<langObject>* argList);
-		Lambda(std::string name, std::vector<std::string>* argList, lang::scope* scope, int index, int endindex, bool isexp);
-		Lambda(std::string name, std::vector<std::string>& argList, lang::scope* scope, int index, int endindex, bool isexp);
+		Lambda(std::string name, FunctionArg* argList, lang::scope* scope, int index, int endindex, bool isexp);
+		Lambda(std::string name, FunctionArg& argList, lang::scope* scope, int index, int endindex, bool isexp);
 		Lambda(Lambda* f, lang::scope* this_scope);
 		bool NoExpLambda;
 		int startindex;
@@ -74,6 +98,14 @@ namespace lang
         }
         virtual ~SpecialFunction(void);
     };
+	class OverloadFunction : public Function
+	{
+	public:
+		std::vector<langFunction> functions;
+		OverloadFunction(langFunction, langFunction);
+		virtual langObject call(std::vector<langObject>* argList);
+		virtual langObject ctorcall(std::vector<langObject>* argList);
+	};
     //typedef std::shared_ptr<Function> langFunction;
 }
 #endif

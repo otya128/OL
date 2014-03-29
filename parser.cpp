@@ -384,7 +384,7 @@ namespace lang
 		}
 		int lambda_i = 0;
 		parseObj* token = this->parsers[argindex];
-		std::vector<std::string> arg;
+		FunctionArg arg;
 		for (; argindex >= 0; argindex--)
 		{
 			parseObj* token = this->parsers[argindex];
@@ -393,7 +393,7 @@ namespace lang
 			if (token->pEnum == identifier)
 			if (!lambda_i)
 			{
-				arg.push_back(*token->name);
+				arg.push_back(FunctionArgUnWrap(emptystr,*token->name));
 				lambda_i++;
 			}
 			else
@@ -403,6 +403,7 @@ namespace lang
 					WARNINGS(0, "syntax error[lambda]%s", getlinestring(this->program, token->sourcestartindex).c_str())
 				}
 				lambda_i++;
+				arg.back().first = *token->name;
 			}
 			if (token->pEnum == comma)
 			{
@@ -523,7 +524,7 @@ namespace lang
 		}
 		int funcRead = 0, classRead = 0;
 		std::string funcName; std::string className;
-		std::vector<std::string>* argList = nullptr;//new std::vector<std::string>();
+		FunctionArg* argList = nullptr;//new std::vector<std::string>();
 		lang::stack<BlockStruct> funcStack;
 		int func = 0, parent = 0, bracket = 0;
 		size_t class_read_stack_index = 0;
@@ -535,7 +536,9 @@ namespace lang
 		bool isstatic = false;
 		for (int i = 0; i < this->parsers.size(); i++)
 		{
-			auto token = this->parsers[i];
+			parseObj *token = this->parsers[i];
+			parseObj *prevtoken = 0;
+			if (i)prevtoken = this->parsers[i - 1];
 			switch (namespread)
 			{
 				case 1:
@@ -777,8 +780,8 @@ namespace lang
 				case 4://name
 					if (token->pEnum == parserEnum::identifier)
 					{
-						if (argList == nullptr)argList = new std::vector<std::string>();
-						argList->push_back(*token->name);
+						if (argList == nullptr)argList = new FunctionArg();
+						argList->push_back(FunctionArgUnWrap(*prevtoken->name,*token->name));
 						funcRead++;
 					}
 					else funcRead = 0;
@@ -789,7 +792,7 @@ namespace lang
 					else funcRead = 0;
 					break;
 				case 6://{
-					if (argList == nullptr)argList = new std::vector<std::string>();
+					if (argList == nullptr)argList = new FunctionArg();
 					funcStack.push(BlockStruct(sts::Func, funcName));
 #if _DEBUG
 					if (lang::parserresult)

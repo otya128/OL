@@ -133,139 +133,147 @@ namespace lang
 					{
 						this->search(i.second);//
 					}
-			}
-			if (((langClass)obj.second)->thisscope)
-				FOREACH(i, ((langClass)obj.second)->thisscope->variable._variable)// foreach_(var_ i in_ ((langClass)obj.second)->thisscope->variable._variable)
-				//{
-			if (this->object[i.second] != count)
-			{
-				this->search(i.second);//
-			}
-		}
-		break;
-                case lang::_Array:
+					ENDFOREACH
+					if (((langClass)obj.second)->thisscope)
+						FOREACH(i, ((langClass)obj.second)->thisscope->variable._variable)// foreach_(var_ i in_ ((langClass)obj.second)->thisscope->variable._variable)
+						//{
+					if (this->object[i.second] != count)
+					{
+						this->search(i.second);//
+					}
+					ENDFOREACH
+						break;
+				case lang::_Array:
 					//                    foreach_(var_ i in_ ((langArray)obj.second)->ary)
 					FOREACH(i, ((langArray)obj.second)->ary)//                    {
 					if (this->object[i] != count)
 					{
 						this->search(i);//
 					}
-	}
+					ENDFOREACH
 
-	break;
-}
-this->object[obj.second] = count;//++;//this->object[obj] = 0;4
+						break;
 			}
+			this->object[obj.second] = count;//++;//this->object[obj] = 0;4
 		}
 	}
-	void GC::search(langObject object)
+}
+void GC::search(langObject object)
+{
+	if (object == nullptr) return;
+	switch (object->type->TypeEnum)
 	{
-		if (object == nullptr) return;
-		switch (object->type->TypeEnum)
-		{
-			case lang::_Object:
-			case lang::_Int:
-			case lang::_String:
-			case lang::_Char:
-			case lang::_Double:
-			case lang::_Function:
-			default:
-				this->object[object] = count;
-				break;
-			case lang::_Class:
-				this->object[object] = count;
-				FOREACH(i, *((langClass)object)->member)//            foreach_(var_ i in_ *((langClass)object)->member)
-					//            {
-				if (this->object[i.second] != count)
-				{
-					this->search(i.second);//
-				}
+		case lang::_Object:
+		case lang::_Int:
+		case lang::_String:
+		case lang::_Char:
+		case lang::_Double:
+		default:
+			this->object[object] = count;
+			break;
+		case lang::_Function:
+			if (static_cast<unsigned char>(static_cast<langFunction>(object)->Ftype) & static_cast<unsigned char>(functype::overload))
+			{
+				std::vector<langFunction>& funcs = (static_cast<OverloadFunction*>(object)->functions);
+				FOREACH(i, funcs)
+					this->search(i);
 				ENDFOREACH
-					FOREACH(i, ((langClass)object)->thisscope->variable._variable)//            foreach_(var_ i in_ *((langClass)object)->member)
-					//            {
-				if (this->object[i.second] != count)
-				{
-					this->search(i.second);//
-				}
-				ENDFOREACH
-				if (((langClass)object)->base)
-				{
-					this->search(((langClass)object)->base);
-				}
-				break;
-			case lang::_Array:
-				this->object[object] = count;
-				FOREACH(i, ((langArray)object)->ary)//            foreach_(var_ i in_ ((langArray)object)->ary)
-					//            {
-				if (this->object[i] != count)
-				{
-					this->search(i);//
-				}
-				ENDFOREACH
-					break;
-			case lang::_ClassObject:
-				this->object[object] = count;
-				if (((langClass)object)->base)
-				{
-					this->search(((langClass)object)->base);
-				}
-				break;
-		}
-	}
-	void GC::search(langClassObject object)
-	{
-		if (this->object[object] == count) return;//mark
-		//foreach_(var_ i in_ *object->member)
-		//{
-		FOREACH(i, *object->member)
-		if (this->object[i.second] == count) continue;//mark
-		//for(auto root : this->roots)
-		//{
-		FOREACH(root, this->roots)
-			this->search(i.second);
-		ENDFOREACH
+			}
+			break;
+		case lang::_Class:
+			this->object[object] = count;
+			FOREACH(i, *((langClass)object)->member)//            foreach_(var_ i in_ *((langClass)object)->member)
+				//            {
+			if (this->object[i.second] != count)
+			{
+				this->search(i.second);//
+			}
 			ENDFOREACH
+				FOREACH(i, ((langClass)object)->thisscope->variable._variable)//            foreach_(var_ i in_ *((langClass)object)->member)
+				//            {
+			if (this->object[i.second] != count)
+			{
+				this->search(i.second);//
+			}
+			ENDFOREACH
+			if (((langClass)object)->base)
+			{
+				this->search(((langClass)object)->base);
+			}
+			break;
+		case lang::_Array:
+			this->object[object] = count;
+			FOREACH(i, ((langArray)object)->ary)//            foreach_(var_ i in_ ((langArray)object)->ary)
+				//            {
+			if (this->object[i] != count)
+			{
+				this->search(i);//
+			}
+			ENDFOREACH
+				break;
+		case lang::_ClassObject:
+			this->object[object] = count;
+			if (((langClass)object)->base)
+			{
+				this->search(((langClass)object)->base);
+			}
+			break;
 	}
-	//GC‚©‚çíœ‚µ‚Äƒƒ‚ƒŠ‚©‚ç‰ğ•ú‚·‚é
-	void GC::free_(langObject object)
-	{
+}
+void GC::search(langClassObject object)
+{
+	if (this->object[object] == count) return;//mark
+	//foreach_(var_ i in_ *object->member)
+	//{
+	FOREACH(i, *object->member)
+	if (this->object[i.second] == count) continue;//mark
+	//for(auto root : this->roots)
+	//{
+	FOREACH(root, this->roots)
+		this->search(i.second);
+	ENDFOREACH
+		ENDFOREACH
+}
+//GC‚©‚çíœ‚µ‚Äƒƒ‚ƒŠ‚©‚ç‰ğ•ú‚·‚é
+void GC::free_(langObject object)
+{
 #ifdef CPP11
-		std::lock_guard<GCmutex> lock(this->RootMutex);
+	std::lock_guard<GCmutex> lock(this->RootMutex);
 #endif
-		if (this->object.find(object) != this->object.end())this->object.erase(object);
-		delete object;
-	}
-	//GC‚©‚çíœ
-	//Ó”C
-	void GC::uncontroll(langObject object)
-	{
+	if (this->object.find(object) != this->object.end())this->object.erase(object);
+	delete object;
+}
+//GC‚©‚çíœ
+//Ó”C
+void GC::uncontroll(langObject object)
+{
 #ifdef CPP11
-		std::lock_guard<GCmutex> lock(this->RootMutex);
+	std::lock_guard<GCmutex> lock(this->RootMutex);
 #endif
-		if (this->object.find(object) != this->object.end()) this->object.erase(object);
-	}
-	GC::~GC(void)
-	{
-	}
-	void GC::addRoot(scope* root)
-	{
+	if (this->object.find(object) != this->object.end()) this->object.erase(object);
+}
+GC::~GC(void)
+{
+}
+void GC::addRoot(scope* root)
+{
 #ifdef CPP11
-		std::lock_guard<GCmutex> lock(this->RootMutex);
+	std::lock_guard<GCmutex> lock(this->RootMutex);
 #endif
-		this->roots[root] = 0;
-	}
-	//Šù‚É–³‚¢‚Ì‚Éíœ‚µ‚½‚çfalse
-	bool GC::removeRoot(scope* root)
-	{
+	this->roots[root] = 0;
+}
+//Šù‚É–³‚¢‚Ì‚Éíœ‚µ‚½‚çfalse
+bool GC::removeRoot(scope* root)
+{
 #ifdef CPP11
-		std::lock_guard<GCmutex> lock(this->RootMutex);
+	std::lock_guard<GCmutex> lock(this->RootMutex);
 #endif
-		if (this->roots.find(root) != this->roots.end())
-		{
-			this->roots.erase(root);
-			//this->RootMutex.unlock();
-			return true;
-		}
-		return false;
+	if (this->roots.find(root) != this->roots.end())
+	{
+		this->roots.erase(root);
+		//this->RootMutex.unlock();
+		return true;
 	}
+	return false;
+}
 }
