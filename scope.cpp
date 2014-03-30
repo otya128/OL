@@ -1701,7 +1701,7 @@ namespace lang
 										//binaryoperation++;
 										}*/
 									}
-									if (equals)object = buf->getMember(*bufbuf->name, this);
+									if (!equals)object = buf->getMember(*bufbuf->name, this);
 								}
 								else
 								{
