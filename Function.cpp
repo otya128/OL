@@ -388,4 +388,30 @@ namespace lang
 	{
 		return this->call(argList);
 	}
+	Property::Property(langFunction Getter, langFunction Setter)
+	{
+		this->type = new Type(_Property);
+		this->getter = Getter;
+		this->setter = Setter;
+	}
+	langObject Property::Get()
+	{
+		if (getter)
+		{
+			std::vector<langObject> arg;
+			return this->getter->call(&arg);
+		}
+		throw langRuntimeException("getter‚ª‘¶İ‚µ‚Ü‚¹‚ñ");
+	}
+	langObject Property::Set(langObject value)
+	{
+		if (setter)
+		{
+			std::vector<langObject> arg;
+			arg.push_back(value);
+			this->setter->call(&arg);
+			return value;
+		}
+		throw langRuntimeException("setter‚ª‘¶İ‚µ‚Ü‚¹‚ñ");
+	}
 }

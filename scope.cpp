@@ -1105,7 +1105,7 @@ namespace lang
 	opera == 17/*Operator(this->parsers[index+1]->pEnum) >= thisop && !((int)ev & 4)*/\
 	) object = eval(object, i, 17, evals::isbinaryoperation), index = i;
 	//dot演算子は無理っぽい...
-#define OP3 i=index;if(this->parsers.size()>index+1&&Operator(this->parsers[index+1]->pEnum) >= thisop/* && !((int)ev & 4)*//*true/*opera==17*/||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2
+#define OP3 i=index;if(this->parsers.size()>index+1&&(Operator(this->parsers[index+1]->pEnum) >= thisop/* && !((int)ev & 4)*//*true/*opera==17*/||this->parsers[index+1]->pEnum==leftparent)) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2
 #define OP4 if(this->parsers.size()>index+1&&opera==17||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 	//	Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/ && !((int)ev & 4)||this->parsers[index+1]->pEnum==leftparent) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
 	//#define OP4 if(this->parsers.size()>index+1&&(Operator(this->parsers[index+1]->pEnum) >= /*thisop/*/1/*test*/||this->parsers[index+1]->pEnum==leftparent)/*&&(this->parsers[index+1]->pEnum!=leftparent || object->type->TypeEnum == _Function))*/) object = eval(object,i,17,evals::isbinaryoperation),index = i;//OP2//i = index + 2;
@@ -1291,7 +1291,7 @@ namespace lang
 										 }
 										 index = i;
 										 binaryoperation = index + 1;
-										 i = index - 1;
+										 i = index /*- 1何故？*/;
 										 OP4
 									 }
 									 else

@@ -155,7 +155,10 @@ char* enumtable[] = { "identifier", "num", "doublequote", "str", "leftparent", "
 "_public",
 "_private",
 "_protected",
-"_const", };
+"_const",
+"pow",
+"_get",
+"_set", };
 
 char* parserEnumToString(lang::parserEnum i)
 {

@@ -23,22 +23,20 @@ std::string getlinestring(std::string &input, int index);
 namespace lang
 {
 	template <class T>
-	class stack : public std::vector<T>
+	void stack<T>::push(const T &__x)
 	{
-	public:
-		void push(const T &__x)
-		{
-			this->push_back(__x);
-		}
-		void pop()
-		{
-			this->pop_back();
-		}
-		T top()
-		{
-			return this->at(this->size() - 1);
-		}
-	};
+		this->push_back(__x);
+	}
+	template <class T>
+	void stack<T>::pop()
+	{
+		this->pop_back();
+	}
+	template <class T>
+	T stack<T>::top()
+	{
+		return this->at(this->size() - 1);
+	}
 }
 namespace lang
 {
@@ -71,6 +69,8 @@ namespace lang
 #define HASHPRIVATE 2252
 #define HASHPROTECTED 3786
 #define HASHCONST   1040
+#define HASHSET     333
+#define HASHGET     333
 #define ERROR(a) WARNING(a,0)//langObject NULLOBJECT = newObject(nullptr);
 	enum ENUMCLASS parserStatus
 	{
@@ -140,28 +140,30 @@ namespace lang
 	namespace
 	を解析する。
 	*/
+	/*
 	enum ENUMCLASS sts
 	{
-		Empty,      //   = 0,
-		Func,       //   = 1,
-		stsClass,   //   = 2,
-		NameSpace,  //   = 4,
+	Empty,      //   = 0,
+	Func,       //   = 1,
+	stsClass,   //   = 2,
+	NameSpace,  //   = 4,
 	};
 	struct BlockStruct
 	{
-		sts type;
-		std::string name;
-		BlockStruct(sts s, std::string n) :type(s), name(n){}
-		/*BlockStruct(const BlockStruct& a) : name(a.name), type(a.type)
-		{
-		}
-		BlockStruct& operator = (BlockStruct& a)
-		{
-		this->type = a.type;
-		this->name = a.name;
-		return (BlockStruct&)(*this)/*BlockStruct(a)*//*;
-		}*/
-	};
+	sts type;
+	std::string name;
+	BlockStruct(sts s, std::string n) :type(s), name(n){}
+	/*BlockStruct(const BlockStruct& a) : name(a.name), type(a.type)
+	{
+	}
+	BlockStruct& operator = (BlockStruct& a)
+	{
+	this->type = a.type;
+	this->name = a.name;
+	return (BlockStruct&)(*this)/*BlockStruct(a)*//*;
+	}*//*
+	};*/
+	BlockStruct::BlockStruct(sts s, std::string n) :type(s), name(n){}
 	void parser::catchparse(int index)
 	{
 		if (!index)
@@ -399,7 +401,7 @@ namespace lang
 			if (token->pEnum == identifier)
 			if (!lambda_i)
 			{
-				arg.push_back(FunctionArgUnWrap(emptystr,*token->name));
+				arg.push_back(FunctionArgUnWrap(emptystr, *token->name));
 				lambda_i++;
 			}
 			else
@@ -514,9 +516,11 @@ namespace lang
 	void parser::function()
 	{
 		this->runner = new scope(this->parsers);
+		int endstacksize = -1;
+		int i = 0;
 		if (!lang::gc)
 		{
-			this->runner->variable.add("string", new StringType(),qualifier::const_);
+			this->runner->variable.add("string", new StringType(), qualifier::const_);
 			ObjectTypeObject = new lang::ObjectType();
 			this->runner->variable.add("object", ObjectTypeObject, qualifier::const_);
 			this->runner->variable.add("int", new IntType(), qualifier::const_);
@@ -528,22 +532,28 @@ namespace lang
 			this->runner->variable.add("Array", ArrayTypeObject, qualifier::const_);
 			lang::gc = new gabekore(this->runner);
 		}
+		lang::stack<BlockStruct> funcStack;
+		std::string namesp;
+		//int i = 0;
+		function2(i, INT_MAX, funcStack, namesp);
+	}
+	void  parser::function2(int &i, int endstacksize, lang::stack<BlockStruct> &funcStack, std::string &namesp)
+	{
 		int funcRead = 0, classRead = 0;
 		std::string funcName; std::string className;
 		FunctionArg* argList = nullptr;//new std::vector<std::string>();
-		lang::stack<BlockStruct> funcStack;
 		int func = 0, parent = 0, bracket = 0;
 		size_t class_read_stack_index = 0;
-		std::string namesp; int namespread(0);
+		int namespread(0);
 		int extendname;
 		membertype member = nullptr;
 		membertype staticmember = nullptr;
 		int classanonymous = 0;//0の位置では宣言できないので問題ない
 		bool isstatic = false;
-		qualifier typequalifier;
+		qualifier typequalifier = qualifier::public_;
 		//省略フラグ
 		bool typeset = false;
-		for (int i = 0; i < this->parsers.size(); i++)
+		for (; i < this->parsers.size(); i++)
 		{
 			parseObj *token = this->parsers[i];
 			parseObj *prevtoken = 0;
@@ -607,6 +617,10 @@ namespace lang
 						}
 						if (funcStack.top().type == sts::Func) func--;
 						funcStack.pop();
+						if (funcStack.size() == endstacksize)
+						{
+							return;
+						}
 						break;
 					}
 					break;
@@ -642,8 +656,7 @@ namespace lang
 					{
 						if (funcRead != 0)
 							ERROR((getlinestring(this->program, token->sourcestartindex) + "関数解析中のクラス").c_str());// WARNING("関数解析中のクラス");
-						if (funcStack.size() != 0 && funcStack.top().type == sts::Empty)
-							ERROR((getlinestring(this->program, token->sourcestartindex) + "ネストされたクラス").c_str());
+
 						classRead++;
 					}
 					break;
@@ -661,6 +674,9 @@ namespace lang
 						extendname = -1;
 						goto case2;
 					}
+					else
+					if (funcStack.size() != 0 && funcStack.top().type == sts::Empty)
+						ERROR((getlinestring(this->program, token->sourcestartindex) + "ネストされたクラス").c_str());
 					className = namesp + *token->name;
 					if (member == nullptr)member = new membertype_(); else delete member;
 					if (staticmember == nullptr)staticmember = new membertype_(); else delete staticmember;
@@ -752,7 +768,7 @@ namespace lang
 						{
 							if (isstatic)
 							{
-								staticmember->push_back(MEMBERTYPEITEM(*token->name, NULLOBJECT,typequalifier));
+								staticmember->push_back(MEMBERTYPEITEM(*token->name, NULLOBJECT, typequalifier));
 #ifdef CPP11
 								staticmemberevals.push_back(std::tuple<int, std::string&, std::string>(i + 2, *token->name, className));
 #else
@@ -760,8 +776,8 @@ namespace lang
 #endif
 							}
 							else
-								std::cout << "未実装" << std::endl, member->push_back(MEMBERTYPEITEM(*token->name, NULLOBJECT,typequalifier));
-							isstatic = false; 
+								std::cout << "未実装" << std::endl, member->push_back(MEMBERTYPEITEM(*token->name, NULLOBJECT, typequalifier));
+							isstatic = false;
 							classRead = 3;
 							typequalifier = qualifier::public_;
 						}
@@ -831,16 +847,16 @@ namespace lang
 					if (token->pEnum == parserEnum::identifier)
 					{
 						if (argList == nullptr)argList = new FunctionArg();
-						argList->push_back(FunctionArgUnWrap(*prevtoken->name,*token->name));
+						argList->push_back(FunctionArgUnWrap(*prevtoken->name, *token->name));
 						funcRead++;
 					}
 					else PARSE_ERROR(i, "syntax error[function]") //funcRead = 0;
-					break;
+						break;
 				case 5://, or )
 					if (token->pEnum == parserEnum::comma)funcRead -= 2;
 					else if (token->pEnum == parserEnum::rightparent)funcRead++;
 					else PARSE_ERROR(i, "syntax error[function]") //funcRead = 0;
-					break;
+						break;
 				case 6://{
 					if (argList == nullptr)argList = new FunctionArg();
 					funcStack.push(BlockStruct(sts::Func, funcName));
@@ -860,10 +876,13 @@ namespace lang
 					{
 						if (isstatic)
 						{
-							staticmember->push_back(MEMBERTYPEITEM(funcName, newFunction(funcName, argList, this->runner, i),typequalifier));
+							staticmember->push_back(MEMBERTYPEITEM(funcName, newFunction(funcName, argList, this->runner, i), typequalifier));
 						}
 						else
-							member->push_back(MEMBERTYPEITEM(funcName, newFunction(funcName, argList, this->runner, i),typequalifier));
+							member->push_back(MEMBERTYPEITEM(funcName, newFunction(funcName, argList, this->runner, i), typequalifier));
+						i += 1;
+						function2(i, funcStack.size() - 1,funcStack, namesp);
+						//i--;
 					}
 					else if (func <= 0)
 					{
@@ -875,6 +894,7 @@ namespace lang
 					func++;
 					//this->runner->variable.add(*funcName,std::make_shared<langFunction>(*funcName,argList,this->runner));
 					isstatic = false;
+					typequalifier = qualifier::public_;
 					break;
 			}
 		}
@@ -997,7 +1017,7 @@ namespace lang
 		for (int i = 0; i < this->extendslist.size(); i++)
 		{
 			auto&& j = this->extendslist[i];
-			j.second->base = (langClass)this->runner->variable(*this->parsers[j.first]->name,this->runner);
+			j.second->base = (langClass)this->runner->variable(*this->parsers[j.first]->name, this->runner);
 			if (j.second->base == NULLOBJECT)
 			{
 				WARNINGS(0, "継承元になる%sクラスが存在しません。", this->parsers[j.first]->name->c_str())
@@ -1014,7 +1034,7 @@ namespace lang
 #if CPP11
 			((langClass)this->runner->variable(std::get<2>(i), this->runner))->thisscope->variable.set(std::get<1>(i), this->runner->eval(NULLOBJECT, std::get<0>(i)), this->runner);
 #else
-			((langClass)this->runner->variable(i.second.second,this->runner))->thisscope->variable.set(i.second.first, this->runner->eval(NULLOBJECT, i.first),this->runner);
+			((langClass)this->runner->variable(i.second.second, this->runner))->thisscope->variable.set(i.second.first, this->runner->eval(NULLOBJECT, i.first), this->runner);
 #endif
 		}
 	}
@@ -1433,6 +1453,10 @@ namespace lang
 									break;
 								case HASHCONST:
 									if (*iden == "const"){ this->parsers.push_back(new parseObj(parserEnum::identifier, iden, startindex, i - 1)); ok = true; WARNING("const is not implemented", 1); }
+									break;
+								case HASHSET:
+									if (*iden == "get"){ this->parsers.push_back(new parseObj(parserEnum::_get, iden, startindex, i - 1)); ok = true; }
+									else if (*iden == "set"){ this->parsers.push_back(new parseObj(parserEnum::_set, iden, startindex, i - 1)); ok = true; }
 									break;
 							}
 							if (!ok) this->parsers.push_back(new parseObj(parserEnum::identifier, iden, startindex, i - 1));

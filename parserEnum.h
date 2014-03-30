@@ -91,6 +91,8 @@ namespace lang
 		_protected,
 		_const,
 		pow,
+		_get,
+		_set,
 	};
 }
 #endif

@@ -6,7 +6,28 @@
 #include "GC.h"
 namespace lang
 {
+	template <class T>
+	class stack : public std::vector<T>
+	{
+	public:
+		void push(const T &__x);
+		void pop();
+		T top();
+	};
 	//extern ‚ª‚×‚±‚ê* gc;
+	enum ENUMCLASS sts
+	{
+		Empty,      //   = 0,
+		Func,       //   = 1,
+		stsClass,   //   = 2,
+		NameSpace,  //   = 4,
+	};
+	struct BlockStruct
+	{
+		sts type;
+		std::string name;
+		BlockStruct(sts s, std::string n);
+	};
 	class parser
 	{
 	private:
@@ -17,6 +38,7 @@ namespace lang
 		std::vector<std::pair<int,std::pair<std::string&,std::string> > > staticmemberevals;
 #endif
 		void function();
+		void function2(int &i, int endstacksize, lang::stack<BlockStruct> &funcStack, std::string &namesp);
 		void namespaceparse();
 		void staticparse();
 		void lambdaparse(int index);
