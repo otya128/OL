@@ -38,7 +38,7 @@ namespace lang
 		};
 		enum scopeType
 		{
-			_none_, _function, for_, ctor, 
+			_none_, _function, for_, ctor,
 		};
 	}
 

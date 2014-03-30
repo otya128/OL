@@ -117,6 +117,7 @@ namespace lang
 			langFunction threadFunc = new Function((langFunction)arg[0], ((langFunction)arg[0])->thisscope);
 			std::thread* thd = new std::thread([threadFunc]
 			{
+				lang::stacktrace = new std::vector<langFunction>();
 				std::vector<langObject> rarg;
 				threadFunc->call(&rarg);
 				threadFunc->thread->detach();

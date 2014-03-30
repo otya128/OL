@@ -13,7 +13,7 @@ namespace lang
 	enum ENUMCLASS functype : unsigned char
 	{
 		normal = 0,
-		lambda = 1,
+		lambda_ = 1,
 		var_arg = 2,
 		overload = 4,
 	};
@@ -26,7 +26,7 @@ namespace lang
 		std::vector<langFunction>* stacktrace;
 	typedef std::pair<std::string, std::string> FunctionArgUnWrap;
 	typedef std::vector<FunctionArgUnWrap> FunctionArg;
-	const std::string const emptystr;
+	const std::string emptystr;
 	class Function : public Object
 	{
 	public:
@@ -54,7 +54,7 @@ namespace lang
 		Function();
 		inline bool islambda()
 		{
-			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::lambda));
+			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::lambda_));
 		}
 		inline bool isvar_arg()
 		{

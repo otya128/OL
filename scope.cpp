@@ -1126,7 +1126,7 @@ namespace lang
 			{
 				//ラムダ式だ
 				langLambda l = (langLambda)this->parsers[index]->ptr;// new Lambda((langLambda)this->parsers[index]->ptr, this);
-				if (static_cast<unsigned char>(l->Ftype) & static_cast<unsigned char>(functype::lambda))
+				if (static_cast<unsigned char>(l->Ftype) & static_cast<unsigned char>(functype::lambda_))
 				{
 					index = l->endindex;
 					binaryoperation = index + 1;

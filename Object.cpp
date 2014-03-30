@@ -994,7 +994,7 @@ namespace lang
 				switch (obj1->type->TypeEnum)
 			{
 					case PreType::_Int:
-						return newInt(static_cast<int>(std::powl(Int::toInt(obj1),Int::toInt(obj2))));
+						return newInt(static_cast<int>(std::pow(Int::toInt(obj1),Int::toInt(obj2))));
 					case PreType::_Double:
 						return newDouble(std::pow(Double::toDouble(obj1) , Double::toDouble(obj2)));
 					case PreType::_ClassObject:

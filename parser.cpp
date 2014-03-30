@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
+#include <iostream>
+#include <string>
 #include <sstream>
 #include <algorithm>
 #include "parser.h"
@@ -20,6 +22,12 @@ typedef int errno_t;
 //#include "parserEnum.h"
 #define newFunction(a,a1,a2,a3) new Function(a,a1,a2,a3)
 std::string getlinestring(std::string &input, int index);
+#define INT_MAX       2147483647    /* maximum (signed) int value */
+/*namespace std
+{
+	int       stoi(const std::string& str, size_t *pos = 0, int base = 10);
+	double      stod(const std::string& str, size_t *pos = 0);
+}*/
 namespace lang
 {
 	template <class T>
@@ -117,11 +125,13 @@ namespace lang
 	}
 #ifdef _WIN32
 #define WARNINGS(level, ...) {char buf[512];sprintf_s(buf,__VA_ARGS__);WARNING(buf, level);}
-#else
-#define WARNINGS(level, ...) {char buf[512];sprintf(buf,__VA_ARGS__);WARNING(buf, level);}
-#endif
 #define PARSE_ERROR(index,format,...)do{WARNINGS(0,format "%s",__VA_ARGS__,getlinestring(this->program,index).c_str())}while(false);
 #define PARSE_WARNING(index,format,...)do{WARNINGS(1,format "%s",__VA_ARGS__,getlinestring(this->program,index).c_str())}while(false);
+#else
+#define WARNINGS(level, ...) {char buf[512];sprintf(buf,__VA_ARGS__);WARNING(buf, level);}
+#define PARSE_ERROR(index,format,...)do{WARNINGS(0, "%s"format,getlinestring(this->program,index).c_str(),##__VA_ARGS__)}while(false);
+#define PARSE_WARNING(index,format,...)do{WARNINGS(1, "%s"format,getlinestring(this->program,index).c_str(),##__VA_ARGS__)}while(false);
+#endif
 	void parser::WARNING(const char* param, int level)
 	{
 		if (level <= error_level)
@@ -474,7 +484,7 @@ namespace lang
 				}
 			}
 			//すべて0ならtrue
-			else if (parent <= 0 || block <= 0 || bracket <= 0)
+			else if (parent <= 0 && block <= 0 && bracket <= 0)
 			{
 				if (token->pEnum == semicolon)break;
 				if (token->pEnum == rightparent)
@@ -711,7 +721,7 @@ namespace lang
 				case parserEnum::_namespace:
 					namespread++;
 					break;
-				case parserEnum::lambda:
+				case parserEnum::_lambda:
 					this->lambdaparse(i);
 					break;
 				case parserEnum::conditional:
@@ -1313,7 +1323,7 @@ namespace lang
 						case '=':
 							if (nextchr == '=')
 								this->parsers.push_back(new parseObj(parserEnum::equalequal, new std::string("=="), i, i + 1)), i++;
-							else if (nextchr == '>') this->parsers.push_back(new parseObj(parserEnum::lambda, new std::string("=>"), i, i + 1)), i++; else this->parsers.push_back(new parseObj(parserEnum::equal, new std::string("="), i, i));
+							else if (nextchr == '>') this->parsers.push_back(new parseObj(parserEnum::_lambda, new std::string("=>"), i, i + 1)), i++; else this->parsers.push_back(new parseObj(parserEnum::equal, new std::string("="), i, i));
 							break;
 						case ';':
 							this->parsers.push_back(new parseObj(parserEnum::semicolon, new std::string(";"), i, i));
@@ -1566,6 +1576,8 @@ namespace lang
 							sts = parserStatus::ReadDouble;
 							break;
 						}
+						this->parsers.push_back(new parseObj(std::atoi(iden->c_str()), startindex, i - 1));
+						/*
 						try
 						{
 							this->parsers.push_back(new parseObj(std::stoi(*iden), startindex, i - 1));
@@ -1573,7 +1585,7 @@ namespace lang
 						catch (std::out_of_range)
 						{
 							this->parsers.push_back(new parseObj(std::stod(*iden), startindex, i - 1));
-						}
+						}*/
 						iden->clear();//!!!!コピーされるのでclear する!!!!
 						sts = parserStatus::None;
 						goto None;

@@ -82,7 +82,7 @@ namespace lang
 		_in,
 		_is,
 		_as,
-		lambda,
+		_lambda,
 		conditional,//?
 		_catch,
 		_throw,

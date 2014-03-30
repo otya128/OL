@@ -3,6 +3,18 @@ print("namespace static member:",HELLO,"\n");
 print("class static member:",Sample.StaticMember,"\n");
 print("create Class Object:");
 var sample = new Sample("test\n");
+new OL::Thread(()=>
+{
+	var window = new OL::GUI::Window("hello",100,100)
+		var window2 = new OL::GUI::Window("hello",100,100)
+	new OL::Thread(()=>
+	{
+		window2.Show()
+		//for(;;){}
+	}).Start();
+	window.Show()
+	//for(;;){}
+}).Start();
 {
 	print("throw Exception\n")
 	new Sample();
@@ -13,6 +25,7 @@ var sample = new Sample("test\n");
 	}
 }
 print("property:",sample.hoge,"\n");
+getline();
 sample.hoge = "A";//ERROR!!
 namespace Sample
 {

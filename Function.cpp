@@ -4,6 +4,7 @@
 #include <sstream>
 #include "langException.h"
 #include "Class.h"
+#define INT_MAX       2147483647    /* maximum (signed) int value */
 namespace lang
 {
 #ifdef _MSC_VER
@@ -174,7 +175,7 @@ namespace lang
 	Lambda::Lambda(std::string name, FunctionArg* argList, lang::scope* scope, int index, int endindex, bool isexp)
 		: Function(name, argList, scope, index)
 	{
-		this->Ftype = functype::lambda;
+		this->Ftype = functype::lambda_;
 		this->type->name = this->name.c_str();
 		this->endindex = endindex;
 		this->NoExpLambda = isexp;
@@ -183,7 +184,7 @@ namespace lang
 	Lambda::Lambda(std::string name, FunctionArg& argList, lang::scope* scope, int index, int endindex, bool isexp)
 		: Function(name, argList, scope, index)
 	{
-		this->Ftype = functype::lambda;
+		this->Ftype = functype::lambda_;
 		this->type->name = this->name.c_str();
 		this->endindex = endindex;
 		this->NoExpLambda = isexp;
