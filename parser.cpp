@@ -513,6 +513,78 @@ namespace lang
 		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1, endindex/*-1/* + 1*/, isexp);
 		this->parsers[argindex]->ptr = l;
 	}
+	Property* parser::propertyparse(int &i, int endstacksize, lang::stack<BlockStruct> &funcStack, std::string &namesp)
+	{
+		qualifier typequalifier = qualifier::public_;
+		qualifier setqualifier = qualifier::public_;
+		qualifier getqualifier = qualifier::public_;
+		bool typeset = false;
+		langFunction get = nullptr;
+		langFunction set = nullptr;
+		FunctionArg getterarg;
+		FunctionArg setterarg;
+		setterarg.push_back(FunctionArgUnWrap(emptystr, "value"));
+		for (; i < this->parsers.size(); i++)
+		{
+			parseObj *token = this->parsers[i];
+			parseObj *nexttoken = this->parsers[i + 1];
+			switch (token->pEnum)
+			{
+				case parserEnum::_get:
+					if (nexttoken->pEnum == parserEnum::blockstart)
+					{
+						if (get)
+						{
+							PARSE_WARNING(i, "Duplicate Getter");
+						}
+						getqualifier = typequalifier;
+						get = new Function("getter", getterarg, this->runner, i + 1);
+						i += 1;
+						function2(i, funcStack.size() - 0, funcStack, namesp);
+					}
+					else
+						PARSE_ERROR(i, "syntax error[property]");
+					typequalifier = qualifier::public_;
+					break;
+				case parserEnum::_set:
+					if (nexttoken->pEnum == parserEnum::blockstart)
+					{
+						if (set)
+						{
+							PARSE_WARNING(i, "Duplicate Setter");
+						}
+						setqualifier = typequalifier;
+						set = new Function("setter", setterarg, this->runner, i + 1);
+						i += 1;
+						function2(i, funcStack.size() - 0, funcStack, namesp);
+					}
+					else
+						PARSE_ERROR(i, "syntax error[property]");
+					typequalifier = qualifier::public_;
+					break;
+				case parserEnum::_public:
+					typequalifier = qualifier::public_;
+					if (typeset)PARSE_WARNING(i, "Duplicate Type Qualifier");
+					typeset = true;
+					break;
+				case parserEnum::_private:
+					typequalifier = qualifier::private_;
+					if (typeset)PARSE_WARNING(i, "Duplicate Type Qualifier");
+					typeset = true;
+					break;
+				case parserEnum::_protected:
+					typequalifier = qualifier::protected_;
+					if (typeset)PARSE_WARNING(i, "Duplicate Type Qualifier");
+					typeset = true;
+					break;
+				case parserEnum::blockend:
+					return new Property(get, set, getqualifier, setqualifier);
+				default:
+					PARSE_ERROR(i, "syntax error[property]");
+			}
+		}
+		return new Property(get, set, getqualifier, setqualifier);
+	}
 	void parser::function()
 	{
 		this->runner = new scope(this->parsers);
@@ -763,6 +835,23 @@ namespace lang
 							classRead = 3;
 							typequalifier = qualifier::public_;
 						}
+						else
+
+						if (i + 1 < this->parsers.size() && this->parsers[i + 1]->pEnum == blockstart || (typeset && token->pEnum == blockstart))
+						{
+							int j = i - 1;
+							if (this->parsers[i + 1]->pEnum == blockstart)
+							{
+								j++;
+								i++;
+							}
+							i++;
+							auto p = propertyparse(i, 0, funcStack, namesp);
+							if (isstatic)
+								staticmember->push_back(MEMBERTYPEITEM(*this->parsers[j]->name, p, typequalifier));
+							else
+								member->push_back(MEMBERTYPEITEM(*this->parsers[j]->name, p, typequalifier));
+						}
 						typeset = false;
 						if (i + 1 < this->parsers.size() && this->parsers[i + 1]->pEnum == equal)
 						{
@@ -881,7 +970,7 @@ namespace lang
 						else
 							member->push_back(MEMBERTYPEITEM(funcName, newFunction(funcName, argList, this->runner, i), typequalifier));
 						i += 1;
-						function2(i, funcStack.size() - 1,funcStack, namesp);
+						function2(i, funcStack.size() - 1, funcStack, namesp);
 						//i--;
 					}
 					else if (func <= 0)

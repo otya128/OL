@@ -45,6 +45,7 @@ namespace lang
 	class Array;
 	class Char;
 	class Double;
+	class Property;
 #define GCENABLE
 	//参照ポインタGC
 #ifdef GCENABLE

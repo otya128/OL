@@ -1,10 +1,11 @@
 #include "stdafx.h"
+//#include "scope.h"
 #include "Function.h"
 #include <sstream>
 #include "langException.h"
+#include "Class.h"
 namespace lang
 {
-
 #ifdef _MSC_VER
 	__declspec(thread)
 #else
@@ -352,7 +353,7 @@ namespace lang
 	{
 		int index = 0;
 		int kyorimin = INT_MAX;//int *kyori = (int*)alloca(argList->size() * sizeof(int));
-		int kyoricount,kyorin = -1;
+		int kyoricount, kyorin = -1;
 		for (int i = 0; i < this->functions.size(); i++)
 		{
 			if (this->functions[i]->argList->size() == argList->size() ||
@@ -380,7 +381,7 @@ namespace lang
 		}
 		if (kyorin == -1)
 		{
-			FunctionArgThrow(this,argList);
+			FunctionArgThrow(this, argList);
 		}
 		return this->functions[kyorin]->call(argList);
 	}
@@ -388,30 +389,83 @@ namespace lang
 	{
 		return this->call(argList);
 	}
-	Property::Property(langFunction Getter, langFunction Setter)
+	Property::Property(langFunction Getter, langFunction Setter, qualifier g, qualifier s)
 	{
 		this->type = new Type(_Property);
 		this->getter = Getter;
 		this->setter = Setter;
+		this->getqualifier = g;
+		this->setqualifier = s;
 	}
-	langObject Property::Get()
+	langObject Property::Get(variable* v, scope* access)
 	{
 		if (getter)
 		{
 			std::vector<langObject> arg;
+			qualifier q = this->getqualifier;
+			if (q & qualifier::private_)
+			{
+				if (!access->_this || v->owner->_this->thisscope != access->_this->thisscope)
+				{
+					if (access->_this && (q & qualifier::protected_))
+					{
+						langClass base = access->_this->base;
+						while (base)
+						{
+							if (v->owner->_this == base)
+								return this->getter->call(&arg);
+							base = base->base;
+						}
+						throw_langRuntimeException("protected setterにはアクセスできません");
+					}
+					throw_langRuntimeException("private setterにはアクセスできません");
+				}
+			}
 			return this->getter->call(&arg);
 		}
 		throw langRuntimeException("getterが存在しません");
 	}
-	langObject Property::Set(langObject value)
+	langObject Property::Set(langObject value, variable*v, scope* access)
 	{
 		if (setter)
 		{
 			std::vector<langObject> arg;
 			arg.push_back(value);
+			qualifier q = this->setqualifier;
+			if (q & qualifier::private_)
+			{
+				if (!access->_this || v->owner->_this->thisscope != access->_this->thisscope)
+				{
+					if (access->_this && (q & qualifier::protected_))
+					{
+						langClass base = access->_this->base;
+						while (base)
+						{
+							if (v->owner->_this == base)
+							{
+								this->setter->call(&arg);
+								return value;
+							}
+							base = base->base;
+						}
+						throw_langRuntimeException("protected setterにはアクセスできません");
+					}
+					throw_langRuntimeException("private setterにはアクセスできません");
+				}
+			}
 			this->setter->call(&arg);
 			return value;
 		}
 		throw langRuntimeException("setterが存在しません");
+	}
+	Property::Property(Property* base, scope* sp)
+	{
+		this->type = new Type(_Property);
+		if (base->getter)this->getter = new Function(base->getter, sp);
+		else this->getter = nullptr;
+		if (base->setter)this->setter = new Function(base->setter, sp);
+		else this->setter = nullptr;
+		this->getqualifier = base->getqualifier;
+		this->setqualifier = base->setqualifier;
 	}
 }

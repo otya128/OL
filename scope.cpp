@@ -1039,15 +1039,15 @@ namespace lang
 				OP2\
 				break;
 #define DEFINEDOTEQUAL(enumname,funcname)\
-				case enumname:\
+				case enumname:equals = true; \
 				binaryoperation += 2; \
-				object = buf->setMember(*bufbuf->name, Object::funcname(object, eval(NULLOBJECT, binaryoperation, 17, evals::mage)), this); \
+				object = buf->setMember(*bufbuf->name, Object::funcname(buf->getMember(*bufbuf->name, this), eval(NULLOBJECT, binaryoperation, 17, evals::mage)), this); \
 				index = binaryoperation; \
 				binaryoperation++; \
 				break;
 #define DEFINEDOTPOSTFIX(enumname,funcname)\
-				case enumname:\
-				object = buf->setMember(*bufbuf->name, Object::funcname(object), this); \
+				case enumname:equals = true; \
+				object = buf->setMember(*bufbuf->name, Object::funcname(buf->getMember(*bufbuf->name, this)), this); \
 				index = binaryoperation; \
 				binaryoperation++; \
 				break;
@@ -1665,7 +1665,8 @@ namespace lang
 							{
 								if (bufbuf->pEnum == identifier)
 								{
-									object = buf->getMember(*bufbuf->name, this);//buf->thisscope->variable[*bufbuf->name];
+									bool equals = false;
+									//buf->thisscope->variable[*bufbuf->name];
 									index++;
 									binaryoperation++;
 									if (this->parsers.size() > binaryoperation + 1)
@@ -1674,7 +1675,7 @@ namespace lang
 										{
 											case equal:
 												binaryoperation += 2;
-												buf->setMember(*bufbuf->name, eval(NULLOBJECT, binaryoperation), this);//buf->thisscope->variable.set(*bufbuf->name, eval(NULLOBJECT, binaryoperation));
+												object = buf->setMember(*bufbuf->name, eval(NULLOBJECT, binaryoperation), this);//buf->thisscope->variable.set(*bufbuf->name, eval(NULLOBJECT, binaryoperation));
 												//object = buf->thisscope->variable[*bufbuf->name];
 												index = binaryoperation;
 												//index++;
@@ -1700,6 +1701,7 @@ namespace lang
 										//binaryoperation++;
 										}*/
 									}
+									if (equals)object = buf->getMember(*bufbuf->name, this);
 								}
 								else
 								{

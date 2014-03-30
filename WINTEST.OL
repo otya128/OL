@@ -123,8 +123,8 @@ Console.WriteLine("aho")("hoge")("huga")("hege")('A')(0)(false)(true)(false)(nul
 //var a=new haga;
 //print("\na.static",a.static,"\na",a,"\nnew (a.static)",new (a.static));
 //a.hogeõ"\nA\n"ö;
-print(threadid(),OL::Thread.ID(),OL::ID,Console);
-print(true,haga.lf);/*
+print(threadid(),OL::Thread.ID(),Console);
+print(true);/*
 var fp = File::open("fopen.txt","wb+");
 File::write("Hello,World!",fp);
 File::close(fp);*/

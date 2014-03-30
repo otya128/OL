@@ -46,6 +46,12 @@ namespace lang
 			this->thisscope->variable.add(i.first, buf, i.second.second);
 		}
 		else
+		if (i.second.first->type->TypeEnum == _Property)
+		{
+			auto buf = new Property((Property*)i.second.first, thisscope);
+			this->thisscope->variable.add(i.first, buf, i.second.second);
+		}
+		else
 			this->thisscope->variable.add(i.first, i.second.first, i.second.second);
 		ENDFOREACH
 			/*
@@ -143,6 +149,12 @@ namespace lang
 				buf->scope = thisscope;
 				this->thisscope->variable.add(i.first, buf, i.second.second);
 			}
+		}
+		else
+		if (i.second.first->type->TypeEnum == _Property)
+		{
+			auto buf = new Property((Property*)i.second.first, thisscope);
+			this->thisscope->variable.add(i.first, buf, i.second.second);
 		}
 		else
 			this->thisscope->variable.add(i.first, i.second.first, i.second.second);

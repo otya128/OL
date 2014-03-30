@@ -56,6 +56,10 @@ namespace lang{
 		auto f = this->_variable.find(name);
 		if (f != this->_variable.end())
 		{
+			if (f->second.first is _Property)
+			{
+				return ((Property*)f->second.first)->Get(this,access);
+			}
 			qualifier q = f->second.second;//this->_variable[name];
 			if (q & qualifier::private_)
 			{
@@ -90,6 +94,24 @@ namespace lang{
 			{
 				throw_langRuntimeException("const %sに代入できません", name.c_str());
 			}
+			if (q & qualifier::private_)
+			{
+				if (!access->_this || this->owner->_this->thisscope != access->_this->thisscope)
+				{
+					if (access->_this && (q & qualifier::protected_))
+					{
+						langClass base = access->_this->base;
+						while (base)
+						{
+							if (this->owner->_this == base)
+								return f->second.first;
+							base = base->base;
+						}
+						throw_langRuntimeException("protected member %sにはアクセスできません", name.c_str());
+					}
+					throw_langRuntimeException("private member %sにはアクセスできません", name.c_str());
+				}
+			}
 			langFunction f1 = (langFunction)f->second.first;
 			if (f1->isoverload())
 			{
@@ -102,10 +124,32 @@ namespace lang{
 		}
         if(f != this->_variable.end())
 		{
+			if (f->second.first is _Property)
+			{
+				return ((Property*)f->second.first)->Set(object, this, access);
+			}
 			qualifier q = f->second.second;
 			if (q & qualifier::const_)
 			{
 				throw_langRuntimeException("const %sに代入できません",name.c_str());
+			}
+			if (q & qualifier::private_)
+			{
+				if (!access->_this || this->owner->_this->thisscope != access->_this->thisscope)
+				{
+					if (access->_this && (q & qualifier::protected_))
+					{
+						langClass base = access->_this->base;
+						while (base)
+						{
+							if (this->owner->_this == base)
+								return f->second.first;
+							base = base->base;
+						}
+						throw_langRuntimeException("protected member %sにはアクセスできません", name.c_str());
+					}
+					throw_langRuntimeException("private member %sにはアクセスできません", name.c_str());
+				}
 			}
 			this->_variable[name].first = object;// = std::pair<langObject, qualifier>(object,f->second.second);
 			return object;

@@ -113,9 +113,12 @@ namespace lang
 		langFunction getter;
 		langFunction setter;
 	public:
-		Property(langFunction Getter, langFunction Setter);
-		langObject Get();
-		langObject Set(langObject);
+		qualifier getqualifier;
+		qualifier setqualifier;
+		Property(langFunction Getter, langFunction Setter, qualifier g = public_, qualifier s = public_);
+		Property(Property* base,scope* sp);
+		langObject Get(variable*,scope*);
+		langObject Set(langObject, variable*, scope*);
 	};
 }
 #endif

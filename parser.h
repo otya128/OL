@@ -39,6 +39,7 @@ namespace lang
 #endif
 		void function();
 		void function2(int &i, int endstacksize, lang::stack<BlockStruct> &funcStack, std::string &namesp);
+		Property* propertyparse(int &i, int endstacksize, lang::stack<BlockStruct> &funcStack, std::string &namesp);
 		void namespaceparse();
 		void staticparse();
 		void lambdaparse(int index);
