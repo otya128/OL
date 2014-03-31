@@ -1,40 +1,0 @@
-10
-
-dir
-205165
-http://llvm.org/svn/llvm-project/llvm/trunk/test/Transforms/SLPVectorizer
-http://llvm.org/svn/llvm-project
-
-
-
-2014-03-28T17:21:32.531185Z
-205020
-arnolds
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-91177308-0d34-0410-b5e6-96231b3b80d8
-
-R600
-dir
-
-ARM
-dir
-
-XCore
-dir
-
-X86
-dir
-
