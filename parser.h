@@ -14,7 +14,7 @@ namespace lang
 		void pop();
 		T top();
 	};
-	//extern ‚ª‚×‚±‚ê* gc;
+	//extern ï¿½ï¿½ï¿½×‚ï¿½ï¿½ï¿½* gc;
 	enum ENUMCLASS sts
 	{
 		Empty,      //   = 0,
@@ -35,7 +35,7 @@ namespace lang
 #ifdef CPP11
 		std::vector<std::tuple<int, std::string&, std::string> > staticmemberevals;
 #else
-		std::vector<std::pair<int,std::pair<std::string&,std::string> > > staticmemberevals;
+		std::vector<std::pair<int,std::pair<std::string,std::string> > > staticmemberevals;
 #endif
 		void function();
 		void function2(int &i, int endstacksize, lang::stack<BlockStruct> &funcStack, std::string &namesp);
@@ -49,7 +49,7 @@ namespace lang
 		scope* runner;
 		std::vector<parseObj*> parsers;
 		std::vector<std::string> usings;
-		std::vector < std::pair<int, langClass>> extendslist;
+		std::vector < std::pair<int, langClass> > extendslist;
 		std::string program;
 		parser(std::string);
 		void WARNING(const char* param, int level = 0);
@@ -59,3 +59,4 @@ namespace lang
 	};
 }
 #endif
+

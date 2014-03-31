@@ -36,12 +36,6 @@ namespace lang
 		}
 		this->object[obj] = 0;
 	}
-		typedef std::map<scope*,int>::iterator rootit;
-		typedef std::pair<scope*,int> rootpr;
-		typedef std::map<Object*,int>::iterator objit;
-		typedef std::pair<Object*,int> objpr;
-		typedef std::vector<langObject>::iterator constit;
-		typedef langObject constpr;
   
 	void GC::start(void)
 	{

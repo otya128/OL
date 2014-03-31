@@ -10,6 +10,7 @@
 #include <memory>
 #include <fstream>
 #include <string>
+#include <string.h>
 #include <iostream>
 #include <sstream>
 #include "langException.h"
@@ -32,6 +33,8 @@
 #define strncpy_s(a,b,c,d) strncpy(a,c,d)
 #define freopen_s(a,b,c,d) *a = freopen(b,c,d) 
 #endif
+#define INT_MAX       2147483647    /* maximum (signed) int value */
+#include "GC.h"
 #ifndef _DEBUG___
 #ifdef _WIN32
 #include <eh.h>
@@ -197,7 +200,7 @@ std::string getlinestring(std::string &input, int index)
 }
 enum ENUMCLASS option
 {
-	none, errorlevel, std_out, ch_dir, std_err
+	opt_none, errorlevel, std_out, ch_dir, std_err
 };
 int hook(int a1, char *a2, int *a3)
 {
@@ -216,20 +219,21 @@ dest = mbs;
 delete[] mbs;
 }*/
 #include "GTKOLWindow.h"
-OLWindow* window;
 #ifndef MAX_PATH
 #define MAX_PATH 260
 #endif
 char filename_[MAX_PATH];
 #define _OLT(x) x
 char*filename = _OLT("");
-TextBox* txt;
 bool UTF8 = false;
 #ifdef OL_GTK
 #define SETUTF8 UTF8 = true
 #else
 #define SETUTF8 
 #endif
+#if LANG_GUI
+TextBox* txt;
+OLWindow* window;
 //見にくいから分けた
 void Button_OnClick(eventargs<OLWindow*> c)
 {
@@ -333,6 +337,7 @@ void gui(void)
 		delete txt;
 #endif
 	}
+  #endif
 	//#include <commctrl.h>
 #ifndef _WIN32
 #include <unistd.h>
@@ -368,7 +373,7 @@ void gui(void)
 			//_CrtSetReportMode( 1, _CRTDBG_MODE_WNDW );
 			//_CrtSetBreakAlloc(223);_CrtSetBreakAlloc(221);
 			//_CrtSetBreakAlloc(218);
-			option o = option::none;
+			option o = opt_none;
 			lang::error_level = 0;
 			bool endpause_ = false, json = false, nologo = false;
 			bool notfileload = true;
@@ -380,7 +385,7 @@ void gui(void)
 			{
 				switch (o)
 				{
-					case option::none:
+					case opt_none:
 						if (!/*_tcscmp*/strcmp(argv[i], _OLT("-ahogc")))
 						{
 							ahogc = true;
@@ -418,7 +423,7 @@ void gui(void)
 						else
 						if (!strcmp(argv[i], _OLT("-errorlevel")))
 						{
-							o = option::errorlevel;
+							o = errorlevel;
 						}
 						else
 						if (!strcmp(argv[i], _OLT("-e")))
@@ -445,17 +450,17 @@ void gui(void)
 						else
 						if (!strcmp(argv[i], _OLT("-stdout")))
 						{
-							o = option::std_out;
+							o = std_out;
 						}
 						else
 						if (!strcmp(argv[i], _OLT("-stderr")))
 						{
-							o = option::std_err;
+							o = std_err;
 						}
 						else
 						if (!strcmp(argv[i], _OLT("-chdir")))
 						{
-							o = option::ch_dir;
+							o = ch_dir;
 						}
 						else
 						{
@@ -464,35 +469,35 @@ void gui(void)
 							files.push_back(argv[i]);
 						}
 						break;
-					case option::errorlevel:
+					case errorlevel:
 						lang::error_level = /*_ttoi*/atoi(argv[i]);
-						o = option::none;
+						o = opt_none;
 						break;
-					case option::std_out:
+					case std_out:
 					{
-											auto s = stdout;
+											FILE* s = stdout;
 											freopen_s(&s, argv[i], "w+", stdout);
 											/*
 											auto s = stdout;
 											fopen_s(&s, argv[i], "w+");*/
-											o = option::none;
+											o = opt_none;
 					}
 						break;
-					case option::std_err:
+					case std_err:
 					{
-											auto s = stderr;
+											FILE* s = stderr;
 											freopen_s(&s, argv[i], "w+", stderr);
-											o = option::none;
+											o = opt_none;
 					}
 						break;
-					case option::ch_dir:
+					case ch_dir:
 #ifndef _WIN32
 						//chdir(argv[i]);
 #endif
 #ifdef _WIN32
 						SetCurrentDirectoryA(argv[i]);
 #endif
-						o = option::none;
+						o = opt_none;
 						break;
 					default:
 						break;
@@ -503,10 +508,12 @@ void gui(void)
 				prompt = true;
 			}
 #pragma endregion
+      #if LANG_GUI
 			if (gui)
 			{
 				::gui();
 			}
+      #endif
 			if (!json && !nologo)
 #if _DEBUG
 				std::cout << "OtyaLanguage DEBUG build" << std::endl;
@@ -610,15 +617,15 @@ void gui(void)
 						pars->runner->variable.parentVariable = &stdp->runner->variable;
 						if (pars->parsers.size() > 1)
 						{
-							if (pars->parsers[0]->pEnum == parserEnum::none && *pars->parsers[0]->name == "#")
+							if (pars->parsers[0]->pEnum == none && *pars->parsers[0]->name == "#")
 							{
-								if (pars->parsers[1]->pEnum == parserEnum::identifier && *pars->parsers[1]->name == "help")
+								if (pars->parsers[1]->pEnum == identifier && *pars->parsers[1]->name == "help")
 								{
 									std::cout << "Help" << std::endl <<
 										"#cmd [...] #cmd help" << std::endl;
 									continue;
 								}
-								if (pars->parsers[1]->pEnum == parserEnum::identifier && *pars->parsers[1]->name == "cmd")
+								if (pars->parsers[1]->pEnum == identifier && *pars->parsers[1]->name == "cmd")
 								{
 									system(input.substr(pars->parsers[1]->sourceendindex + 1).c_str());
 									continue;
@@ -646,9 +653,9 @@ void gui(void)
 					for (auto i : ex.stacktrace)
 					{
 #else
-					for (auto it = ex.stacktrace.begin(); it != ex.stacktrace.end(); ++it)
+					for (std::vector<const char*>::iterator it = ex.stacktrace.begin(); it != ex.stacktrace.end(); ++it)
 					{
-						auto i = *it;
+						const char i = *it;
 #endif
 						std::cerr << getlinestring(input, ex.tokens[i.second]->sourcestartindex) << std::endl;
 						//std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
@@ -656,7 +663,7 @@ void gui(void)
 					}
 #endif
 					std::cerr << "StackTrace" << std::endl;
-					FOREACH(i, ex.funcstacktrace)//for(auto i : ex.funcstacktrace)
+					FOREACH(std::vector<const char*>::iterator,i, const char*,ex.funcstacktrace)//for(auto i : ex.funcstacktrace)
 						//{
 						std::cerr << i << std::endl;
 					ENDFOREACH
@@ -678,7 +685,7 @@ void gui(void)
 				{
 					std::cout << "{\"parser\":[";
 					//                for(auto &&i : pars->parsers)
-					FOREACH(i, pars->parsers)//                {
+					FOREACH(std::vector<parseObj*>::iterator,i,parseObj*, pars->parsers)//                {
 						std::cout << '{' << "\"name\":\"" << (i->name ? escape(*i->name) : "") << '\"' << ',' << "\"pEnum\":\"" << enumtable[i->pEnum] << '\"' << ',' << "\"ptr\":";
 					if (i->ptr)
 					{
@@ -726,7 +733,7 @@ void gui(void)
 					// lang::NULLOBJECT = new lang::Object();
 					running = true;
 					pars->runner->refinc();
-					auto result = pars->Run();//pars->runner->run();
+					langObject result = pars->Run();//pars->runner->run();
 					if (result && result != NULLOBJECT) std::cout << result->toString();// << std::endl;
 					if (lang::gc_view)std::cout << "実行終 変数や定数を削除" << std::endl;
 				}
@@ -743,7 +750,7 @@ void gui(void)
 					ENDFOREACH
 #endif
 						std::cerr << "StackTrace" << std::endl;
-					FOREACH(i, ex.funcstacktrace)//                    for(auto i : ex.funcstacktrace)
+					FOREACH(std::vector<const char*>::iterator,i,const char*, ex.funcstacktrace)//                    for(auto i : ex.funcstacktrace)
 						//{
 						std::cerr << i << std::endl;
 					ENDFOREACH//}
@@ -799,7 +806,7 @@ void gui(void)
 
 				if (lang::prompt)
 				{
-					FOREACH(i, lang::gc->roots)//                {
+					FOREACH(rootit,i,rootpr, lang::gc->roots)//                {
 					if (stdproots->find(i.first) == stdproots->end())
 					{
 						del.push_back(i.first);
@@ -809,17 +816,17 @@ void gui(void)
 				}
 				else
 				{
-					FOREACH(i, lang::gc->roots)//                {
+					FOREACH(rootit,i,rootpr, lang::gc->roots)//                {
 						del.push_back(i.first);
 					ENDFOREACH
 				}
-				FOREACH(i, del)
+				FOREACH(std::vector<lang::scope*>::iterator,i,lang::scope*, del)
 					lang::gc->removeRoot(i);
 				ENDFOREACH
 					//lang::gc->roots.clear();
 					//lang::gc->root->variable._variable.clear();
 					lang::gc->start();
-				FOREACH(i, lang::gc->constroot)
+				FOREACH(constit,i,constpr, lang::gc->constroot)
 					lang::gc->uncontroll(i);
 				ENDFOREACH
 					lang::gc->constroot.clear();

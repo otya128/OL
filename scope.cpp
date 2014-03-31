@@ -22,10 +22,12 @@
 #include "OLR.h"
 namespace lang
 {//VisualStadio
-
+  typedef parserEnum parserEnumDefine;
+#define parserEnum lang
+#define INT_MAX       2147483647    /* maximum (signed) int value */
 	langObject BuitInFunction(std::string name, std::vector<langObject> arg)
 	{
-		auto func = (*BuiltFunction)[name];
+		BuiltFunc func = (*BuiltFunction)[name];
 		if (func)
 		{
 			return func(arg);
@@ -65,8 +67,8 @@ namespace lang
 		//this->parsers = v;
 		this->index = 0;
 		this->startIndex = 0;
-		this->status = en::returnStatus::none_;
-		this->type = en::scopeType::_none_;
+		this->status = en::none_;
+		this->type = en::_none_;
 		this->iscatcher = false;
 #if _DEBUG
 		if (gc_view)
@@ -83,8 +85,8 @@ namespace lang
 		//this->parsers = v;
 		this->index = 0;
 		this->startIndex = 0;
-		this->status = en::returnStatus::none_;
-		this->type = en::scopeType::_none_;
+		this->status = en::none_;
+		this->type = en::_none_;
 		this->iscatcher = false;
 #if _DEBUG
 		if (gc_view)
@@ -163,10 +165,10 @@ namespace lang
 	//変数宣言と式しか実行できない文
 	void scope::statement(void)
 	{
-		auto status = en::scopeStatus::none;
+		en::scopeStatus status = en::none;
 		for (/*this->index = this->startIndex*/; index < parsers.size(); index++)
 		{
-			auto j = this->parsers[index];
+			parseObj* j = this->parsers[index];
 			if (j->pEnum == parserEnum::semicolon) break;
 			switch (status)
 			{
@@ -276,7 +278,7 @@ namespace lang
 		{
 			this->iscatcher = true;
 		}
-		auto status = en::scopeStatus::none;
+		en::scopeStatus status = en::none;
 		/*std::shared_ptr<scope>*/scope* forscope = 0;
 		scope* whilescope = 0;
 		scope* foreachscope = 0;
@@ -290,7 +292,7 @@ namespace lang
 		{
 			for (this->index = this->startIndex; index < parsers.size(); index++)
 			{
-				auto j = this->parsers[index];
+				parseObj* j = this->parsers[index];
 				switch (status)
 				{
 					case en::none:
@@ -353,9 +355,9 @@ namespace lang
 								//{	//とりあえずセミコロン入れると大丈夫
 								;
 								{
-									this->status = en::returnStatus::_return;
+									this->status = en::_return;
 									index++;
-									auto buf = eval(NULLOBJECT, index);
+									langObject buf = eval(NULLOBJECT, index);
 									return /*langObject*/(buf);
 								}
 								break;
@@ -386,12 +388,12 @@ namespace lang
 							case parserEnum::blockstart:
 								;
 								{
-									auto sc = /*std::make_shared<scope>*/new scope(this->parsers, this, this->_this);
+									scope* sc = /*std::make_shared<scope>*/new scope(this->parsers, this, this->_this);
 									sc->refinc();
 									sc->startIndex = this->index + 1;
-									auto buf = sc->run();
+									langObject buf = sc->run();
 									this->index = sc->index;
-									if (sc->status != en::returnStatus::none_)
+									if (sc->status != en::none_)
 									{
 										this->status = sc->status;
 										sc->refdec();
@@ -490,8 +492,8 @@ namespace lang
 											if (forindex[1] + 1 == forindex[2] ||
 												Int::toInt(forscope->eval(NULLOBJECT, forscope->index)))
 											{
-												auto buf = forscope->run();
-												if (forscope->status == en::returnStatus::_return)
+												langObject buf = forscope->run();
+												if (forscope->status == en::_return)
 												{
 													this->status = forscope->status;
 													//delete forscope;
@@ -499,7 +501,7 @@ namespace lang
 													return buf;
 												}
 												else
-												if (forscope->status == en::returnStatus::_break)
+												if (forscope->status == en::_break)
 												{
 													this->index = this->blockSkip(this->index);
 													status = en::none;
@@ -508,7 +510,7 @@ namespace lang
 													continue;
 												}
 												else
-												if (forscope->status != en::returnStatus::_continue && forscope->status != en::returnStatus::none_)
+												if (forscope->status != en::_continue && forscope->status != en::none_)
 												{
 													this->status = forscope->status;
 													return buf;
@@ -565,12 +567,12 @@ namespace lang
 									if (Int::toInt(buf))
 									{
 										status = en::none;
-										auto sc = new scope(this->parsers, this, this->_this);
+										scope* sc = new scope(this->parsers, this, this->_this);
 										sc->refinc();
 										sc->startIndex = this->index + 2;
-										auto buf = sc->run();
+										langObject buf = sc->run();
 										this->index = sc->index;
-										if (sc->status != en::returnStatus::none_)
+										if (sc->status != en::none_)
 										{
 											this->status = sc->status;
 											sc->refdec();
@@ -613,15 +615,15 @@ namespace lang
 									whilescope->index = whileindex;
 									if (Int::toInt(whilescope->eval(NULLOBJECT, whilescope->index)))
 									{
-										auto buf = whilescope->run();
-										if (whilescope->status == en::returnStatus::_return)
+										langObject buf = whilescope->run();
+										if (whilescope->status == en::_return)
 										{
 											this->status = whilescope->status;
 											whilescope->refdec();
 											return buf;
 										}
 										else
-										if (whilescope->status == en::returnStatus::_break)
+										if (whilescope->status == en::_break)
 										{
 											this->index = this->blockSkip(this->index);
 											status = en::none;
@@ -630,7 +632,7 @@ namespace lang
 											continue;
 										}
 										else
-										if (whilescope->status != en::returnStatus::_continue && whilescope->status != en::returnStatus::none_)
+										if (whilescope->status != en::_continue && whilescope->status != en::none_)
 										{
 											this->status = whilescope->status;
 											whilescope->refdec();
@@ -717,14 +719,14 @@ namespace lang
 								{
 									if (foreach_object is _ClassObject)
 									{
-										auto instance = (langClassObject)foreach_object;
+										langClassObject instance = (langClassObject)foreach_object;
 										if (instance->thisscope->variable.definedVar("GetEnumerator", this))
 										{
-											auto e = instance->thisscope->variable("GetEnumerator", this);
+											langObject e = instance->thisscope->variable("GetEnumerator", this);
 											if (e is _Function)
 											{
-												auto arg = std::vector<langObject>();
-												auto en = (langClassObject)((langFunction)e)->call(&arg);
+												std::vector<langObject> arg = std::vector<langObject>();
+												langClassObject en = (langClassObject)((langFunction)e)->call(&arg);
 												if (en is _ClassObject)
 												{
 													Current = (langFunction)(en->thisscope->variable("Current", this));
@@ -774,21 +776,21 @@ namespace lang
 							case 7:
 							_foreach_7 :
 							{
-										   auto arg = std::vector<langObject>();
+										   std::vector<langObject> arg = std::vector<langObject>();
 										   int result = Int::toInt(MoveNext->call(&arg));
 										   if (result)
 										   {
-											   auto arg = std::vector<langObject>();
+											   std::vector<langObject> arg = std::vector<langObject>();
 											   foreachscope->variable.add(*foreach_var, Current->call(&arg));
-											   auto buf = foreachscope->run();
-											   if (foreachscope->status == en::returnStatus::_return)
+											   langObject buf = foreachscope->run();
+											   if (foreachscope->status == en::_return)
 											   {
 												   this->status = foreachscope->status;
 												   foreachscope->refdec();
 												   return buf;
 											   }
 											   else
-											   if (foreachscope->status == en::returnStatus::_break)
+											   if (foreachscope->status == en::_break)
 											   {
 												   this->index = this->blockSkip(this->index);
 												   status = en::none;
@@ -797,7 +799,7 @@ namespace lang
 												   continue;
 											   }
 											   else
-											   if (foreachscope->status != en::returnStatus::_continue && foreachscope->status != en::returnStatus::none_)
+											   if (foreachscope->status != en::_continue && foreachscope->status != en::none_)
 											   {
 												   this->status = foreachscope->status;
 												   foreachscope->refdec();
@@ -821,15 +823,15 @@ namespace lang
 								{
 									foreachscope->variable.add(*foreach_var, ((langArray)foreach_object)->ary[foreacharyindex]);
 									foreacharyindex++;
-									auto buf = foreachscope->run();
-									if (foreachscope->status == en::returnStatus::_return)
+									langObject buf = foreachscope->run();
+									if (foreachscope->status == en::_return)
 									{
 										this->status = foreachscope->status;
 										foreachscope->refdec();
 										return buf;
 									}
 									else
-									if (foreachscope->status == en::returnStatus::_break)
+									if (foreachscope->status == en::_break)
 									{
 										this->index = this->blockSkip(this->index);
 										status = en::none;
@@ -838,7 +840,7 @@ namespace lang
 										continue;
 									}
 									else
-									if (foreachscope->status != en::returnStatus::_continue && foreachscope->status != en::returnStatus::none_)
+									if (foreachscope->status != en::_continue && foreachscope->status != en::none_)
 									{
 										this->status = foreachscope->status;
 										foreachscope->refdec();
@@ -885,13 +887,13 @@ namespace lang
 					}
 				}
 				if (mindex == -1) throw;
-				auto sc = new scope(this->parsers, this, this->_this);
+				scope* sc = new scope(this->parsers, this, this->_this);
 				sc->refinc();
 				sc->startIndex = c->Catchers[mindex].index + 1;
 				if (c->Catchers[mindex].varname)sc->variable.add(*c->Catchers[mindex].varname, ex.object);
-				auto buf = sc->run();
+				langObject buf = sc->run();
 				this->index = this->blockSkip(index, 0);//sc->index;
-				if (sc->status != en::returnStatus::none_)
+				if (sc->status != en::none_)
 				{
 					this->status = sc->status;
 					sc->refdec();
@@ -931,7 +933,7 @@ namespace lang
 	const int ArrayPrece = 2;//2;
 	const int IncrementPrece = 2;
 	const int PointerPrece = 3;
-	int UnaryOperator(parserEnum op)
+	int UnaryOperator(parserEnumDefine op)
 	{
 		switch (op)
 		{
@@ -950,7 +952,7 @@ namespace lang
 		}
 		return 0;
 	}
-	int Operator(parserEnum op)
+	int Operator(parserEnumDefine op)
 	{
 		switch (op)
 		{
@@ -1116,6 +1118,8 @@ namespace lang
 		int binaryoperation = index + 1;
 		int i, j;
 		bool isbinaryoperation = (bool)((int)ev & 1);
+    typedef evals evalsDefine;
+    #define evals lang
 		//print((x=>y=>z=>x*y*z)(2)(3)(4))
 		//が正常に動かなかったのは変数として上書きされていてendindexが1多かったから?とりあえず治ってる
 		bool lam = false;
@@ -1126,7 +1130,7 @@ namespace lang
 			{
 				//ラムダ式だ
 				langLambda l = (langLambda)this->parsers[index]->ptr;// new Lambda((langLambda)this->parsers[index]->ptr, this);
-				if (static_cast<unsigned char>(l->Ftype) & static_cast<unsigned char>(functype::lambda_))
+				if (static_cast<unsigned char>(l->Ftype) & static_cast<unsigned char>(lambda_))
 				{
 					index = l->endindex;
 					binaryoperation = index + 1;
@@ -1191,7 +1195,7 @@ namespace lang
 					case parserEnum::leftbracket:
 						i = this->bracketSkip(index); j = index;
 						{
-							auto ary = newArray(0);
+							langArray ary = newArray(0);
 							object = ary;//std::vector<langObject> arg;
 							index = index + 1;
 							while (index < i)
@@ -1208,7 +1212,7 @@ namespace lang
 					case parserEnum::blockstart:
 						i = this->blockSkip(index); j = index;
 						{
-							auto ary = newArray(0);
+							langArray ary = newArray(0);
 							object = ary;//std::vector<langObject> arg;
 							index = index + 1;
 							while (index < i)
@@ -1239,7 +1243,7 @@ namespace lang
 								 binaryoperation = index + 1;
 
 								 {
-									 auto buf = (Class*)object;
+									 langClass buf = (Class*)object;
 									 if (this->parsers[binaryoperation]->pEnum == parserEnum::leftparent)
 									 {
 										 int thisop = Operator(this->parsers[binaryoperation]->pEnum);
@@ -1257,7 +1261,7 @@ namespace lang
 										 {
 											 object = newClassObject(buf);
 											 std::string ctors("ctor");
-											 auto ctor = ((langClassObject)object)->getMember(ctors, this);//thisscope->variable["ctor"];
+											 langObject ctor = ((langClassObject)object)->getMember(ctors, this);//thisscope->variable["ctor"];
 											 if (ctor->type->TypeEnum == _Function)
 											 {
 												 try
@@ -1276,7 +1280,7 @@ namespace lang
 
 											 if (object->type->TypeEnum == _Type)
 											 {
-												 auto type = ((ObjectType*)object);
+												 ObjectType *type = ((ObjectType*)object);
 												 try
 												 {
 													 object = type->create(arg);
@@ -1302,10 +1306,10 @@ namespace lang
 										 }
 										 else if (object->type->TypeEnum == _Type)
 										 {
-											 auto type = ((ObjectType*)object);
+											 ObjectType *type = ((ObjectType*)object);
 											 try
 											 {
-												 auto arg = std::vector<langObject>();
+												 std::vector<langObject> arg = std::vector<langObject>();
 												 object = type->create(arg);
 											 }
 											 catch (langRuntimeException ex)
@@ -1334,14 +1338,14 @@ namespace lang
 						break;
 					case parserEnum::minus:
 						UOP;
-						buf = eval(object, i, 17, (evals)0, thisop);
+						buf = eval(object, i, 17, (evalsDefine)0, thisop);
 						object = (Object::unaryminus(buf));
 						index = i; binaryoperation = index + 1;
 						OP2
 							break;
 					case parserEnum::plus:
 						UOP;
-						buf = eval(object, i, 17, (evals)0, thisop);
+						buf = eval(object, i, 17, (evalsDefine)0, thisop);
 						object = (Object::unaryplus(buf));
 						index = i; binaryoperation = index + 1;
 						OP2
@@ -1359,7 +1363,7 @@ namespace lang
 						break;
 					case parserEnum::_throw:
 						UOP;
-						object = eval(object, i, 17, (evals)0, thisop);
+						object = eval(object, i, 17, (evalsDefine)0, thisop);
 						index = i; binaryoperation = index + 1;
 						OP2
 							throw langUserException(object);
@@ -1586,7 +1590,7 @@ namespace lang
 						if (object is _Array)
 						{
 							buf = eval(object, i, 17);
-							auto ob = object;
+							langObject ob = object;
 							//object = ((langArray)object)->ary[Int::toInt(buf)];
 							//object = (Object::plus(object,buf));
 							index = i + 1;
@@ -1657,10 +1661,10 @@ namespace lang
 					OP;
 					if (object->type->TypeEnum == PreType::_ClassObject || object->type->TypeEnum == PreType::_Class)
 					{
-						auto buf = (Class*)object;
+						langClass buf = (Class*)object;
 						if (this->parsers.size() > binaryoperation + 1)
 						{
-							auto bufbuf = this->parsers[binaryoperation + 1];
+							parseObj* bufbuf = this->parsers[binaryoperation + 1];
 							if (bufbuf->pEnum == identifier || bufbuf->pEnum == _static || bufbuf->pEnum == base)
 							{
 								if (bufbuf->pEnum == identifier)
@@ -1758,17 +1762,17 @@ namespace lang
 					{
 						if (this->parsers.size() > binaryoperation + 1)
 						{
-							auto bufbuf = this->parsers[binaryoperation + 1];
+							parseObj* bufbuf = this->parsers[binaryoperation + 1];
 							if (bufbuf->pEnum == identifier)
 							{
-								auto _this = object;
+								langObject _this = object;
 								object = object->getMember(*bufbuf->name);
 								index++;
 								binaryoperation++;
 
 								if (object != nullptr && object is _BuiltFunc && this->parsers.size() > binaryoperation + 1)
 								{
-									auto bufbuf = this->parsers[binaryoperation + 1];
+									parseObj* bufbuf = this->parsers[binaryoperation + 1];
 									if (bufbuf->pEnum == leftparent)
 									{
 										index++;

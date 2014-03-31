@@ -13,11 +13,17 @@ namespace lang
     typedef std::recursive_mutex GCmutex;
 #endif
     class scope;
-	//‚±‚ÌƒNƒ‰ƒX‚Í
-	//„¬„ªš„¬„ª™„¬„ªš„¬„ª™„¬„ªš„¬„ª™„¬„ªš
-	//„«ƒX„«„«ƒŒ„«„«ƒb„«„«ƒh„«„«ƒZ„«„«[„«„«ƒt„«
-	//™„ª„®š„ª„®™„ª„®š„ª„®™„ª„®š„ª„®™„ª„®
-	//‚Å‚·B
+		typedef std::map<scope*,int>::iterator rootit;
+		typedef std::pair<scope*,int> rootpr;
+		typedef std::map<Object*,int>::iterator objit;
+		typedef std::pair<Object*,int> objpr;
+		typedef std::vector<langObject>::iterator constit;
+		typedef langObject constpr;
+	//ï¿½ï¿½ï¿½ÌƒNï¿½ï¿½ï¿½Xï¿½ï¿½
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	//ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bï¿½ï¿½ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	//ï¿½Å‚ï¿½ï¿½B
     class GC
     {
     private:

@@ -30,6 +30,8 @@ std::string getlinestring(std::string &input, int index);
 }*/
 namespace lang
 {
+  typedef parserEnum parserEnumDefine;
+  #define parserEnum lang
 	template <class T>
 	void stack<T>::push(const T &__x)
 	{
@@ -525,9 +527,9 @@ namespace lang
 	}
 	Property* parser::propertyparse(int &i, int endstacksize, lang::stack<BlockStruct> &funcStack, std::string &namesp)
 	{
-		qualifier typequalifier = qualifier::public_;
-		qualifier setqualifier = qualifier::public_;
-		qualifier getqualifier = qualifier::public_;
+		qualifier typequalifier = public_;
+		qualifier setqualifier = public_;
+		qualifier getqualifier = public_;
 		bool typeset = false;
 		langFunction get = nullptr;
 		langFunction set = nullptr;
@@ -540,8 +542,8 @@ namespace lang
 			parseObj *nexttoken = this->parsers[i + 1];
 			switch (token->pEnum)
 			{
-				case parserEnum::_get:
-					if (nexttoken->pEnum == parserEnum::blockstart)
+				case _get:
+					if (nexttoken->pEnum == blockstart)
 					{
 						if (get)
 						{
@@ -554,10 +556,10 @@ namespace lang
 					}
 					else
 						PARSE_ERROR(i, "syntax error[property]");
-					typequalifier = qualifier::public_;
+					typequalifier = public_;
 					break;
-				case parserEnum::_set:
-					if (nexttoken->pEnum == parserEnum::blockstart)
+				case _set:
+					if (nexttoken->pEnum == blockstart)
 					{
 						if (set)
 						{
@@ -570,24 +572,24 @@ namespace lang
 					}
 					else
 						PARSE_ERROR(i, "syntax error[property]");
-					typequalifier = qualifier::public_;
+					typequalifier = public_;
 					break;
-				case parserEnum::_public:
-					typequalifier = qualifier::public_;
+				case _public:
+					typequalifier = public_;
 					if (typeset)PARSE_WARNING(i, "Duplicate Type Qualifier");
 					typeset = true;
 					break;
-				case parserEnum::_private:
-					typequalifier = qualifier::private_;
+				case _private:
+					typequalifier = private_;
 					if (typeset)PARSE_WARNING(i, "Duplicate Type Qualifier");
 					typeset = true;
 					break;
-				case parserEnum::_protected:
-					typequalifier = qualifier::protected_;
+				case _protected:
+					typequalifier = protected_;
 					if (typeset)PARSE_WARNING(i, "Duplicate Type Qualifier");
 					typeset = true;
 					break;
-				case parserEnum::blockend:
+				case blockend:
 					return new Property(get, set, getqualifier, setqualifier);
 				default:
 					PARSE_ERROR(i, "syntax error[property]");
@@ -602,16 +604,16 @@ namespace lang
 		int i = 0;
 		if (!lang::gc)
 		{
-			this->runner->variable.add("string", new StringType(), qualifier::const_);
+			this->runner->variable.add("string", new StringType(), const_);
 			ObjectTypeObject = new lang::ObjectType();
-			this->runner->variable.add("object", ObjectTypeObject, qualifier::const_);
-			this->runner->variable.add("int", new IntType(), qualifier::const_);
-			this->runner->variable.add("double", new DoubleType(), qualifier::const_);
-			this->runner->variable.add("char", new CharType(), qualifier::const_);
-			this->runner->variable.add("wchar", new WCharType(), qualifier::const_);
+			this->runner->variable.add("object", ObjectTypeObject, const_);
+			this->runner->variable.add("int", new IntType(), const_);
+			this->runner->variable.add("double", new DoubleType(), const_);
+			this->runner->variable.add("char", new CharType(), const_);
+			this->runner->variable.add("wchar", new WCharType(), const_);
 			ArrayTypeObject = new ArrayType();
-			this->runner->variable.add("array", ArrayTypeObject, qualifier::const_);
-			this->runner->variable.add("Array", ArrayTypeObject, qualifier::const_);
+			this->runner->variable.add("array", ArrayTypeObject, const_);
+			this->runner->variable.add("Array", ArrayTypeObject, const_);
 			lang::gc = new gabekore(this->runner);
 		}
 		lang::stack<BlockStruct> funcStack;
@@ -632,7 +634,7 @@ namespace lang
 		membertype staticmember = nullptr;
 		int classanonymous = 0;//0の位置では宣言できないので問題ない
 		bool isstatic = false;
-		qualifier typequalifier = qualifier::public_;
+		qualifier typequalifier = public_;
 		//省略フラグ
 		bool typeset = false;
 		for (; i < this->parsers.size(); i++)
@@ -643,7 +645,7 @@ namespace lang
 			switch (namespread)
 			{
 				case 1:
-					if (token->pEnum != parserEnum::identifier)
+					if (token->pEnum != identifier)
 						ERROR(("namespaceの名前が識別子ではありません" + getlinestring(this->program, token->sourcestartindex)).c_str());
 					//BUG!!
 					//if(!namesp.empty())namesp += "::";//先頭にも::が付く
@@ -667,20 +669,20 @@ namespace lang
 					{
 						if (namespread == 0)
 						{
-							funcStack.push(BlockStruct(sts::Empty, std::string()));
+							funcStack.push(BlockStruct(Empty, std::string()));
 						}
 						else
-							funcStack.push(BlockStruct(sts::NameSpace, namesp));
+							funcStack.push(BlockStruct(NameSpace, namesp));
 					}/*else
 					 func++;*/
 					break;
-				case parserEnum::blockend:
+				case blockend:
 					if (funcStack.size() != 0)
 					{
-						if (funcStack.top().type == sts::NameSpace)
+						if (funcStack.top().type == NameSpace)
 						{
 							namesp.clear();
-							auto cont = funcStack;//._Get_container();
+							lang::stack<BlockStruct>& cont = funcStack;//._Get_container();
 							//if( funcStack.size()>=2)for(size_t i = funcStack.size() - 2;i>=0;i--)
 
 							if (funcStack.size() >= 2)
@@ -690,14 +692,14 @@ namespace lang
 							for (size_t i = funcStack.size() - 1; i >= 0; i--)
 #endif//for(size_t i = funcStack.size() - 1;i>=0;i--){
 							{
-								if (cont[i].type == sts::NameSpace)
+								if (cont[i].type == NameSpace)
 								{
 									namesp = cont[i].name;
 									break;
 								}
 							}
 						}
-						if (funcStack.top().type == sts::Func) func--;
+						if (funcStack.top().type == Func) func--;
 						funcStack.pop();
 						if (funcStack.size() == endstacksize)
 						{
@@ -715,19 +717,19 @@ namespace lang
 				case parserEnum::leftbracket:
 					bracket++;
 					break;
-				case parserEnum::rightbracket:
+				case rightbracket:
 					bracket--;
 					break;
-				case parserEnum::_namespace:
+				case _namespace:
 					namespread++;
 					break;
-				case parserEnum::_lambda:
+				case _lambda:
 					this->lambdaparse(i);
 					break;
-				case parserEnum::conditional:
+				case conditional:
 					this->conditionalparse(i);
 					break;
-				case parserEnum::_catch:
+				case _catch:
 					this->catchparse(i);
 					break;
 			}
@@ -757,7 +759,7 @@ namespace lang
 						goto case2;
 					}
 					else
-					if (funcStack.size() != 0 && funcStack.top().type == sts::Empty)
+					if (funcStack.size() != 0 && funcStack.top().type == Empty)
 						ERROR((getlinestring(this->program, token->sourcestartindex) + "ネストされたクラス").c_str());
 					className = namesp + *token->name;
 					if (member == nullptr)member = new membertype_(); else delete member;
@@ -796,15 +798,15 @@ namespace lang
 						switch (token->pEnum)
 						{
 							case _public:
-								typequalifier = qualifier::public_;
+								typequalifier = public_;
 								typeset = true;
 								break;
 							case _private:
-								typequalifier = qualifier::private_;
+								typequalifier = private_;
 								typeset = true;
 								break;
 							case _protected:
-								typequalifier = qualifier::protected_;
+								typequalifier = protected_;
 								typeset = true;
 								break;
 						}
@@ -812,7 +814,7 @@ namespace lang
 					if (class_read_stack_index > funcStack.size())
 					if (token->pEnum == blockend)
 					{
-						auto classs = newClass(className, 0, member, this->runner, staticmember);
+						langClass classs = newClass(className, 0, member, this->runner, staticmember);
 						if (extendname != -1)this->extendslist.push_back(std::pair<int, langClass>(extendname, classs));
 						if (!classanonymous)this->runner->variable.add(className, classs);
 						else
@@ -843,7 +845,7 @@ namespace lang
 							}
 							isstatic = false;
 							classRead = 3;
-							typequalifier = qualifier::public_;
+							typequalifier = public_;
 						}
 						else
 
@@ -856,7 +858,7 @@ namespace lang
 								i++;
 							}
 							i++;
-							auto p = propertyparse(i, 0, funcStack, namesp);
+							Property* p = propertyparse(i, 0, funcStack, namesp);
 							if (isstatic)
 								staticmember->push_back(MEMBERTYPEITEM(*this->parsers[j]->name, p, typequalifier));
 							else
@@ -871,14 +873,15 @@ namespace lang
 #ifdef CPP11
 								staticmemberevals.push_back(std::tuple<int, std::string&, std::string>(i + 2, *token->name, className));
 #else
-								staticmemberevals.push_back(std::pair<int, std::pair<std::string&, std::string> >(i + 2, std::pair<std::string&, std::string>(*token->name, className)));
+                std::string& tkn = *token->name;
+								staticmemberevals.push_back(std::pair<int, std::pair<std::string, std::string> >(i + 2, std::pair<std::string, std::string>(tkn, (std::string)className)));
 #endif
 							}
 							else
 								std::cout << "未実装" << std::endl, member->push_back(MEMBERTYPEITEM(*token->name, NULLOBJECT, typequalifier));
 							isstatic = false;
 							classRead = 3;
-							typequalifier = qualifier::public_;
+							typequalifier = public_;
 						}
 						if (i + 1 < this->parsers.size() && this->parsers[i + 1]->pEnum == leftparent)
 						{
@@ -923,27 +926,27 @@ namespace lang
 					else  funcRead = 0;
 					break;
 				case 2://(
-					if (token->pEnum == parserEnum::leftparent)funcRead++; else funcRead = 0;
+					if (token->pEnum == leftparent)funcRead++; else funcRead = 0;
 					break;
 				case 3://type 
-					if (token->pEnum == parserEnum::identifier)funcRead++; else funcRead = 0;
-					if (token->pEnum == parserEnum::rightparent)funcRead = 6;
+					if (token->pEnum == identifier)funcRead++; else funcRead = 0;
+					if (token->pEnum == rightparent)funcRead = 6;
 					break;
 				case 4://name
-					if (token->pEnum == parserEnum::comma)
+					if (token->pEnum == comma)
 					{
 						if (argList == nullptr)argList = new FunctionArg();
 						argList->push_back(FunctionArgUnWrap(emptystr, *prevtoken->name));
 						funcRead--;
 					}
-					else if (token->pEnum == parserEnum::rightparent)
+					else if (token->pEnum == rightparent)
 					{
 						if (argList == nullptr)argList = new FunctionArg();
 						argList->push_back(FunctionArgUnWrap(emptystr, *prevtoken->name));
 						funcRead += 2;
 					}
 					else
-					if (token->pEnum == parserEnum::identifier)
+					if (token->pEnum == identifier)
 					{
 						if (argList == nullptr)argList = new FunctionArg();
 						argList->push_back(FunctionArgUnWrap(*prevtoken->name, *token->name));
@@ -952,13 +955,13 @@ namespace lang
 					else PARSE_ERROR(i, "syntax error[function]") //funcRead = 0;
 						break;
 				case 5://, or )
-					if (token->pEnum == parserEnum::comma)funcRead -= 2;
-					else if (token->pEnum == parserEnum::rightparent)funcRead++;
+					if (token->pEnum == comma)funcRead -= 2;
+					else if (token->pEnum == rightparent)funcRead++;
 					else PARSE_ERROR(i, "syntax error[function]") //funcRead = 0;
 						break;
 				case 6://{
 					if (argList == nullptr)argList = new FunctionArg();
-					funcStack.push(BlockStruct(sts::Func, funcName));
+					funcStack.push(BlockStruct(Func, funcName));
 #if _DEBUG
 					if (lang::parserresult)
 					{
@@ -993,7 +996,7 @@ namespace lang
 					func++;
 					//this->runner->variable.add(*funcName,std::make_shared<langFunction>(*funcName,argList,this->runner));
 					isstatic = false;
-					typequalifier = qualifier::public_;
+					typequalifier = public_;
 					break;
 			}
 		}
@@ -1014,7 +1017,7 @@ namespace lang
 		std::string empty;
 		for (int i = 0; i < this->parsers.size(); i++)
 		{
-			auto token = this->parsers[i];
+			parseObj* token = this->parsers[i];
 			parseObj* nextoken = nullptr;
 			if (i + 1 < this->parsers.size()) nextoken = this->parsers[i + 1];
 			switch (token->pEnum)
@@ -1034,7 +1037,7 @@ namespace lang
 					{
 						//捜す
 						bool success = false;
-						auto name = namesp + *token->name;
+						std::string name = namesp + *token->name;
 						if (DEFINEDSCPEVAR(this->runner, name))
 						{
 							delete token->name;
@@ -1047,12 +1050,12 @@ namespace lang
 							for (auto i : this->usings)
 							{
 #else
-							for (auto it = this->usings.begin(); it != this->usings.end(); ++it)
+							for (std::vector<std::string>::iterator it = this->usings.begin(); it != this->usings.end(); ++it)
 							{
-								auto i = *it;
+								std::string i = *it;
 #endif
 								//捜す
-								auto name = i + "::" + *token->name;
+								std::string name = i + "::" + *token->name;
 								if (DEFINEDSCPEVAR(this->runner, name))
 								{
 									delete token->name;
@@ -1071,22 +1074,22 @@ namespace lang
 				case parserEnum::blockstart:
 					if (1 < i)
 					{
-						auto prevtoken = this->parsers[i - 2];
+						parseObj* prevtoken = this->parsers[i - 2];
 						if (prevtoken->pEnum == parserEnum::_namespace)
 						{
-							funcStack.push(BlockStruct(sts::NameSpace, namesp));
+							funcStack.push(BlockStruct(NameSpace, namesp));
 						}
-						else funcStack.push(BlockStruct(sts::Empty, empty));
+						else funcStack.push(BlockStruct(Empty, empty));
 					}
-					else funcStack.push(BlockStruct(sts::Empty, empty));
+					else funcStack.push(BlockStruct(Empty, empty));
 					break;
 				case parserEnum::blockend:
 					if (funcStack.size() != 0)
 					{
-						if (funcStack.top().type == sts::NameSpace)
+						if (funcStack.top().type == NameSpace)
 						{
 							namesp.clear();
-							auto cont = funcStack;// ._Get_container();
+							lang::stack<BlockStruct>& cont = funcStack;// ._Get_container();
 							if (funcStack.size() >= 2)
 #if TRUE//_MSC_VER >=1800
 							for (size_t i = 0; i < funcStack.size() - 1; i++)
@@ -1095,7 +1098,7 @@ namespace lang
 #endif
 								//for(size_t i = 0;i<=funcStack.size() - 2;i++)
 							{
-								if (cont[i].type == sts::NameSpace)
+								if (cont[i].type == NameSpace)
 								{
 									namesp = cont[i].name;
 									break;
@@ -1115,7 +1118,7 @@ namespace lang
 		}
 		for (int i = 0; i < this->extendslist.size(); i++)
 		{
-			auto&& j = this->extendslist[i];
+			std::pair<int, langClass> & j = this->extendslist[i];
 			j.second->base = (langClass)this->runner->variable(*this->parsers[j.first]->name, this->runner);
 			if (j.second->base == NULLOBJECT)
 			{
@@ -1126,9 +1129,9 @@ namespace lang
 		foreach_(auto &&i in_ this->staticmemberevals)
 		{
 #else
-		for (auto it = this->staticmemberevals.begin(); it != this->staticmemberevals.end(); ++it)
+		for (std::vector<std::pair<int,std::pair<std::string,std::string> > >::iterator it = this->staticmemberevals.begin(); it != this->staticmemberevals.end(); ++it)
 		{
-			auto i = *it;
+			std::pair<int,std::pair<std::string,std::string> >& i = *it;
 #endif
 #if CPP11
 			((langClass)this->runner->variable(std::get<2>(i), this->runner))->thisscope->variable.set(std::get<1>(i), this->runner->eval(NULLOBJECT, std::get<0>(i)), this->runner);
@@ -1147,7 +1150,7 @@ namespace lang
 		std::string empty;
 		for (int i = 0; i < this->parsers.size(); i++)
 		{
-			auto token = this->parsers[i];
+			parseObj* token = this->parsers[i];
 			parseObj* nextoken = nullptr;
 			if (i + 1 < this->parsers.size()) nextoken = this->parsers[i + 1];
 			switch (read)
@@ -1196,28 +1199,28 @@ namespace lang
 				case parserEnum::blockstart:
 					if (1 < i)
 					{
-						auto prevtoken = this->parsers[i - 2];
+						parseObj* prevtoken = this->parsers[i - 2];
 						if (prevtoken->pEnum == parserEnum::_namespace)
 						{
-							funcStack.push(BlockStruct(sts::NameSpace, namesp));
+							funcStack.push(BlockStruct(NameSpace, namesp));
 						}
 						else
 
 						if (prevtoken->pEnum == parserEnum::_class)
 						{
-							funcStack.push(BlockStruct(sts::stsClass, *this->parsers[i - 1]->name));
+							funcStack.push(BlockStruct(stsClass, *this->parsers[i - 1]->name));
 						}
-						else funcStack.push(BlockStruct(sts::Empty, empty));
+						else funcStack.push(BlockStruct(Empty, empty));
 					}
-					else funcStack.push(BlockStruct(sts::Empty, empty));
+					else funcStack.push(BlockStruct(Empty, empty));
 					break;
 				case parserEnum::blockend:
 					if (funcStack.size() != 0)
 					{
-						if (funcStack.top().type == sts::NameSpace)
+						if (funcStack.top().type == NameSpace)
 						{
 							namesp.clear();
-							auto cont = funcStack;//._Get_container();
+							lang::stack<BlockStruct>& cont = funcStack;//._Get_container();
 							//if( funcStack.size() >= 2)for(size_t i = funcStack.size() - 2;i>=0;i--)
 
 							if (funcStack.size() >= 2)
@@ -1228,7 +1231,7 @@ namespace lang
 							for (size_t i = funcStack.size() - 1; i >= 0; i--)
 #endif
 							{
-								if (cont[i].type == sts::NameSpace)
+								if (cont[i].type == NameSpace)
 								{
 									namesp = cont[i].name;
 									break;
@@ -1251,17 +1254,18 @@ namespace lang
 #if _DEBUG
 		if (lang::parserresult) std::cout << "Now Parsing...";
 #endif
-		auto sts = parserStatus::None;
-		auto iden = new std::string();
+		parserStatus sts = None;
+		std::string* iden = new std::string();
 		bool shiftJis = !!!!true, ASCII = true;
 		int startindex = 0;
 		int blockComment = 0;
 		bool isWChar = false;
+    #define parserStatus lang
 		for (int i = 0; i <= input.size(); i++)
 		{
 			bool islast = i >= input.size() - 1;
 			bool isfast = i == 0;
-			auto chr = input[i];
+			char chr = input[i];
 			char nextchr = 0;
 			char prevchr;
 			if (!islast)nextchr = input[i + 1];
@@ -1593,7 +1597,7 @@ namespace lang
 					//std::string chrs(chr);
 					iden->append(input.substr(i, 1));
 					break;
-				case parserStatus::ReadDouble:
+				case ReadDouble:
 					if (!isNum(chr))
 					{
 						std::stringstream ss;
@@ -1608,18 +1612,18 @@ namespace lang
 					//std::string chrs(chr);
 					iden->append(input.substr(i, 1));
 					break;
-				case parserStatus::ReadStr:ReadStr :
+				case ReadStr:ReadStr :
 					if (chr == '"')
 					{
 						this->parsers.push_back(new parseObj(*iden, startindex, i));
 						iden->clear();//!!!!コピーされるのでclear する!!!!
-						sts = parserStatus::None;
+						sts = None;
 					}
 					else
 					{
 						if (chr == '\\' && !(shiftJis && isIdenShiftJIS1(prevchr)))
 						{
-							sts = parserStatus::ReadEscapeString;
+							sts = ReadEscapeString;
 						}
 						else
 						if (chr == '\n' || chr == '\0')
@@ -1630,7 +1634,7 @@ namespace lang
 							iden->append(input.substr(i, 1));
 					}
 					break;
-				case parserStatus::ReadChar:ReadChar :
+				case ReadChar:ReadChar :
 					if (chr == '\'')
 					{
 						if (iden->size() < 1 || iden->size() > 1)
@@ -1667,13 +1671,13 @@ namespace lang
 						}
 						iden->clear();
 
-						sts = parserStatus::None;
+						sts = None;
 					}
 					else
 					{
 						if (chr == '\\' && !(shiftJis && isIdenShiftJIS1(prevchr)))
 						{
-							sts = parserStatus::ReadEscapeChar;
+							sts = ReadEscapeChar;
 						}
 						else
 						if (chr == '\n' || chr == '\0')
@@ -1684,15 +1688,15 @@ namespace lang
 							iden->append(input.substr(i, 1));
 					}
 					break;
-				case parserStatus::ReadComment:
+				case ReadComment:
 					if (chr == '\n' || chr == '\0') sts = parserStatus::None;
 					break;
-				case parserStatus::ReadBlockComment:
+				case ReadBlockComment:
 					if (chr == '*' && nextchr == '/') { blockComment--; i++; }
 					if (chr == '/' && nextchr == '*') { blockComment++; i++; }
 					if (!blockComment) sts = parserStatus::None;
 					break;
-				case parserStatus::ReadEscapeString:
+				case ReadEscapeString:
 					switch (chr)
 					{
 						case 'n':
@@ -1714,9 +1718,9 @@ namespace lang
 							WARNING((std::string("認識できないエスケープシーケンス") + chr).c_str(), 1);
 							break;
 					}
-					sts = parserStatus::ReadStr;
+					sts = ReadStr;
 					break;
-				case parserStatus::ReadEscapeChar:
+				case ReadEscapeChar:
 					switch (chr)
 					{
 						case 'n':

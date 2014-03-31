@@ -39,9 +39,9 @@ namespace lang
 				for (auto var : arg)
 				{
 #else
-				for (auto it = arg.begin(); it != arg.end(); ++it)
+				for (std::vector<langObject>::iterator it = arg.begin(); it != arg.end(); ++it)
 				{
-					auto var = *it;
+					langObject var = *it;
 #endif
 					if (var != nullptr)std::cout << var->toString(); else std::cout << "nullptr";
 				}
@@ -69,9 +69,9 @@ namespace lang
 			foreach_(var_ i in_ arg)
 			{
 #else
-			for (auto it = arg.begin(); it != arg.end(); ++it)
+			for (std::vector<langObject>::iterator it = arg.begin(); it != arg.end(); ++it)
 			{
-				auto i = *it;
+				langObject i = *it;
 #endif
 				gc->free_(i);
 			}
@@ -83,9 +83,9 @@ namespace lang
 			foreach_(var_ i in_ arg)
 			{
 #else
-			for (auto it = arg.begin(); it != arg.end(); ++it)
+			for (std::vector<langObject>::iterator it = arg.begin(); it != arg.end(); ++it)
 			{
-				auto i = *it;
+				langObject i = *it;
 #endif
 				gc->uncontroll(i);
 			}
@@ -93,18 +93,18 @@ namespace lang
 		}
 		langObject VarPtr(std::vector<langObject> arg)
 		{
-			auto i = arg[0]->getPointer();
+			void* i = arg[0]->getPointer();
 			return newInt(*reinterpret_cast<int*>(&i));
 		}
 		langObject WriteMemory(std::vector<langObject> arg)
 		{
-			auto ptr = (int*)Int::toInt(arg[0]);
+			int* ptr = (int*)Int::toInt(arg[0]);
 			*ptr = Int::toInt(arg[1]);
 			return NULLOBJECT;
 		}
 		langObject ReadMemoryInt(std::vector<langObject> arg)
 		{
-			auto ptr = (int*)Int::toInt(arg[0]);
+			int* ptr = (int*)Int::toInt(arg[0]);
 			return newInt(*ptr);
 		}
 		langObject sqrt(std::vector<langObject> arg)
@@ -169,7 +169,7 @@ namespace lang
 		}
 		langObject Fwrite(std::vector<langObject> arg)
 		{
-			auto str = arg[0]->toString();
+			std::string str = arg[0]->toString();
 			return newObject((void*)fwrite(str.data(), sizeof(char), str.size(), (FILE*)arg[1]->getPointer()/*(FILE*)(size_t)Int::toInt(arg[1])*/));
 		}
 		langObject getstdin(std::vector<langObject> arg)

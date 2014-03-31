@@ -308,15 +308,15 @@ namespace lang
 #define LANG_OPERA_DEBUG_CHECK if (!obj1 || !obj2)throw langRuntimeException(__FUNCTION__"式がありません。");
 #define LANG_OPERA_DEBUG_SINGLE_CHECK if (!obj1)throw langRuntimeException(__FUNCTION__"式がありません。");
 #endif
-#define OPERA2ARG(name) {auto clas = (langClassObject)obj1;\
-	auto func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
+#define OPERA2ARG(name) {langClassObject clas = (langClassObject)obj1;\
+	langFunction func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
 	if (func != nullptr && func is _Function)\
 	{\
-	auto vec = new std::vector<langObject>(); \
+	std::vector<langObject> *vec = new std::vector<langObject>(); \
 	vec->push_back(obj2); \
 	try\
 	{\
-	auto ret = func->call(vec); \
+	langObject ret = func->call(vec); \
 	delete vec; \
 	return ret; \
 	}\
@@ -328,25 +328,25 @@ namespace lang
 	}\
 			else\
 			throw langRuntimeException((std::string("関数") + name + "が定義されていません").c_str()); }
-#define OPERA2ARGSINGLE(name) {auto clas = (langClassObject)obj1;\
-	auto func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
+#define OPERA2ARGSINGLE(name) {langClassObject clas = (langClassObject)obj1;\
+	langFunction func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
 	if (func != nullptr && func is _Function)\
-	{auto arg = std::vector<langObject>(); \
-	auto ret = func->call(&arg); \
+	{std::vector<langObject> arg = std::vector<langObject>(); \
+	langObject ret = func->call(&arg); \
 	return ret; \
 	}\
 			else\
 			throw langRuntimeException((std::string("関数") + name + "が定義されていません").c_str()); }
 
-#define OPERA2ARG2(name) {auto clas = (langClassObject)obj2;\
-	auto func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
+#define OPERA2ARG2(name) {langClassObject clas = (langClassObject)obj2;\
+	langFunction func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
 	if (func != nullptr && func is _Function)\
 	{\
-	auto vec = new std::vector<langObject>(); \
+	std::vector<langObject> *vec = new std::vector<langObject>(); \
 	vec->push_back(obj1); \
 	try\
 	{\
-	auto ret = func->call(vec); \
+	langObject ret = func->call(vec); \
 	delete vec; \
 	return ret; \
 	}\
@@ -416,15 +416,15 @@ namespace lang
 				case _String:
 					return newString((obj1->toString() + obj2->toString()));
 				case PreType::_ClassObject:
-				{auto clas = (langClassObject)obj1;
-				auto func = (langFunction)clas->thisscope->variable("plus", clas->thisscope);
+				{langClassObject clas = (langClassObject)obj1;
+				langFunction func = (langFunction)clas->thisscope->variable("plus", clas->thisscope);
 				if (func != nullptr && func is _Function)
 				{
-					auto vec = new std::vector<langObject>();
+					std::vector<langObject>* vec = new std::vector<langObject>();
 					vec->push_back(obj2);
 					try
 					{
-						auto ret = func->call(vec);
+						langObject ret = func->call(vec);
 						delete vec;
 						return ret;
 					}
@@ -599,15 +599,15 @@ namespace lang
 				case PreType::_ClassObject:
 					;
 					{
-						auto clas = (langClassObject)obj1;
-						auto func = (langFunction)clas->thisscope->variable("equal", clas->thisscope);
+						langClassObject clas = (langClassObject)obj1;
+						langFunction func = (langFunction)clas->thisscope->variable("equal", clas->thisscope);
 						if (func != nullptr && func is _Function)
 						{
-							auto vec = new std::vector<langObject>();
+							std::vector<langObject>* vec = new std::vector<langObject>();
 							vec->push_back(obj2);
 							try
 							{
-								auto ret = func->call(vec);
+								langObject ret = func->call(vec);
 								delete vec;
 								return ret;
 							}
@@ -645,15 +645,15 @@ namespace lang
 				case PreType::_Int:
 					if (obj2 is _ClassObject)
 					{
-						auto clas = (langClassObject)obj2;
-						auto func = (langFunction)clas->thisscope->variable("leftShift", clas->thisscope);
+						langClassObject clas = (langClassObject)obj2;
+						langFunction func = (langFunction)clas->thisscope->variable("leftShift", clas->thisscope);
 						if (func != nullptr && func is _Function)
 						{
-							auto vec = new std::vector<langObject>();
+							std::vector<langObject>* vec = new std::vector<langObject>();
 							vec->push_back(obj1);
 							try
 							{
-								auto ret = func->call(vec);
+								langObject ret = func->call(vec);
 								delete vec;
 								return ret;
 							}
@@ -673,15 +673,15 @@ namespace lang
 
 					if (obj2 is _ClassObject)
 					{
-						auto clas = (langClassObject)obj2;
-						auto func = (langFunction)clas->thisscope->variable("leftShift", clas->thisscope);
+						langClassObject clas = (langClassObject)obj2;
+						langFunction func = (langFunction)clas->thisscope->variable("leftShift", clas->thisscope);
 						if (func != nullptr && func is _Function)
 						{
-							auto vec = new std::vector<langObject>();
+							std::vector<langObject>* vec = new std::vector<langObject>();
 							vec->push_back(obj1);
 							try
 							{
-								auto ret = func->call(vec);
+								langObject ret = func->call(vec);
 								delete vec;
 								return ret;
 							}
@@ -791,7 +791,7 @@ namespace lang
 					if ((((ObjectType*)obj2)->TypeClass.TypeEnum == obj1->type->TypeEnum))return TRUEOBJECT;
 					return FALSEOBJECT;
 				case _Class:
-					auto instance = (langClassObject)obj1;
+					langClassObject instance = (langClassObject)obj1;
 					while (instance)
 					{
 						if (instance->staticClass == obj2)return TRUEOBJECT;
@@ -808,7 +808,7 @@ namespace lang
 		{
 				case _Type:
 				{
-							  auto objtype = (ObjectType*)obj2;
+							  ObjectType* objtype = (ObjectType*)obj2;
 							  switch (objtype->TypeClass.TypeEnum)
 							  {
 								  //toint

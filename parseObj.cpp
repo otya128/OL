@@ -12,7 +12,7 @@ namespace lang
         this->sourceendindex = j;
         this->sourcestartindex = i;
         this->ptr = newInt(obj);
-        this->pEnum=parserEnum::num;
+        this->pEnum=num;
     }
     parseObj::parseObj(std::string obj,int i,int j)
     {
@@ -24,7 +24,7 @@ namespace lang
         str=nullptr;*/
         //this->ptr=(void*)(obj.copy().data());
         this->ptr = newString(&obj);
-        this->pEnum=parserEnum::str;
+        this->pEnum=str;
     }
 
     parseObj::parseObj(double obj,int i,int j)
@@ -32,7 +32,7 @@ namespace lang
         this->sourceendindex = j;
         this->sourcestartindex = i;
 		this->ptr = newDouble(obj);
-		this->pEnum = parserEnum::num;
+		this->pEnum = num;
 		this->name = nullptr;
     }
 
@@ -42,7 +42,7 @@ namespace lang
         this->sourcestartindex = i;
         this->ptr = new Char((char)obj);
         //this->ptr=new char(obj);
-        this->pEnum=parserEnum::chr;
+        this->pEnum=chr;
         this->name = nullptr;
     }
     parseObj::parseObj(wchar obj,int i,int j)
@@ -52,7 +52,7 @@ namespace lang
         this->ptr = new WChar((wchar)obj);
         this->name = nullptr;
         //this->ptr=new char(obj);
-        this->pEnum=parserEnum::chr;
+        this->pEnum=chr;
     }
 
     parseObj::parseObj(parserEnum p,std::string* n,int i,int j)
@@ -85,41 +85,41 @@ namespace lang
 
     int parseObj::getInt(void)
     {
-        if(this->pEnum==parserEnum::num)
+        if(this->pEnum==num)
         {
-            if(this->ptr->type->TypeEnum==PreType::_Int)
+            if(this->ptr->type->TypeEnum==_Int)
                 return (static_cast<Int*>(this->ptr/*.get()*/))->getInt();
             //return (static_cast<std::shared_ptr<Int>>(this->ptr))->getInt();
         }
-        //throw std::exception::exception("Œ^int‚ÉƒLƒƒƒXƒg•s‰Â");
+        //throw std::exception::exception("ï¿½^intï¿½ÉƒLï¿½ï¿½ï¿½Xï¿½gï¿½sï¿½ï¿½");
     }
     std::string parseObj::getString(void)
     {
-        if(this->pEnum==parserEnum::str)
+        if(this->pEnum==str)
         {
-            if(this->ptr->type->TypeEnum==PreType::_String)
+            if(this->ptr->type->TypeEnum==_String)
                 return *((static_cast<String*>(this->ptr/*.get()*/))->getString());
             //return *((static_cast<std::shared_ptr<String>>(this->ptr))->getString());
             //return (char*)ptr;//(std::string)(((char*)ptr)+4);
         }
-        //throw std::exception::exception("Œ^string‚ÉƒLƒƒƒXƒg•s‰Â");
+        //throw std::exception::exception("ï¿½^stringï¿½ÉƒLï¿½ï¿½ï¿½Xï¿½gï¿½sï¿½ï¿½");
     }
 
     double parseObj::getDouble(void)
     {
-        if(this->pEnum==parserEnum::num)
+        if(this->pEnum==num)
         {
         return *((double*)this->ptr);
         }
-        //throw std::exception::exception("Œ^double‚ÉƒLƒƒƒXƒg•s‰Â");
+        //throw std::exception::exception("ï¿½^doubleï¿½ÉƒLï¿½ï¿½ï¿½Xï¿½gï¿½sï¿½ï¿½");
     }
     char parseObj::getChar(void)
     {
-     if(this->pEnum==parserEnum::chr)
+     if(this->pEnum==chr)
      {
      return *(char*)this->ptr;
      }
-        //throw std::exception::exception("Œ^char‚ÉƒLƒƒƒXƒg•s‰Â");
+        //throw std::exception::exception("ï¿½^charï¿½ÉƒLï¿½ï¿½ï¿½Xï¿½gï¿½sï¿½ï¿½");
     }
     std::string parseObj::toString(void)
     {
