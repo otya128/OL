@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/llvm-project/!svn/ver/200450/llvm/trunk/test/tools/llvm-readobj/ARM
+END
+unwind.s
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/llvm-project/!svn/ver/199708/llvm/trunk/test/tools/llvm-readobj/ARM/unwind.s
+END
+attributes.s
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/llvm-project/!svn/ver/200450/llvm/trunk/test/tools/llvm-readobj/ARM/attributes.s
+END
+lit.local.cfg
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/llvm-project/!svn/ver/198736/llvm/trunk/test/tools/llvm-readobj/ARM/lit.local.cfg
+END

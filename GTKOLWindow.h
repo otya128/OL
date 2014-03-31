@@ -1,4 +1,5 @@
 ﻿#ifndef __LANG_GTKOL_H__
+#ifdef LANG_GUI
 #define __LANG_GTKOL_H__
 #ifdef _MSC_VER
 #pragma comment(lib, "C:/GTK/LIB/glib-2.0.lib")
@@ -322,4 +323,5 @@
     }
 }
 using namespace lang::gtk;
+#endif
 #endif 

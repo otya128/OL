@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/llvm-project/!svn/ver/205165/llvm/trunk/lib/Target
+END
+TargetMachine.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/llvm-project/!svn/ver/204934/llvm/trunk/lib/Target/TargetMachine.cpp
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/llvm-project/!svn/ver/192697/llvm/trunk/lib/Target/Makefile
+END
+CMakeLists.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/llvm-project/!svn/ver/201787/llvm/trunk/lib/Target/CMakeLists.txt
+END
+TargetMachineC.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/llvm-project/!svn/ver/202204/llvm/trunk/lib/Target/TargetMachineC.cpp
+END
+TargetSubtargetInfo.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/llvm-project/!svn/ver/198685/llvm/trunk/lib/Target/TargetSubtargetInfo.cpp
+END
+TargetLoweringObjectFile.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/llvm-project/!svn/ver/202811/llvm/trunk/lib/Target/TargetLoweringObjectFile.cpp
+END
+TargetIntrinsicInfo.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/llvm-project/!svn/ver/171366/llvm/trunk/lib/Target/TargetIntrinsicInfo.cpp
+END
+Target.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/llvm-project/!svn/ver/202204/llvm/trunk/lib/Target/Target.cpp
+END
+LLVMBuild.txt
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/llvm-project/!svn/ver/205090/llvm/trunk/lib/Target/LLVMBuild.txt
+END
+TargetLibraryInfo.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/llvm-project/!svn/ver/204977/llvm/trunk/lib/Target/TargetLibraryInfo.cpp
+END
+TargetJITInfo.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/llvm-project/!svn/ver/146960/llvm/trunk/lib/Target/TargetJITInfo.cpp
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/llvm-project/!svn/ver/205010/llvm/trunk/lib/Target/README.txt
+END

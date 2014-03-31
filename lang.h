@@ -5,6 +5,7 @@
 //#define OL_GTK
 //#define CPP11 1
 #define OL_GTK 1
+#define nullptr 0 
 int main(int, char**);
 #define ENDFOREACH }
 #ifdef CPP11
@@ -12,8 +13,9 @@ int main(int, char**);
 #define FOREACH(VAR,COR) for(auto VAR : COR){
 #else
 #define ENUMCLASS 
-#define FOREACH(VAR,COR) for(auto it = (COR).begin(); it != (COR).end(); ++it ){auto VAR = *it;
+#define FOREACH(type,VAR,type2,COR) for(type it = (COR).begin(); it != (COR).end(); ++it ){type2 VAR = *it;
 #endif
+
 namespace lang
 {
 	extern bool ahogc, parserresult, leakcheck, pause, prompt;

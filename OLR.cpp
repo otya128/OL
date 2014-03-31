@@ -17,7 +17,7 @@
 #ifndef _WIN32
 #define fopen_s(a,b,c) *a = fopen(b,c) 
 #endif
-//‘g‚İ‚İŠÖ”’B
+//ï¿½gï¿½İï¿½ï¿½İŠÖï¿½ï¿½B
 namespace lang
 {//VisualStadio
 	typedef langObject(*BuiltFunc)(std::vector<langObject>);
@@ -58,7 +58,7 @@ namespace lang
 		langObject GC(std::vector<langObject> arg)
 		{
 #if _DEBUG
-			if (gc_view)std::cout << "–¾¦“I‚È‚ª‚×‚±‚êŒÄ‚Ño‚µ" << std::endl;
+			if (gc_view)std::cout << "ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½È‚ï¿½ï¿½×‚ï¿½ï¿½ï¿½ï¿½Ä‚Ñoï¿½ï¿½" << std::endl;
 #endif
 			gc->start();
 			return NULLOBJECT;
@@ -196,6 +196,7 @@ namespace lang
 		{
 			return newInt(lang::gc->NowGabekore);
 		}
+      #ifdef LANG_GUI
 		template<class T>
 		class ObjectWindow : public Object
 		{
@@ -396,6 +397,7 @@ namespace lang
 			}
 			return NULLOBJECT;
 		}
+      #endif
 #ifdef CPP11
 		langObject olruntime_gc_asyncgc(std::vector<langObject> arg)
 		{

@@ -9,6 +9,7 @@
 #include "Class.h"
 #include "Array.h"
 #include "Function.h"
+#include "variable.h"
 namespace lang
 {
 	GC::GC(scope* root)
@@ -35,6 +36,13 @@ namespace lang
 		}
 		this->object[obj] = 0;
 	}
+		typedef std::map<scope*,int>::iterator rootit;
+		typedef std::pair<scope*,int> rootpr;
+		typedef std::map<Object*,int>::iterator objit;
+		typedef std::pair<Object*,int> objpr;
+		typedef std::vector<langObject>::iterator constit;
+		typedef langObject constpr;
+  
 	void GC::start(void)
 	{
 		//std::lock_guard<GCmutex> lock(this->RootMutex);
@@ -43,32 +51,32 @@ namespace lang
 		{
 #if _DEBUG
 			if (gc_view)
-				std::cout << "‚ª‚×‚±‚ê‚ªƒuƒƒbƒN‚³‚ê‚Ü‚µ‚½B" << std::endl;
+				std::cout << "ï¿½ï¿½ï¿½×‚ï¿½ï¿½ê‚ªï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½B" << std::endl;
 #endif
 			return;
 		}
 		NowGabekore = true;
 		count++;
-		this->object[NULLOBJECT] = count;//’è”‚ªGC‚É‰ñû‚³‚ê‚é
-		this->object[TRUEOBJECT] = count;//’è”‚ªGC‚É‰ñû‚³‚ê‚é
-		this->object[FALSEOBJECT] = count;//’è”‚ªGC‚É‰ñû‚³‚ê‚é
+		this->object[NULLOBJECT] = count;//ï¿½è”ï¿½ï¿½GCï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		this->object[TRUEOBJECT] = count;//ï¿½è”ï¿½ï¿½GCï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		this->object[FALSEOBJECT] = count;//ï¿½è”ï¿½ï¿½GCï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 #if _DEBUG
 		if (gc_view)
-			std::cout << "‚ª‚×‚±‚êŠJn" << std::endl;
+			std::cout << "ï¿½ï¿½ï¿½×‚ï¿½ï¿½ï¿½ï¿½Jï¿½n" << std::endl;
 #endif
 		if (objectCount > 160)
 			std::cout << ""
 			;
 		// this->search(this->root);
-		FOREACH(root, this->roots)//for(auto root : this->roots)
+    FOREACH(rootit,root, rootpr,this->roots)//for(auto root : this->roots)
 			//{
 			this->search(root.first);
 		ENDFOREACH
-			FOREACH(o, this->constroot)//for(auto o : this->constroot)
+			FOREACH(constit,o, constpr,this->constroot)//for(auto o : this->constroot)
 			//{
 			this->search(o);
 		ENDFOREACH
-			FOREACH(obj, this->object)//for(auto obj : this->object)
+			FOREACH(objit,obj, objpr,this->object)//for(auto obj : this->object)
 			//{
 		if (obj.second != count)
 		{
@@ -76,12 +84,12 @@ namespace lang
 			erased.push_back(obj.first);
 		}
 		ENDFOREACH
-			FOREACH(obj, erased)//for(auto obj : erased)
+			FOREACH(constit,obj,constpr, erased)//for(auto obj : erased)
 			//{
 		if (this->object.find(obj) != this->object.end())
 		{
 			if (obj && obj is _Function && ((langFunction)obj)->working)
-				//ƒ}ƒ‹ƒ`ƒXƒŒƒbƒh‚È‚Ç‚Å‚Ç‚±‚©‚ç‚àQÆ‚³‚ê‚Ä‚¢‚È‚¢‚ª“®‚¢‚Ä‚¢‚éó‘Ô‚Ì‚ÍŠJ•ú‚µ‚È‚¢
+				//ï¿½}ï¿½ï¿½ï¿½`ï¿½Xï¿½ï¿½ï¿½bï¿½hï¿½È‚Ç‚Å‚Ç‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Qï¿½Æ‚ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚Ìï¿½ï¿½ÍŠJï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½
 				;
 			else
 			{
@@ -93,7 +101,7 @@ namespace lang
 			erased.clear();
 #if _DEBUG
 		if (gc_view)
-			std::cout << "‚ª‚×‚±‚êI—¹" << std::endl;
+			std::cout << "ï¿½ï¿½ï¿½×‚ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½" << std::endl;
 #endif
 		objectCount = object.size();
 		if (objectCount <= GCtimig / 4 && baseGCtimig <= GCtimig / 4) GCtimig /= 2;
@@ -116,18 +124,18 @@ namespace lang
 	void GC::search(scope* root)
 	{
 		//        for(auto obj : root->variable._variable)
-		FOREACH(obj, root->variable._variable)//        {
-		if (obj.second.first->type->TypeEnum == PreType::_ClassObject)
+		FOREACH(varit,obj,varpr, root->variable._variable)//        {
+		if (obj.second.first->type->TypeEnum == _ClassObject)
 		{
-			obj.second.first->type->TypeEnum = PreType::_ClassObject;
+			obj.second.first->type->TypeEnum = _ClassObject;
 		}
 		if (this->object.find(obj.second.first) != this->object.end() && this->object[obj.second.first] != count)
 		{
 			switch (obj.second.first->type->TypeEnum)
 			{
-				case lang::_Class://íœ‚µ‚È‚¢
-					//Ä‹A‚·‚é•K—v‚ª
-					FOREACH(i, *((langClass)obj.second.first)->member)//                    foreach_(var_ i in_ *((langClass)obj.second)->member)
+				case lang::_Class://ï¿½íœï¿½ï¿½ï¿½È‚ï¿½
+					//ï¿½Ä‹Aï¿½ï¿½ï¿½ï¿½ï¿½Kï¿½vï¿½ï¿½
+					FOREACH(memit,i,mempr, *((langClass)obj.second.first)->member)//                    foreach_(var_ i in_ *((langClass)obj.second)->member)
 						//                    {
 					if (this->object[i.second.first] != count)
 					{
@@ -135,7 +143,7 @@ namespace lang
 					}
 					ENDFOREACH
 					if (((langClass)obj.second.first)->thisscope)
-						FOREACH(i, ((langClass)obj.second.first)->thisscope->variable._variable)// foreach_(var_ i in_ ((langClass)obj.second)->thisscope->variable._variable)
+						FOREACH(varit,i,varpr, ((langClass)obj.second.first)->thisscope->variable._variable)// foreach_(var_ i in_ ((langClass)obj.second)->thisscope->variable._variable)
 						//{
 					if (this->object[i.second.first] != count)
 					{
@@ -145,7 +153,7 @@ namespace lang
 						break;
 				case lang::_Array:
 					//                    foreach_(var_ i in_ ((langArray)obj.second)->ary)
-					FOREACH(i, ((langArray)obj.second.first)->ary)//                    {
+					FOREACH(constit,i,constpr, ((langArray)obj.second.first)->ary)//                    {
 					if (this->object[i] != count)
 					{
 						this->search(i);//
@@ -173,24 +181,24 @@ void GC::search(langObject object)
 			break;
 		case lang::_Function:
 			this->object[object] = count;
-			if (static_cast<unsigned char>(static_cast<langFunction>(object)->Ftype) & static_cast<unsigned char>(functype::overload))
+			if (static_cast<unsigned char>(static_cast<langFunction>(object)->Ftype) & static_cast<unsigned char>(overload))
 			{
 				std::vector<langFunction>& funcs = (static_cast<OverloadFunction*>(object)->functions);
-				FOREACH(i, funcs)
+				FOREACH(std::vector<langFunction>::iterator,i, langFunction,funcs)
 					this->search(i);
 				ENDFOREACH
 			}
 			break;
 		case lang::_Class:
 			this->object[object] = count;
-			FOREACH(i, *((langClass)object)->member)//            foreach_(var_ i in_ *((langClass)object)->member)
+			FOREACH(memit,i, mempr,*((langClass)object)->member)//            foreach_(var_ i in_ *((langClass)object)->member)
 				//            {
 			if (this->object[i.second.first] != count)
 			{
 				this->search(i.second.first);//
 			}
 			ENDFOREACH
-				FOREACH(i, ((langClass)object)->thisscope->variable._variable)//            foreach_(var_ i in_ *((langClass)object)->member)
+				FOREACH(varit,i,varpr, ((langClass)object)->thisscope->variable._variable)//            foreach_(var_ i in_ *((langClass)object)->member)
 				//            {
 			if (this->object[i.second.first] != count)
 			{
@@ -204,7 +212,7 @@ void GC::search(langObject object)
 			break;
 		case lang::_Array:
 			this->object[object] = count;
-			FOREACH(i, ((langArray)object)->ary)//            foreach_(var_ i in_ ((langArray)object)->ary)
+			FOREACH(constit,i,constpr, ((langArray)object)->ary)//            foreach_(var_ i in_ ((langArray)object)->ary)
 				//            {
 			if (this->object[i] != count)
 			{
@@ -226,16 +234,16 @@ void GC::search(langClassObject object)
 	if (this->object[object] == count) return;//mark
 	//foreach_(var_ i in_ *object->member)
 	//{
-	FOREACH(i, *object->member)
+	FOREACH(memit,i,mempr, *object->member)
 	if (this->object[i.second.first] == count) continue;//mark
 	//for(auto root : this->roots)
 	//{
-	FOREACH(root, this->roots)
+	FOREACH(rootit,root, rootpr,this->roots)
 		this->search(i.second.first);
 	ENDFOREACH
 		ENDFOREACH
 }
-//GC‚©‚çíœ‚µ‚Äƒƒ‚ƒŠ‚©‚ç‰ğ•ú‚·‚é
+//GCï¿½ï¿½ï¿½ï¿½ï¿½íœï¿½ï¿½ï¿½Äƒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void GC::free_(langObject object)
 {
 #ifdef CPP11
@@ -244,8 +252,8 @@ void GC::free_(langObject object)
 	if (this->object.find(object) != this->object.end())this->object.erase(object);
 	delete object;
 }
-//GC‚©‚çíœ
-//Ó”C
+//GCï¿½ï¿½ï¿½ï¿½ï¿½íœ
+//ï¿½Ó”C
 void GC::uncontroll(langObject object)
 {
 #ifdef CPP11
@@ -263,7 +271,7 @@ void GC::addRoot(scope* root)
 #endif
 	this->roots[root] = 0;
 }
-//Šù‚É–³‚¢‚Ì‚Éíœ‚µ‚½‚çfalse
+//ï¿½ï¿½ï¿½É–ï¿½ï¿½ï¿½ï¿½Ì‚Éíœï¿½ï¿½ï¿½ï¿½ï¿½ï¿½false
 bool GC::removeRoot(scope* root)
 {
 #ifdef CPP11

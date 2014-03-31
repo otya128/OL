@@ -7,6 +7,7 @@
 #define INT_MAX       2147483647    /* maximum (signed) int value */
 namespace lang
 {
+  #define parserEnum lang
 #ifdef _MSC_VER
 	__declspec(thread)
 #else
@@ -16,7 +17,7 @@ namespace lang
 	void FunctionArgThrow(Function *func, std::vector<langObject>* argList)
 	{
 		std::stringstream ss;
-		ss << "Function:" << func->name << "‚Ìˆø”‚Ì”‚Í" << func->argList->size() << "‚Å" << argList->size() << "ŒÂŒÄ‚Ño‚µ‚Ä‚¢‚Ü‚·B";
+		ss << "Function:" << func->name << "ï¿½Ìˆï¿½ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½" << func->argList->size() << "ï¿½ï¿½" << argList->size() << "ï¿½ÂŒÄ‚Ñoï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½B";
 		for (int i = 0; i < func->argList->size(); i++)
 		{
 			if (i)
@@ -45,7 +46,7 @@ namespace lang
 	void FunctionArgThrow(OverloadFunction *func, std::vector<langObject>* argList)
 	{
 		std::stringstream ss;
-		ss << "Function:" << func->name << "‚Ìˆê’v‚·‚éŠÖ”‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ";
+		ss << "Function:" << func->name << "ï¿½Ìˆï¿½ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½Öï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½";
 		for (int j = 0; j < func->functions.size(); j++)
 		{
 			for (int i = 0; i < func->functions[j]->argList->size(); i++)
@@ -74,14 +75,14 @@ namespace lang
 		}
 		throw langRuntimeException(ss.str().c_str());
 	}
-	Function::Function(std::string name, std::vector<std::pair<std::string, std::string>>& argList, lang::scope* scope, int index)
+	Function::Function(std::string name, std::vector<std::pair<std::string, std::string> >& argList, lang::scope* scope, int index)
 	{
-		this->Ftype = functype::normal;
+		this->Ftype = normal;
 		this->working = false;
 #ifdef CPP11
 		this->thread = nullptr;
 #endif
-		this->type = new Type(PreType::_Function);
+		this->type = new Type(_Function);
 		this->name = name;
 		this->argList = new FunctionArg(argList);
 		this->thisscope = nullptr;
@@ -91,12 +92,12 @@ namespace lang
 	}
 	Function::Function(std::string name, FunctionArg* argList, lang::scope* scope, int index)
 	{
-		this->Ftype = functype::normal;
+		this->Ftype = normal;
 		this->working = false;
 #ifdef CPP11
 		this->thread = nullptr;
 #endif
-		this->type = new Type(PreType::_Function);
+		this->type = new Type(_Function);
 		this->name = name;
 		this->argList = argList;
 		this->thisscope = nullptr;
@@ -139,11 +140,11 @@ namespace lang
 #if _DEBUG
 		if (gc_view)
 		{
-			std::cout << "‚ª‚×‚±‚ê’†..." << name << this << std::endl;
+			std::cout << "ï¿½ï¿½ï¿½×‚ï¿½ï¿½ê’†..." << name << this << std::endl;
 			//delete this->name;
 		}
 #endif
-		// else std::cout<<"‚ª‚×‚±‚ê’†...null"<<this<<std::endl;
+		// else std::cout<<"ï¿½ï¿½ï¿½×‚ï¿½ï¿½ê’†...null"<<this<<std::endl;
 	}
 	std::string Function::toString(void)
 	{
@@ -153,10 +154,10 @@ namespace lang
 	{
 		lang::stacktrace->push_back(this);
 		working = true;
-		auto sc = new lang::scope(this->scope->parsers, this->scope/*.get()*/, this->scope->_this);
+		lang::scope* sc = new lang::scope(this->scope->parsers, this->scope/*.get()*/, this->scope->_this);
 		if (name.size() && name.at(0) == '#')sc->variable.add(name.substr(1), this);//new Function(this,sc));
-		sc->type = en::scopeType::_function;
-		sc->startIndex = this->index + 1;//+1‚µ‚ñ‚ ‚¢‚Æreturn‚ª–³‚¢ŠÖ”‚Åreturn‚³‚ê‚È‚­‚È‚é
+		sc->type = en::_function;
+		sc->startIndex = this->index + 1;//+1ï¿½ï¿½ï¿½ñ‚ ‚ï¿½ï¿½ï¿½returnï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öï¿½ï¿½ï¿½returnï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½È‚ï¿½
 		if (this->argList->size() != argList->size())
 		{
 			FunctionArgThrow(this, argList);
@@ -175,7 +176,7 @@ namespace lang
 	Lambda::Lambda(std::string name, FunctionArg* argList, lang::scope* scope, int index, int endindex, bool isexp)
 		: Function(name, argList, scope, index)
 	{
-		this->Ftype = functype::lambda_;
+		this->Ftype = lambda_;
 		this->type->name = this->name.c_str();
 		this->endindex = endindex;
 		this->NoExpLambda = isexp;
@@ -184,7 +185,7 @@ namespace lang
 	Lambda::Lambda(std::string name, FunctionArg& argList, lang::scope* scope, int index, int endindex, bool isexp)
 		: Function(name, argList, scope, index)
 	{
-		this->Ftype = functype::lambda_;
+		this->Ftype = lambda_;
 		this->type->name = this->name.c_str();
 		this->endindex = endindex;
 		this->NoExpLambda = isexp;
@@ -204,10 +205,10 @@ namespace lang
 		lang::stacktrace->push_back(this);
 		if (this->NoExpLambda) return Function::call(argList);
 		working = true;
-		auto sc = new lang::scope(this->scope->parsers, this->scope/*.get()*/, this->scope->_this);
+		lang::scope* sc = new lang::scope(this->scope->parsers, this->scope/*.get()*/, this->scope->_this);
 		if (name.size() && name.at(0) == '#')sc->variable.add(name.substr(1), this);//new Function(this,sc));
-		sc->type = en::scopeType::_function;
-		sc->startIndex = this->index;// + 1;//+1‚µ‚ñ‚ ‚¢‚Æreturn‚ª–³‚¢ŠÖ”‚Åreturn‚³‚ê‚È‚­‚È‚é
+		sc->type = en::_function;
+		sc->startIndex = this->index;// + 1;//+1ï¿½ï¿½ï¿½ñ‚ ‚ï¿½ï¿½ï¿½returnï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öï¿½ï¿½ï¿½returnï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½È‚ï¿½
 		if (this->argList->size() != argList->size())
 			FunctionArgThrow(this, argList);
 		for (int i = 0; i < this->argList->size(); i++)
@@ -224,13 +225,13 @@ namespace lang
 	langObject Function::ctorcall(std::vector<langObject>* argList)
 	{
 		lang::stacktrace->push_back(this);
-		auto sc = new lang::scope(this->scope->parsers, this->scope, this->scope->_this);
-		sc->type = en::scopeType::ctor;
-		sc->startIndex = this->index + 1;//+1‚µ‚ñ‚ ‚¢‚Æreturn‚ª–³‚¢ŠÖ”‚Åreturn‚³‚ê‚È‚­‚È‚é
+		lang::scope* sc = new lang::scope(this->scope->parsers, this->scope, this->scope->_this);
+		sc->type = en::ctor;
+		sc->startIndex = this->index + 1;//+1ï¿½ï¿½ï¿½ñ‚ ‚ï¿½ï¿½ï¿½returnï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öï¿½ï¿½ï¿½returnï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½È‚ï¿½
 		if (this->argList->size() != argList->size())
 			FunctionArgThrow(this, argList);
 		for (int i = 0; i < this->argList->size(); i++) sc->variable.add((*this->argList)[i].second, (*argList)[i]);
-		auto buf = sc->run();
+		langObject buf = sc->run();
 		sc->del();
 		lang::stacktrace->pop_back();
 		return buf;
@@ -247,20 +248,20 @@ namespace lang
 		langFunction func = /*std::make_shared<Function>*/new Function(name, nullptr, this, index + 1);
 		for (int i = index + 1; i < this->parsers.size(); i++)
 		{
-			auto token = this->parsers[i];
+			parseObj* token = this->parsers[i];
 			if (!funcRead)break;
 			switch (funcRead)
 			{
 				case 2://(
-					//–¼‘O‚ ‚è“½–¼ŠÖ”
+					//ï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½è“½ï¿½ï¿½ï¿½Öï¿½
 					if (token->pEnum == parserEnum::identifier)
 					{
 						func->name = "#" + *token->name;
 						continue;
 					}
-					if (token->pEnum == parserEnum::leftparent)funcRead++; else funcRead = 0;
+					if (token->pEnum == leftparent)funcRead++; else funcRead = 0;
 					if (token->pEnum == parserEnum::rightparent)funcRead = 6;
-					//ˆø”È—ª“½–¼ŠÖ”
+					//ï¿½ï¿½ï¿½ï¿½ï¿½È—ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öï¿½
 					if (token->pEnum == parserEnum::blockstart) funcRead = 6;
 					break;
 				case 3://type 
@@ -310,16 +311,16 @@ namespace lang
 	{
 		if (argList.size() == 1 && obj is _String)
 		{
-			auto bug = (langString)obj;
+			langString bug = (langString)obj;
 			return newString(bug->getString()->substr(Int::toInt(argList[0])));
 		}
 		else
 		if (argList.size() == 2 && obj is _String)
 		{
-			auto bug = (langString)obj;
+			langString bug = (langString)obj;
 			return newString(bug->getString()->substr(Int::toInt(argList[0]), Int::toInt(argList[1])));
 		}
-		throw lang::langRuntimeException("ˆø”‚Ì”‚ªˆê’v‚µ‚Ü‚¹‚ñ[String.Substring(,)]");
+		throw lang::langRuntimeException("ï¿½ï¿½ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½[String.Substring(,)]");
 	}
 	typedef langObject(*BuiltFunc)(std::vector<langObject>);
 	std::map<std::string, BuiltFunc>* BuiltFunction = new std::map<std::string, BuiltFunc>;
@@ -336,7 +337,7 @@ namespace lang
 	}
 	OverloadFunction::OverloadFunction(langFunction f1, langFunction f2) : Function()
 	{
-		this->Ftype = functype::overload;
+		this->Ftype = overload;
 		this->functions.push_back(f1);
 		this->functions.push_back(f2);
 		this->working = false;
@@ -358,7 +359,7 @@ namespace lang
 		for (int i = 0; i < this->functions.size(); i++)
 		{
 			if (this->functions[i]->argList->size() == argList->size() ||
-				//‰Â•Ï’·ˆø”‚Ìê‡
+				//ï¿½Â•Ï’ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìê‡
 				(this->functions[i]->argList->size() <= argList->size() && this->functions[i]->isvar_arg()))
 			{
 				kyoricount = 0;
@@ -404,11 +405,11 @@ namespace lang
 		{
 			std::vector<langObject> arg;
 			qualifier q = this->getqualifier;
-			if (q & qualifier::private_)
+			if (q & private_)
 			{
 				if (!access->_this || v->owner->_this->thisscope != access->_this->thisscope)
 				{
-					if (access->_this && (q & qualifier::protected_))
+					if (access->_this && (q & protected_))
 					{
 						langClass base = access->_this->base;
 						while (base)
@@ -417,14 +418,14 @@ namespace lang
 								return this->getter->call(&arg);
 							base = base->base;
 						}
-						throw_langRuntimeException("protected setter‚É‚ÍƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ");
+						throw_langRuntimeException("protected setterï¿½É‚ÍƒAï¿½Nï¿½Zï¿½Xï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½");
 					}
-					throw_langRuntimeException("private setter‚É‚ÍƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ");
+					throw_langRuntimeException("private setterï¿½É‚ÍƒAï¿½Nï¿½Zï¿½Xï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½");
 				}
 			}
 			return this->getter->call(&arg);
 		}
-		throw langRuntimeException("getter‚ª‘¶İ‚µ‚Ü‚¹‚ñ");
+		throw langRuntimeException("getterï¿½ï¿½ï¿½ï¿½ï¿½İ‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½");
 	}
 	langObject Property::Set(langObject value, variable*v, scope* access)
 	{
@@ -433,11 +434,11 @@ namespace lang
 			std::vector<langObject> arg;
 			arg.push_back(value);
 			qualifier q = this->setqualifier;
-			if (q & qualifier::private_)
+			if (q & private_)
 			{
 				if (!access->_this || v->owner->_this->thisscope != access->_this->thisscope)
 				{
-					if (access->_this && (q & qualifier::protected_))
+					if (access->_this && (q & protected_))
 					{
 						langClass base = access->_this->base;
 						while (base)
@@ -449,15 +450,15 @@ namespace lang
 							}
 							base = base->base;
 						}
-						throw_langRuntimeException("protected setter‚É‚ÍƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ");
+						throw_langRuntimeException("protected setterï¿½É‚ÍƒAï¿½Nï¿½Zï¿½Xï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½");
 					}
-					throw_langRuntimeException("private setter‚É‚ÍƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ");
+					throw_langRuntimeException("private setterï¿½É‚ÍƒAï¿½Nï¿½Zï¿½Xï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½");
 				}
 			}
 			this->setter->call(&arg);
 			return value;
 		}
-		throw langRuntimeException("setter‚ª‘¶İ‚µ‚Ü‚¹‚ñ");
+		throw langRuntimeException("setterï¿½ï¿½ï¿½ï¿½ï¿½İ‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½");
 	}
 	Property::Property(Property* base, scope* sp)
 	{

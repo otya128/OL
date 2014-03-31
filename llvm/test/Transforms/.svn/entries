@@ -1,0 +1,220 @@
+10
+
+dir
+205165
+http://llvm.org/svn/llvm-project/llvm/trunk/test/Transforms
+http://llvm.org/svn/llvm-project
+
+
+
+2014-03-30T18:07:13.232932Z
+205159
+anemet
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+91177308-0d34-0410-b5e6-96231b3b80d8
+
+LowerExpectIntrinsic
+dir
+
+Internalize
+dir
+
+LoopSimplify
+dir
+
+ScalarRepl
+dir
+
+LoopUnswitch
+dir
+
+ConstantHoisting
+dir
+
+DeadArgElim
+dir
+
+Mem2Reg
+dir
+
+Reg2Mem
+dir
+
+IndVarSimplify
+dir
+
+JumpThreading
+dir
+
+SampleProfile
+dir
+
+LowerInvoke
+dir
+
+LoopUnroll
+dir
+
+InstCombine
+dir
+
+MergeFunc
+dir
+
+GlobalDCE
+dir
+
+LoopStrengthReduce
+dir
+
+GlobalMerge
+dir
+
+CodeGenPrepare
+dir
+
+LowerAtomic
+dir
+
+ConstProp
+dir
+
+LoopReroll
+dir
+
+InstSimplify
+dir
+
+LoopIdiom
+dir
+
+Scalarizer
+dir
+
+ObjCARC
+dir
+
+LoopVectorize
+dir
+
+SROA
+dir
+
+Sink
+dir
+
+EarlyCSE
+dir
+
+LowerSwitch
+dir
+
+StripSymbols
+dir
+
+MemCpyOpt
+dir
+
+BBVectorize
+dir
+
+Inline
+dir
+
+DebugIR
+dir
+
+LICM
+dir
+
+GVN
+dir
+
+PhaseOrdering
+dir
+
+TailCallElim
+dir
+
+ADCE
+dir
+
+LoopDeletion
+dir
+
+MetaRenamer
+dir
+
+BranchFolding
+dir
+
+Reassociate
+dir
+
+TailDup
+dir
+
+FunctionAttrs
+dir
+
+LCSSA
+dir
+
+PruneEH
+dir
+
+CodeExtractor
+dir
+
+GCOVProfiling
+dir
+
+SimplifyCFG
+dir
+
+GlobalOpt
+dir
+
+StructurizeCFG
+dir
+
+IPConstantProp
+dir
+
+CorrelatedValuePropagation
+dir
+
+SCCP
+dir
+
+LoopRotate
+dir
+
+ArgumentPromotion
+dir
+
+DeadStoreElimination
+dir
+
+AddDiscriminators
+dir
+
+ConstantMerge
+dir
+
+SLPVectorizer
+dir
+

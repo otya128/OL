@@ -20,7 +20,7 @@ namespace lang
 	{
 		std::string result;
 		result += "{";
-		FOREACH(i, this->ary)//        foreach_(var_ i in_ this->ary)
+		FOREACH(std::vector<langObject>::iterator, i, langObject, this->ary)//        foreach_(var_ i in_ this->ary)
 			//        {
 		if (result.size() != 1)result += ",";
 		if (i == nullptr) result += "nullptr";

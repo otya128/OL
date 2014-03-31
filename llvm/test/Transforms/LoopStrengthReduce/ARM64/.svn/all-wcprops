@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/llvm-project/!svn/ver/205125/llvm/trunk/test/Transforms/LoopStrengthReduce/ARM64
+END
+lsr-memcpy.ll
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/llvm-project/!svn/ver/205125/llvm/trunk/test/Transforms/LoopStrengthReduce/ARM64/lsr-memcpy.ll
+END
+lsr-memset.ll
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/llvm-project/!svn/ver/205125/llvm/trunk/test/Transforms/LoopStrengthReduce/ARM64/lsr-memset.ll
+END
+lit.local.cfg
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/llvm-project/!svn/ver/205090/llvm/trunk/test/Transforms/LoopStrengthReduce/ARM64/lit.local.cfg
+END

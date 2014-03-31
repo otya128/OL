@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/llvm-project/!svn/ver/203424/llvm/trunk/test/MC/Disassembler/Sparc
+END
+sparc-mem.txt
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/llvm-project/!svn/ver/203424/llvm/trunk/test/MC/Disassembler/Sparc/sparc-mem.txt
+END
+sparc.txt
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/llvm-project/!svn/ver/202666/llvm/trunk/test/MC/Disassembler/Sparc/sparc.txt
+END
+sparc-fp.txt
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/llvm-project/!svn/ver/202610/llvm/trunk/test/MC/Disassembler/Sparc/sparc-fp.txt
+END
+lit.local.cfg
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/llvm-project/!svn/ver/198591/llvm/trunk/test/MC/Disassembler/Sparc/lit.local.cfg
+END

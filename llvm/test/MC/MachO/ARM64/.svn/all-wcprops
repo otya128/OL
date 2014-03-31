@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/llvm-project/!svn/ver/205090/llvm/trunk/test/MC/MachO/ARM64
+END
+darwin-ARM64-local-label-diff.s
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/205090/llvm/trunk/test/MC/MachO/ARM64/darwin-ARM64-local-label-diff.s
+END
+darwin-ARM64-reloc.s
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/llvm-project/!svn/ver/205090/llvm/trunk/test/MC/MachO/ARM64/darwin-ARM64-reloc.s
+END
+lit.local.cfg
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/llvm-project/!svn/ver/205090/llvm/trunk/test/MC/MachO/ARM64/lit.local.cfg
+END

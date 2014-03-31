@@ -14,6 +14,8 @@ namespace lang
 		protected_ = 3,
 		const_ = 4,
 	};
+  typedef std::map<std::string, std::pair<langObject, qualifier> >::iterator varit;
+    typedef std::pair<std::string, std::pair<langObject, qualifier> > varpr;
 	class variable
 	{
 	public:
@@ -29,7 +31,7 @@ namespace lang
 		langObject search(std::string name, scope *access);
 		langObject operator()(std::string name, scope *access);
 		langObject set(std::string name, langObject object, scope *access);
-		void add(std::string name, langObject object, qualifier q = qualifier::public_);
+		void add(std::string name, langObject object, qualifier q = public_);
 		scope *owner;
 		/*langObject operator=(std::string name)
 		{

@@ -7,10 +7,11 @@ namespace lang
     class langException : public std::runtime_error
     {
     public:
-        explicit langException(const char* _Message)
+         langException(const char* _Message)
             : runtime_error(_Message)
         {	// construct from message string
         }
+    virtual ~langException() throw (){}
     };
 	class langExitException : public langException
 	{
@@ -20,6 +21,7 @@ namespace lang
 		{
 			this->code = code;
 		}
+    virtual ~langExitException() throw (){}
 	};
     class langRuntimeException : public langException
     {
@@ -27,9 +29,9 @@ namespace lang
         int index;
         int eindex;
         std::vector<parseObj*> tokens;
-        std::vector<std::pair<int,int>> stacktrace;
+        std::vector<std::pair<int,int> > stacktrace;
         std::vector<const char*> funcstacktrace;
-        explicit langRuntimeException(const char* _Message,int index,int eindex,std::vector<parseObj*>& v,std::vector<std::pair<int,int>>& s,std::vector<const char*>& fs)
+        explicit langRuntimeException(const char* _Message,int index,int eindex,std::vector<parseObj*>& v,std::vector<std::pair<int,int> >& s,std::vector<const char*>& fs)
             : langException(_Message)
         {	// construct from message string
             this->index = index;
@@ -39,7 +41,7 @@ namespace lang
             this->stacktrace.push_back(std::pair<int,int>(index,eindex));
             this->funcstacktrace = fs;
         }
-        explicit langRuntimeException(const char* _Message,std::vector<parseObj*>& v,std::vector<const char*>& fs,const char* funcname,std::vector<std::pair<int,int>>& s)
+        explicit langRuntimeException(const char* _Message,std::vector<parseObj*>& v,std::vector<const char*>& fs,const char* funcname,std::vector<std::pair<int,int> >& s)
             : langException(_Message)
         {	// construct from message string
             this->tokens = v;
@@ -50,7 +52,7 @@ namespace lang
         explicit langRuntimeException(const char* _Message)
             : langException(_Message)
         {	// construct from message string
-        }
+        }    virtual ~langRuntimeException() throw (){}
 	};
 	class langUserException : public langException
 	{
@@ -59,7 +61,7 @@ namespace lang
 		langUserException(langObject object) : langException("langUserException")
 		{
 			this->object = object;
-		}
+		}    virtual ~langUserException() throw (){}
 	};
 #ifdef _WIN32
 #define throw_langRuntimeException(...) {char buf[512];sprintf_s(buf,__VA_ARGS__);throw langRuntimeException(buf);}
@@ -72,7 +74,7 @@ namespace lang
         explicit langParseException(const char* _Message)
             : langException(_Message)
         {	// construct from message string
-        }
+        }virtual ~langParseException() throw (){}
     };
 }
 #endif

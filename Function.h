@@ -10,6 +10,7 @@
 //#include "Object.h"
 namespace lang
 {
+
 	enum ENUMCLASS functype : unsigned char
 	{
 		normal = 0,
@@ -17,6 +18,7 @@ namespace lang
 		var_arg = 2,
 		overload = 4,
 	};
+  #define PreType lang
 	extern
 #ifdef _MSC_VER
 		__declspec(thread)
@@ -30,7 +32,7 @@ namespace lang
 	class Function : public Object
 	{
 	public:
-		//ŠÖ”‚ÉŠÖ˜A•t‚¯‚ç‚ê‚½std::thread
+		//ï¿½Öï¿½ï¿½ÉŠÖ˜Aï¿½tï¿½ï¿½ï¿½ï¿½ï¿½ê‚½std::thread
 #ifdef CPP11
 		std::thread* thread;
 #endif
@@ -54,18 +56,18 @@ namespace lang
 		Function();
 		inline bool islambda()
 		{
-			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::lambda_));
+			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(lambda_));
 		}
 		inline bool isvar_arg()
 		{
-			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::var_arg));
+			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(var_arg));
 		}
 		inline bool isoverload()
 		{
-			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::overload));
+			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(overload));
 		}
 	};
-	//Ów¯Îw«
+	//ï¿½wï¿½ï¿½wï¿½
 	class Lambda :public Function
 	{
 	public:

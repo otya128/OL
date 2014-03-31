@@ -1,4 +1,6 @@
-﻿#include "stdafx.h"
+﻿
+#ifdef LANG_GUI
+#include "stdafx.h"
 #include "GTKOLWindow.h"
 namespace lang
 {
@@ -224,4 +226,4 @@ namespace lang
         }
     }
 }
-
+#endif

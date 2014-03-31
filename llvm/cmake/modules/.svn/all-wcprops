@@ -1,0 +1,107 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/llvm-project/!svn/ver/204706/llvm/trunk/cmake/modules
+END
+TableGen.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/llvm-project/!svn/ver/201972/llvm/trunk/cmake/modules/TableGen.cmake
+END
+ChooseMSVCCRT.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/llvm-project/!svn/ver/200644/llvm/trunk/cmake/modules/ChooseMSVCCRT.cmake
+END
+AddLLVM.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/llvm-project/!svn/ver/202862/llvm/trunk/cmake/modules/AddLLVM.cmake
+END
+VersionFromVCS.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/llvm-project/!svn/ver/169749/llvm/trunk/cmake/modules/VersionFromVCS.cmake
+END
+HandleLLVMStdlib.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/llvm-project/!svn/ver/200811/llvm/trunk/cmake/modules/HandleLLVMStdlib.cmake
+END
+LLVMParseArguments.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/llvm-project/!svn/ver/126031/llvm/trunk/cmake/modules/LLVMParseArguments.cmake
+END
+GetHostTriple.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/llvm-project/!svn/ver/148822/llvm/trunk/cmake/modules/GetHostTriple.cmake
+END
+CMakeLists.txt
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/llvm-project/!svn/ver/201853/llvm/trunk/cmake/modules/CMakeLists.txt
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/llvm-project/!svn/ver/201969/llvm/trunk/cmake/modules/Makefile
+END
+HandleLLVMOptions.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/llvm-project/!svn/ver/204706/llvm/trunk/cmake/modules/HandleLLVMOptions.cmake
+END
+LLVMConfig.cmake.in
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/llvm-project/!svn/ver/201969/llvm/trunk/cmake/modules/LLVMConfig.cmake.in
+END
+GetSVN.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/llvm-project/!svn/ver/191785/llvm/trunk/cmake/modules/GetSVN.cmake
+END
+CheckAtomic.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/llvm-project/!svn/ver/140064/llvm/trunk/cmake/modules/CheckAtomic.cmake
+END
+LLVMConfigVersion.cmake.in
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/llvm-project/!svn/ver/129247/llvm/trunk/cmake/modules/LLVMConfigVersion.cmake.in
+END
+LLVMProcessSources.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/llvm-project/!svn/ver/201063/llvm/trunk/cmake/modules/LLVMProcessSources.cmake
+END
+LLVM-Config.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/llvm-project/!svn/ver/202241/llvm/trunk/cmake/modules/LLVM-Config.cmake
+END
+AddLLVMDefinitions.cmake
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/llvm-project/!svn/ver/124793/llvm/trunk/cmake/modules/AddLLVMDefinitions.cmake
+END

@@ -10,6 +10,8 @@ namespace lang
 	typedef std::pair<std::string, std::pair<langObject, qualifier> > membertypeitem;
 	typedef std::vector<membertypeitem> membertype_;
 	typedef membertype_* membertype;
+  	typedef std::vector<membertypeitem>::iterator memit;
+  	typedef membertypeitem mempr;
 	class Class : public Object
 	{
 	protected:
@@ -19,12 +21,12 @@ namespace lang
 		langFunction finalize;
 		Class(std::string name, int index, membertype member, scope* scope, membertype staticmember);
 		virtual ~Class(void);
-		//–¼‘O
+		//ï¿½ï¿½ï¿½O
 		std::string name;
 		lang::scope* scope;
 		int index;
 		virtual std::string toString();
-		//ƒXƒR[ƒv
+		//ï¿½Xï¿½Rï¿½[ï¿½v
 		lang::scope* thisscope;
 		Class* base;
 		virtual bool trygetMember(std::string& name, langObject& obj, lang::scope *access);

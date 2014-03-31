@@ -12,7 +12,7 @@ namespace lang
 		this->base = nullptr;
 		this->scope = scope;
 		this->scope->refinc();
-		this->type = new Type(PreType::_Class, (char*)"class");
+		this->type = new Type(_Class, (char*)"class");
 		this->name = name;
 		this->index = index;
 		this->member = member;
@@ -21,9 +21,9 @@ namespace lang
 		for (auto i : *member)
 		{
 #else
-		for( auto it = member->begin(); it != member->end(); ++it )
+		for( std::vector<membertypeitem>::iterator it = member->begin(); it != member->end(); ++it )
 		{
-			auto i = *it;
+			membertypeitem i = *it;
 #endif
 			if (i.first == "finalize")
 			{
@@ -37,18 +37,18 @@ namespace lang
 
 		thisscope = new lang::scope(this->scope->parsers, this->scope, nullptr);
 		this->thisscope->refinc();
-		FOREACH(i, *staticmember)//        foreach_(var_ i in_ *staticmember)//C# style foreach
+		FOREACH(std::vector<membertypeitem>::iterator,i, membertypeitem,*staticmember)//        foreach_(var_ i in_ *staticmember)//C# style foreach
 			//        {
 		if (i.second.first->type->TypeEnum == _Function)
 		{
-			auto buf = new Function((langFunction)i.second.first, this->thisscope);
+			langFunction buf = new Function((langFunction)i.second.first, this->thisscope);
 			buf->scope = thisscope;
 			this->thisscope->variable.add(i.first, buf, i.second.second);
 		}
 		else
 		if (i.second.first->type->TypeEnum == _Property)
 		{
-			auto buf = new Property((Property*)i.second.first, thisscope);
+			Property* buf = new Property((Property*)i.second.first, thisscope);
 			this->thisscope->variable.add(i.first, buf, i.second.second);
 		}
 		else
@@ -67,7 +67,7 @@ namespace lang
 	Class::Class(Class* clas)
 	{
 		this->base = clas->base;
-		this->type = new Type(PreType::_Class, (char*)"class");
+		this->type = new Type(_Class, (char*)"class");
 		this->name = clas->name;
 		this->index = clas->index;
 		this->member = clas->member;
@@ -80,7 +80,7 @@ namespace lang
 	}
 	Class::~Class(void)
 	{
-		if (this->type->TypeEnum == PreType::_Class)
+		if (this->type->TypeEnum == _Class)
 		{
 			delete this->member;
 			this->scope->refdec();
@@ -113,7 +113,7 @@ namespace lang
 		else
 		{
 			if (this->base)return this->base->getMember(name, access);
-			throw_langRuntimeException("%s‚Æ‚¢‚¤member‚Í‘¶İ‚µ‚Ü‚¹‚ñ", name.c_str());
+			throw_langRuntimeException("%sï¿½Æ‚ï¿½ï¿½ï¿½memberï¿½Í‘ï¿½ï¿½İ‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", name.c_str());
 		}
 	}
 	langObject Class::setMember(std::string& name, langObject obj, lang::scope *access)
@@ -126,7 +126,7 @@ namespace lang
 		{
 			if (base)
 			return this->base->setMember(name, obj, access);
-			throw_langRuntimeException("%s‚Æ‚¢‚¤member‚Í‘¶İ‚µ‚Ü‚¹‚ñ %s",name.c_str(),obj->toString().c_str());
+			throw_langRuntimeException("%sï¿½Æ‚ï¿½ï¿½ï¿½memberï¿½Í‘ï¿½ï¿½İ‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ %s",name.c_str(),obj->toString().c_str());
 		}
 	}
 	ClassObject::ClassObject(Class* type) : Class(type), staticClass(type)//type->name,type->index,type->member,type->scope)
@@ -139,13 +139,13 @@ namespace lang
 		thisscope = new lang::scope(this->scope->parsers, this->scope, this);
 		this->thisscope->refinc();
 		this->type->TypeEnum = _ClassObject;
-		FOREACH(i, *member)//foreach_(var_ i in_ *this->member)//C# style foreach
+		FOREACH(std::vector<membertypeitem>::iterator,i, membertypeitem,*member)//foreach_(var_ i in_ *this->member)//C# style foreach
 			//{
 		if (i.second.first->type->TypeEnum == _Function)
 		{
 			if (i.second.first != type->finalize)
 			{
-				auto buf = new Function((langFunction)i.second.first, this->thisscope);
+				langFunction buf = new Function((langFunction)i.second.first, this->thisscope);
 				buf->scope = thisscope;
 				this->thisscope->variable.add(i.first, buf, i.second.second);
 			}
@@ -153,7 +153,7 @@ namespace lang
 		else
 		if (i.second.first->type->TypeEnum == _Property)
 		{
-			auto buf = new Property((Property*)i.second.first, thisscope);
+			Property* buf = new Property((Property*)i.second.first, thisscope);
 			this->thisscope->variable.add(i.first, buf, i.second.second);
 		}
 		else
@@ -175,11 +175,11 @@ namespace lang
 		std::string tostrs("ToString");
 		if (this->trygetMember(tostrs,tostr,this->thisscope) && tostr is _Function)//this->thisscope->variable["ToString"] is _Function)
 		{
-			auto arg = std::vector<langObject>();//•’Ê‚Éƒ[ƒJƒ‹•Ï”‚Ìƒ|ƒCƒ“ƒ^„‚Å—Ç‚©‚Á‚½
-			auto result = ((langFunction)/*this->thisscope->variable["ToString"]*/tostr)->call(&arg);
+			std::vector<langObject> arg = std::vector<langObject>();//ï¿½ï¿½ï¿½Ê‚Éƒï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½Ïï¿½ï¿½Ìƒ|ï¿½Cï¿½ï¿½ï¿½^ï¿½ï¿½ï¿½Å—Ç‚ï¿½ï¿½ï¿½ï¿½ï¿½
+			langFunction result = ((langFunction)/*this->thisscope->variable["ToString"]*/tostr)->call(&arg);
 			return result->toString();
 			/*
-			auto arg = new std::vector<langObject>;//—áŠOˆ—‚Å‹t‚Éç’·‚É‚È‚é—á
+			auto arg = new std::vector<langObject>;//ï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½Å‹tï¿½Éç’·ï¿½É‚È‚ï¿½ï¿½ï¿½
 			try
 			{
 			auto result = ((langFunction)this->thisscope->variable["ToString"])->call(arg);
@@ -196,7 +196,7 @@ namespace lang
 	}
 	ClassObject::~ClassObject(void)
 	{
-		if (this->finalize)//‚à‚¤I—¹‚µ‚Ä‚½‚çƒtƒ@ƒCƒiƒ‰ƒCƒU‚ÍŒÄ‚Î‚ê‚È‚¢
+		if (this->finalize)//ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½iï¿½ï¿½ï¿½Cï¿½Uï¿½ÍŒÄ‚Î‚ï¿½ï¿½È‚ï¿½
 		{
 			if (lang::running)
 			{
@@ -205,17 +205,17 @@ namespace lang
 			}
 			delete this->finalize;
 		}
-		//this->scope->refdec();//scope‚¶‚á‚È‚­‚Äthisscope‚Å‚Í
+		//this->scope->refdec();//scopeï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½thisscopeï¿½Å‚ï¿½
 	}
 
 	langObject Object::bracket(langObject obj1, std::vector<langObject> obj2)
 	{
 		switch (obj1->type->TypeEnum)
 		{
-			case PreType::_ClassObject:
+			case _ClassObject:
 				if (((langClass)obj1)->thisscope->variable.definedVar("bracket", ((langClass)obj1)->thisscope))
 				{
-					auto func = (langFunction)((langClass)obj1)->thisscope->variable("bracket", ((langClass)obj1)->thisscope);
+					langFunction func = (langFunction)((langClass)obj1)->thisscope->variable("bracket", ((langClass)obj1)->thisscope);
 					if (func is _Function)
 					{
 						return func->call(&obj2);
@@ -223,16 +223,16 @@ namespace lang
 				}
 				break;
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]o—ˆ‚È‚¢").c_str());
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]ï¿½oï¿½ï¿½ï¿½È‚ï¿½").c_str());
 	}
 	langObject Object::bracketequal(langObject obj1, std::vector<langObject> obj2)
 	{
 		switch (obj1->type->TypeEnum)
 		{
-			case PreType::_ClassObject:
+			case _ClassObject:
 				if (((langClass)obj1)->thisscope->variable.definedVar("bracketequal", ((langClass)obj1)->thisscope))
 				{
-					auto func = (langFunction)((langClass)obj1)->thisscope->variable("bracketequal", ((langClass)obj1)->thisscope);
+					langFunction func = (langFunction)((langClass)obj1)->thisscope->variable("bracketequal", ((langClass)obj1)->thisscope);
 					if (func is _Function)
 					{
 						return func->call(&obj2);
@@ -240,6 +240,6 @@ namespace lang
 				}
 				break;
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]=" + "o—ˆ‚È‚¢").c_str());
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]=" + "ï¿½oï¿½ï¿½ï¿½È‚ï¿½").c_str());
 	}
 }

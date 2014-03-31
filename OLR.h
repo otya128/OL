@@ -31,6 +31,7 @@ namespace lang
 		langObject olruntime_gc_objectcount(std::vector<langObject> arg);
 		langObject olruntime_gc_gctiming(std::vector<langObject> arg);
 		langObject olruntime_gc_run(std::vector<langObject> arg);
+    #ifdef LANG_GUI
 		langObject window_create(std::vector<langObject> arg);
 		langObject window_show(std::vector<langObject> arg);
 		langObject window_gettext(std::vector<langObject> arg);
@@ -46,6 +47,7 @@ namespace lang
 		langObject window_setonclick(std::vector<langObject> arg);
 		langObject window_setfont(std::vector<langObject> arg);
 		langObject messagebox(std::vector<langObject> arg);
+    #endif
 #ifdef CPP11
 		langObject olruntime_gc_asyncgc(std::vector<langObject> arg);
 #endif
@@ -82,6 +84,7 @@ namespace lang
 #ifdef CPP11
 			Add("OLRuntime::GC::BackgroundGC", olruntime_gc_asyncgc);
 #endif
+      #ifdef LANG_GUI
 			Add("OLRuntime::GUI::Window::Create", window_create);
 			Add("OLRuntime::GUI::Window::Show", window_show);
 			Add("OLRuntime::GUI::Button::Create", button_create);
@@ -97,6 +100,7 @@ namespace lang
 			Add("OLRuntime::GUI::TextBox::GetMultiLine", textbox_getmultiline);
 			Add("OLRuntime::GUI::CheckBox::Create", checkbox_create);
 			Add("OLRuntime::GUI::MessageBox", messagebox);
+      #endif
 			Add("exit", exit);
 			Add("time", time);
 			Add("OLRuntime::GetStack", getstack);

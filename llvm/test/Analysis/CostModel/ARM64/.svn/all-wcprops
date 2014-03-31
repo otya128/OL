@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/llvm-project/!svn/ver/205090/llvm/trunk/test/Analysis/CostModel/ARM64
+END
+lit.local.cfg
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/llvm-project/!svn/ver/205090/llvm/trunk/test/Analysis/CostModel/ARM64/lit.local.cfg
+END
+store.ll
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/llvm-project/!svn/ver/205090/llvm/trunk/test/Analysis/CostModel/ARM64/store.ll
+END
+select.ll
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/llvm-project/!svn/ver/205090/llvm/trunk/test/Analysis/CostModel/ARM64/select.ll
+END
