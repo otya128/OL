@@ -16,6 +16,7 @@ namespace lang
 	};
   typedef std::map<std::string, std::pair<langObject, qualifier> >::iterator varit;
     typedef std::pair<std::string, std::pair<langObject, qualifier> > varpr;
+  typedef std::map<std::string, std::pair<langObject, qualifier> >::iterator varitf;
 	class variable
 	{
 	public:

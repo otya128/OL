@@ -53,7 +53,7 @@ namespace lang{
     }
 	langObject variable::operator()(std::string name, scope *access)
     {
-		auto f = this->_variable.find(name);
+		varitf f = this->_variable.find(name);
 		if (f != this->_variable.end())
 		{
 			if (f->second.first is _Property)
@@ -61,11 +61,11 @@ namespace lang{
 				return ((Property*)f->second.first)->Get(this,access);
 			}
 			qualifier q = f->second.second;//this->_variable[name];
-			if (q & qualifier::private_)
+			if (q & private_)
 			{
 				if (!access->_this || this->owner->_this->thisscope != access->_this->thisscope)
 				{
-					if (access->_this && (q & qualifier::protected_))
+					if (access->_this && (q & protected_))
 					{
 						langClass base = access->_this->base;
 						while (base)
@@ -74,9 +74,9 @@ namespace lang{
 								return f->second.first;
 							base = base->base;
 						}
-						throw_langRuntimeException("protected member %s‚É‚ÍƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ", name.c_str());
+						throw_langRuntimeException("protected member %sï¿½É‚ÍƒAï¿½Nï¿½Zï¿½Xï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", name.c_str());
 					}
-					throw_langRuntimeException("private member %s‚É‚ÍƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ", name.c_str());
+					throw_langRuntimeException("private member %sï¿½É‚ÍƒAï¿½Nï¿½Zï¿½Xï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", name.c_str());
 				}
 			}
 			return f->second.first;//this->_variable[name];
@@ -86,19 +86,19 @@ namespace lang{
     }
 	langObject variable::set(std::string name, langObject object, scope *access)
 	{
-		auto f = this->_variable.find(name); 
+		varitf f = this->_variable.find(name); 
 		if (object && object is _Function && f != this->_variable.end() && f->second.first is _Function)
 		{
 			qualifier q = f->second.second;
-			if (q & qualifier::const_)
+			if (q & const_)
 			{
-				throw_langRuntimeException("const %s‚É‘ã“ü‚Å‚«‚Ü‚¹‚ñ", name.c_str());
+				throw_langRuntimeException("const %sï¿½É‘ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", name.c_str());
 			}
-			if (q & qualifier::private_)
+			if (q & private_)
 			{
 				if (!access->_this || this->owner->_this->thisscope != access->_this->thisscope)
 				{
-					if (access->_this && (q & qualifier::protected_))
+					if (access->_this && (q & protected_))
 					{
 						langClass base = access->_this->base;
 						while (base)
@@ -107,9 +107,9 @@ namespace lang{
 								return f->second.first;
 							base = base->base;
 						}
-						throw_langRuntimeException("protected member %s‚É‚ÍƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ", name.c_str());
+						throw_langRuntimeException("protected member %sï¿½É‚ÍƒAï¿½Nï¿½Zï¿½Xï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", name.c_str());
 					}
-					throw_langRuntimeException("private member %s‚É‚ÍƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ", name.c_str());
+					throw_langRuntimeException("private member %sï¿½É‚ÍƒAï¿½Nï¿½Zï¿½Xï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", name.c_str());
 				}
 			}
 			langFunction f1 = (langFunction)f->second.first;
@@ -129,15 +129,15 @@ namespace lang{
 				return ((Property*)f->second.first)->Set(object, this, access);
 			}
 			qualifier q = f->second.second;
-			if (q & qualifier::const_)
+			if (q & const_)
 			{
-				throw_langRuntimeException("const %s‚É‘ã“ü‚Å‚«‚Ü‚¹‚ñ",name.c_str());
+				throw_langRuntimeException("const %sï¿½É‘ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½",name.c_str());
 			}
-			if (q & qualifier::private_)
+			if (q & private_)
 			{
 				if (!access->_this || this->owner->_this->thisscope != access->_this->thisscope)
 				{
-					if (access->_this && (q & qualifier::protected_))
+					if (access->_this && (q & protected_))
 					{
 						langClass base = access->_this->base;
 						while (base)
@@ -146,9 +146,9 @@ namespace lang{
 								return f->second.first;
 							base = base->base;
 						}
-						throw_langRuntimeException("protected member %s‚É‚ÍƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ", name.c_str());
+						throw_langRuntimeException("protected member %sï¿½É‚ÍƒAï¿½Nï¿½Zï¿½Xï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", name.c_str());
 					}
-					throw_langRuntimeException("private member %s‚É‚ÍƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ", name.c_str());
+					throw_langRuntimeException("private member %sï¿½É‚ÍƒAï¿½Nï¿½Zï¿½Xï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", name.c_str());
 				}
 			}
 			this->_variable[name].first = object;// = std::pair<langObject, qualifier>(object,f->second.second);
@@ -163,12 +163,12 @@ namespace lang{
     }
     void variable::add(std::string name,langObject object,qualifier q)
 	{
-		auto f = this->_variable.find(name);
-		if (object is _Function && f != this->_variable.end() && f->second.first is _Function)
+		varitf f = this->_variable.find(name);
+		if (object is _Function && (f) != this->_variable.end() && f->second.first is _Function)
 		{
 			if (f->second.second != q)
 			{
-				throw langRuntimeException("ƒI[ƒo[ƒ[ƒh‚³‚ê‚½ŠÖ”‚ÆƒAƒNƒZƒXƒŒƒxƒ‹‚ªˆá‚¢‚Ü‚·B[–¢ŽÀ‘•]");
+				throw langRuntimeException("ï¿½Iï¿½[ï¿½oï¿½[ï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½ê‚½ï¿½Öï¿½ï¿½ÆƒAï¿½Nï¿½Zï¿½Xï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½á‚¢ï¿½Ü‚ï¿½ï¿½B[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]");
 			}
 			langFunction f1 = (langFunction)f->second.first;
 			if (f1->isoverload())
