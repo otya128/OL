@@ -653,9 +653,9 @@ void gui(void)
 					for (auto i : ex.stacktrace)
 					{
 #else
-					for (std::vector<const char*>::iterator it = ex.stacktrace.begin(); it != ex.stacktrace.end(); ++it)
+					for (std::vector<std::pair<int,int> >::iterator it = ex.stacktrace.begin(); it != ex.stacktrace.end(); ++it)
 					{
-						const char i = *it;
+						std::pair<int,int> & i = *it;
 #endif
 						std::cerr << getlinestring(input, ex.tokens[i.second]->sourcestartindex) << std::endl;
 						//std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
@@ -743,7 +743,7 @@ void gui(void)
 					std::cerr << "場所?:" << std::endl;
 #if defined _DEBUG
 					//                    for(auto i : ex.stacktrace)
-					FOREACH(i, ex.stacktrace)//                    {
+					FOREACH(stktrcit,i,stktrcpr &, ex.stacktrace)//                    {
 						std::cerr << getlinestring(input, ex.tokens[i.second]->sourcestartindex) << std::endl;
 					//std::cout << input.substr(ex.tokens[i.first]->sourcestartindex, ex.tokens[i.second]->sourceendindex - ex.tokens[i.first]->sourcestartindex + 1) << std::endl;
 					//break;

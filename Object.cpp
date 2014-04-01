@@ -305,8 +305,8 @@ namespace lang
 #define LANG_OPERA_DEBUG_CHECK 
 #define LANG_OPERA_DEBUG_SINGLE_CHECK 
 #if _DEBUG
-#define LANG_OPERA_DEBUG_CHECK if (!obj1 || !obj2)throw langRuntimeException(__FUNCTION__"式がありません。");
-#define LANG_OPERA_DEBUG_SINGLE_CHECK if (!obj1)throw langRuntimeException(__FUNCTION__"式がありません。");
+//#define LANG_OPERA_DEBUG_CHECK if (!obj1 || !obj2)throw langRuntimeException(__FUNCTION__"式がありません。");
+//#define LANG_OPERA_DEBUG_SINGLE_CHECK if (!obj1)throw langRuntimeException(__FUNCTION__"式がありません。");
 #endif
 #define OPERA2ARG(name) {langClassObject clas = (langClassObject)obj1;\
 	langFunction func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \

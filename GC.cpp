@@ -45,7 +45,7 @@ namespace lang
 		{
 #if _DEBUG
 			if (gc_view)
-				std::cout << "���ׂ��ꂪ�u���b�N�����܂����B" << std::endl;
+				std::cout << "がべこれがブロックされました。" << std::endl;
 #endif
 			return;
 		}
@@ -56,11 +56,8 @@ namespace lang
 		this->object[FALSEOBJECT] = count;//�萔��GC�ɉ���������
 #if _DEBUG
 		if (gc_view)
-			std::cout << "���ׂ����J�n" << std::endl;
+			std::cout << "がべこれ開始" << std::endl;
 #endif
-		if (objectCount > 160)
-			std::cout << ""
-			;
 		// this->search(this->root);
     FOREACH(rootit,root, rootpr,this->roots)//for(auto root : this->roots)
 			//{
@@ -95,7 +92,7 @@ namespace lang
 			erased.clear();
 #if _DEBUG
 		if (gc_view)
-			std::cout << "���ׂ����I��" << std::endl;
+			std::cout << "がべこれ終了" << std::endl;
 #endif
 		objectCount = object.size();
 		if (objectCount <= GCtimig / 4 && baseGCtimig <= GCtimig / 4) GCtimig /= 2;

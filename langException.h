@@ -23,6 +23,8 @@ namespace lang
 		}
     virtual ~langExitException() throw (){}
 	};
+	typedef std::vector<std::pair<int,int> >::iterator stktrcit;
+	typedef std::pair<int,int>  stktrcpr;
     class langRuntimeException : public langException
     {
     public:

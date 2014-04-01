@@ -113,7 +113,7 @@ namespace lang
 		else
 		{
 			if (this->base)return this->base->getMember(name, access);
-			throw_langRuntimeException("%s�Ƃ���member�͑��݂��܂���", name.c_str());
+			throw_langRuntimeException("%sというmemberは存在しません", name.c_str());
 		}
 	}
 	langObject Class::setMember(std::string& name, langObject obj, lang::scope *access)
@@ -126,7 +126,7 @@ namespace lang
 		{
 			if (base)
 			return this->base->setMember(name, obj, access);
-			throw_langRuntimeException("%s�Ƃ���member�͑��݂��܂��� %s",name.c_str(),obj->toString().c_str());
+			throw_langRuntimeException("%sというmemberは存在しません %s",name.c_str(),obj->toString().c_str());
 		}
 	}
 	ClassObject::ClassObject(Class* type) : Class(type), staticClass(type)//type->name,type->index,type->member,type->scope)
@@ -223,7 +223,7 @@ namespace lang
 				}
 				break;
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]�o���Ȃ�").c_str());
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]出来ない").c_str());
 	}
 	langObject Object::bracketequal(langObject obj1, std::vector<langObject> obj2)
 	{
@@ -240,6 +240,6 @@ namespace lang
 				}
 				break;
 		}
-		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]=" + "�o���Ȃ�").c_str());
+		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]=" + "出来ない").c_str());
 	}
 }

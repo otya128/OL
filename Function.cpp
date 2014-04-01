@@ -17,7 +17,7 @@ namespace lang
 	void FunctionArgThrow(Function *func, std::vector<langObject>* argList)
 	{
 		std::stringstream ss;
-		ss << "Function:" << func->name << "�̈����̐���" << func->argList->size() << "��" << argList->size() << "�Ăяo���Ă��܂��B";
+		ss << "Function:" << func->name << "の引数の数は" << func->argList->size() << "で" << argList->size() << "個呼び出しています。";
 		for (int i = 0; i < func->argList->size(); i++)
 		{
 			if (i)
@@ -46,7 +46,7 @@ namespace lang
 	void FunctionArgThrow(OverloadFunction *func, std::vector<langObject>* argList)
 	{
 		std::stringstream ss;
-		ss << "Function:" << func->name << "�̈��v�����֐����������܂���";
+		ss << "Function:" << func->name << "の一致する関数が見つかりません";
 		for (int j = 0; j < func->functions.size(); j++)
 		{
 			for (int i = 0; i < func->functions[j]->argList->size(); i++)
@@ -140,7 +140,7 @@ namespace lang
 #if _DEBUG
 		if (gc_view)
 		{
-			std::cout << "���ׂ��ꒆ..." << name << this << std::endl;
+			std::cout << "がべこれ中..." << name << this << std::endl;
 			//delete this->name;
 		}
 #endif
@@ -418,14 +418,14 @@ namespace lang
 								return this->getter->call(&arg);
 							base = base->base;
 						}
-						throw_langRuntimeException("protected setter�ɂ̓A�N�Z�X�ł��܂���");
+						throw_langRuntimeException("protected setterにはアクセスできません");
 					}
-					throw_langRuntimeException("private setter�ɂ̓A�N�Z�X�ł��܂���");
+					throw_langRuntimeException("private setterにはアクセスできません");
 				}
 			}
 			return this->getter->call(&arg);
 		}
-		throw langRuntimeException("getter�����݂��܂���");
+		throw langRuntimeException("getterが存在しません");
 	}
 	langObject Property::Set(langObject value, variable*v, scope* access)
 	{
@@ -450,15 +450,15 @@ namespace lang
 							}
 							base = base->base;
 						}
-						throw_langRuntimeException("protected setter�ɂ̓A�N�Z�X�ł��܂���");
+						throw_langRuntimeException("protected setterにはアクセスできません");
 					}
-					throw_langRuntimeException("private setter�ɂ̓A�N�Z�X�ł��܂���");
+					throw_langRuntimeException("private setterにはアクセスできません");
 				}
 			}
 			this->setter->call(&arg);
 			return value;
 		}
-		throw langRuntimeException("setter�����݂��܂���");
+		throw langRuntimeException("setterが存在しません");
 	}
 	Property::Property(Property* base, scope* sp)
 	{
