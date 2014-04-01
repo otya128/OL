@@ -56,7 +56,7 @@ namespace lang{
 		varitf f = this->_variable.find(name);
 		if (f != this->_variable.end())
 		{
-			if (f->second.first is _Property)
+			if (f->second.first && f->second.first is _Property)
 			{
 				return ((Property*)f->second.first)->Get(this,access);
 			}
@@ -74,9 +74,9 @@ namespace lang{
 								return f->second.first;
 							base = base->base;
 						}
-						throw_langRuntimeException("protected member %s�ɂ̓A�N�Z�X�ł��܂���", name.c_str());
+						throw_langRuntimeException("protected member %sにはアクセスできません", name.c_str());
 					}
-					throw_langRuntimeException("private member %s�ɂ̓A�N�Z�X�ł��܂���", name.c_str());
+					throw_langRuntimeException("private member %sにはアクセスできません", name.c_str());
 				}
 			}
 			return f->second.first;//this->_variable[name];
@@ -92,7 +92,7 @@ namespace lang{
 			qualifier q = f->second.second;
 			if (q & const_)
 			{
-				throw_langRuntimeException("const %s�ɑ����ł��܂���", name.c_str());
+				throw_langRuntimeException("const %sに代入できません", name.c_str());
 			}
 			if (q & private_)
 			{
@@ -107,9 +107,9 @@ namespace lang{
 								return f->second.first;
 							base = base->base;
 						}
-						throw_langRuntimeException("protected member %s�ɂ̓A�N�Z�X�ł��܂���", name.c_str());
+						throw_langRuntimeException("protected member %sにはアクセスできません", name.c_str());
 					}
-					throw_langRuntimeException("private member %s�ɂ̓A�N�Z�X�ł��܂���", name.c_str());
+					throw_langRuntimeException("private member %sにはアクセスできません", name.c_str());
 				}
 			}
 			langFunction f1 = (langFunction)f->second.first;
@@ -124,14 +124,14 @@ namespace lang{
 		}
         if(f != this->_variable.end())
 		{
-			if (f->second.first is _Property)
+			if (f->second.first && f->second.first is _Property)
 			{
 				return ((Property*)f->second.first)->Set(object, this, access);
 			}
 			qualifier q = f->second.second;
 			if (q & const_)
 			{
-				throw_langRuntimeException("const %s�ɑ����ł��܂���",name.c_str());
+				throw_langRuntimeException("const %sに代入できません",name.c_str());
 			}
 			if (q & private_)
 			{
@@ -146,9 +146,9 @@ namespace lang{
 								return f->second.first;
 							base = base->base;
 						}
-						throw_langRuntimeException("protected member %s�ɂ̓A�N�Z�X�ł��܂���", name.c_str());
+						throw_langRuntimeException("protected member %sにはアクセスできません", name.c_str());
 					}
-					throw_langRuntimeException("private member %s�ɂ̓A�N�Z�X�ł��܂���", name.c_str());
+					throw_langRuntimeException("private member %sにはアクセスできません", name.c_str());
 				}
 			}
 			this->_variable[name].first = object;// = std::pair<langObject, qualifier>(object,f->second.second);
@@ -168,7 +168,7 @@ namespace lang{
 		{
 			if (f->second.second != q)
 			{
-				throw langRuntimeException("�I�[�o�[���[�h���ꂽ�֐��ƃA�N�Z�X���x�����Ⴂ�܂��B[������]");
+				throw langRuntimeException("オーバーロードされた関数とアクセスレベルが違います。[未実装]");
 			}
 			langFunction f1 = (langFunction)f->second.first;
 			if (f1->isoverload())
