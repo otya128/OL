@@ -17,6 +17,7 @@ namespace lang
 	public:
 		membertype member;
 		langFunction finalize;
+		Class(){}
 		Class(std::string name, int index, membertype member, scope* scope, membertype staticmember);
 		virtual ~Class(void);
 		//–¼‘O
@@ -30,14 +31,27 @@ namespace lang
 		virtual bool trygetMember(std::string& name, langObject& obj, lang::scope *access);
 		virtual langObject getMember(std::string& name, lang::scope *access);
 		virtual langObject setMember(std::string& name, langObject obj, lang::scope *access);
+		virtual langClassObject CreateObject(Class* type);
 	};
 	class ClassObject : public Class
 	{
 	public:
+		ClassObject(Class* type);
 		Class* staticClass;
 		virtual std::string toString(void);
-		ClassObject(Class* type);
 		~ClassObject(void);
+	};
+	class ArrayBufferClass : public Class
+	{
+	public:
+		ArrayBufferClass(lang::scope *scopec);
+		virtual langClassObject CreateObject(Class* type);
+	};
+	class ArrayBufferClassObject : public ClassObject
+	{
+	public:
+		ArrayBufferClassObject(void);
+		~ArrayBufferClassObject(void);
 	};
 }
 #endif

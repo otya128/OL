@@ -41,7 +41,7 @@ namespace lang
 			//        {
 		if (i.second.first->type->TypeEnum == _Function)
 		{
-			auto buf = new Function((langFunction)i.second.first, this->thisscope);
+			auto buf = Function::CopyFunction((langFunction)i.second.first, this->thisscope);
 			buf->scope = thisscope;
 			this->thisscope->variable.add(i.first, buf, i.second.second);
 		}
@@ -145,7 +145,7 @@ namespace lang
 		{
 			if (i.second.first != type->finalize)
 			{
-				auto buf = new Function((langFunction)i.second.first, this->thisscope);
+				auto buf = Function::CopyFunction((langFunction)i.second.first, this->thisscope);
 				buf->scope = thisscope;
 				this->thisscope->variable.add(i.first, buf, i.second.second);
 			}
@@ -161,14 +161,17 @@ namespace lang
 		ENDFOREACH//}
 		if (type->finalize != nullptr)
 		{
-			this->finalize = new Function((langFunction)type->finalize, this->thisscope);
+			this->finalize = Function::CopyFunction((langFunction)type->finalize, this->thisscope);
 			this->finalize->scope = thisscope;
 			this->thisscope->variable.add("finalize", this->finalize);
 			lang::gc->uncontroll(this->finalize);
 		}
 
 	}
-
+	langClassObject Class::CreateObject(Class* type)
+	{
+		return new ClassObject(type);
+	}
 	std::string ClassObject::toString(void)
 	{
 		langObject tostr;
@@ -242,4 +245,56 @@ namespace lang
 		}
 		throw langRuntimeException((std::string(obj1->type->name) + "[" + "]=" + "èoóàÇ»Ç¢").c_str());
 	}
+	langObject ArrayBuffer_Ctor(NativeFunction* func,std::vector<langObject> &arg)
+	{
+		std::cout << "DEBUg";
+		langClassObject _this = func->thisscope->_this;
+		if (arg.size() != 1)
+		{
+			throw langRuntimeException("à¯êîÇÃêîÇ™à·Ç§");
+		}
+		int size = Int::toInt(arg[0]);
+		_this->setPointer(new char[size]);
+		memset(_this->getPointer(), 0, size);
+		return NULLOBJECT;
+	}
+	langObject ArrayBuffer_Bracket(NativeFunction* func, std::vector<langObject> &arg)
+	{
+		std::cout << "DEBUg";
+		if (arg.size() != 2)
+		{
+			throw langRuntimeException("à¯êîÇÃêîÇ™à·Ç§");
+		}
+		langClassObject _this = func->thisscope->_this;
+		return NULLOBJECT;
+	}
+	langObject ArrayBuffer_BracketSet(NativeFunction* func, std::vector<langObject> &arg)
+	{
+		std::cout << "DEBUg";
+		langClassObject _this = func->thisscope->_this;
+		return NULLOBJECT;
+	}
+	ArrayBufferClass::ArrayBufferClass(lang::scope *scopec)
+	{
+		this->finalize = nullptr;
+		this->base = nullptr;
+		this->scope = scopec;
+		this->type = new Type(_Class);
+		this->member = new membertype_;
+		this->member->push_back(membertypeitem(std::string("ctor"), std::pair<langObject, qualifier>(new NativeFunction(ArrayBuffer_Ctor), public_)));
+		this->member->push_back(membertypeitem(std::string("bracket"), std::pair<langObject, qualifier>(new NativeFunction(ArrayBuffer_Bracket), public_)));
+		this->member->push_back(membertypeitem(std::string("bracketset"), std::pair<langObject, qualifier>(new NativeFunction(ArrayBuffer_BracketSet), public_)));
+	}
+	ArrayBufferClassObject::ArrayBufferClassObject() : ClassObject(lang::ClassArrayBufferClass)
+	{
+	}
+	ArrayBufferClassObject::~ArrayBufferClassObject()
+	{
+		if (this->ptr != this) delete this->ptr;
+	}
+	langClassObject ArrayBufferClass::CreateObject(Class* type)
+	{
+		return new ArrayBufferClassObject();
+	}
+	Class *ClassArrayBufferClass;
 }

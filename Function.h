@@ -16,6 +16,7 @@ namespace lang
 		lambda_ = 1,
 		var_arg = 2,
 		overload = 4,
+		native_func = 8,
 	};
 	extern
 #ifdef _MSC_VER
@@ -29,6 +30,8 @@ namespace lang
 	const std::string emptystr;
 	class Function : public Object
 	{
+	protected:
+		Function(Function* f, lang::scope* this_scope);
 	public:
 		//ä÷êîÇ…ä÷òAïtÇØÇÁÇÍÇΩstd::thread
 #ifdef CPP11
@@ -43,9 +46,10 @@ namespace lang
 		int index;
 		scope* scope;
 		lang::scope* thisscope;
+		static langFunction CopyFunction(Function* f, lang::scope* this_scope);
+		static langFunction CopyFunction(NativeFunction* f, lang::scope* this_scope);
 		Function(std::string name, FunctionArg* argList, lang::scope* scope, int index);
 		Function(std::string name, FunctionArg& argList, lang::scope* scope, int index);
-		Function(Function* f, lang::scope* this_scope);
 		virtual ~Function(void);
 		virtual std::string toString();
 		virtual langObject call(std::vector<langObject>* argList);
@@ -63,6 +67,10 @@ namespace lang
 		inline bool isoverload()
 		{
 			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::overload));
+		}
+		inline bool isnative()
+		{
+			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::native_func));
 		}
 	};
 	//”wØŒw´
@@ -119,6 +127,16 @@ namespace lang
 		Property(Property* base,scope* sp);
 		langObject Get(variable*,scope*);
 		langObject Set(langObject, variable*, scope*);
+	};
+	typedef langObject(*NativeFunc)(NativeFunction*, std::vector<langObject>&);
+	class NativeFunction : public Function
+	{
+	public:
+		NativeFunc Func;
+		NativeFunction(NativeFunc func);
+		NativeFunction(NativeFunction *func, lang:: scope* this_scope);
+		virtual langObject call(std::vector<langObject>* argList);
+		virtual langObject ctorcall(std::vector<langObject>* argList);
 	};
 }
 #endif

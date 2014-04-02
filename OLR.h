@@ -49,6 +49,9 @@ namespace lang
 #ifdef CPP11
 		langObject olruntime_gc_asyncgc(std::vector<langObject> arg);
 #endif
+#ifdef _WIN32
+		langObject dynamiccall(std::vector<langObject> arg);
+#endif
 		langObject exit(std::vector<langObject> arg);
 		langObject time(std::vector<langObject> arg);
 		langObject getstack(std::vector<langObject> arg);
@@ -100,6 +103,7 @@ namespace lang
 			Add("exit", exit);
 			Add("time", time);
 			Add("OLRuntime::GetStack", getstack);
+			Add("dynamiccall", dynamiccall);
 		}
 	}
 }

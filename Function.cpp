@@ -462,11 +462,49 @@ namespace lang
 	Property::Property(Property* base, scope* sp)
 	{
 		this->type = new Type(_Property);
-		if (base->getter)this->getter = new Function(base->getter, sp);
+		if (base->getter)this->getter = Function::CopyFunction(base->getter, sp);
 		else this->getter = nullptr;
-		if (base->setter)this->setter = new Function(base->setter, sp);
+		if (base->setter)this->setter = Function::CopyFunction(base->setter, sp);
 		else this->setter = nullptr;
 		this->getqualifier = base->getqualifier;
 		this->setqualifier = base->setqualifier;
+	}
+	NativeFunction::NativeFunction(NativeFunc func)
+	{
+		this->Func = func;
+		this->Ftype = functype::native_func;
+		this->working = false;
+#ifdef CPP11
+		this->thread = nullptr;
+#endif
+		this->type = new Type(PreType::_Function);
+		this->argList = nullptr;
+		this->thisscope = nullptr;
+		this->scope = nullptr;//std::make_shared<lang::scope>(*scope);
+		if (this->scope != nullptr)scope->refinc();
+		this->index = -1;
+	}
+	NativeFunction::NativeFunction(NativeFunction *func, lang::scope* this_scope) : NativeFunction(func->Func)
+	{
+		this->Ftype = func->Ftype;
+		this->thisscope = this_scope;
+	}
+	langObject NativeFunction::call(std::vector<langObject>* argList)
+	{
+		return this->Func(this, *argList);
+	}
+	langObject NativeFunction::ctorcall(std::vector<langObject>* argList)
+	{
+		return this->Func(this, *argList);
+	}
+	langFunction Function::CopyFunction(Function* f, lang::scope* this_scope)
+	{
+		if (f->isnative())
+			return new NativeFunction((NativeFunction*)f, this_scope);
+		return new Function(f, this_scope);
+	}
+	langFunction Function::CopyFunction(NativeFunction* f, lang::scope* this_scope)
+	{
+		return new NativeFunction(f, this_scope);
 	}
 }

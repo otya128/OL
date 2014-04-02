@@ -16,6 +16,8 @@
 #endif
 #ifndef _WIN32
 #define fopen_s(a,b,c) *a = fopen(b,c) 
+#else
+#include <windows.h>
 #endif
 //ëgÇ›çûÇ›ä÷êîíB
 namespace lang
@@ -114,7 +116,7 @@ namespace lang
 #ifdef CPP11
 		langObject thread(std::vector<langObject> arg)
 		{
-			langFunction threadFunc = new Function((langFunction)arg[0], ((langFunction)arg[0])->thisscope);
+			langFunction threadFunc = Function::CopyFunction((langFunction)arg[0], ((langFunction)arg[0])->thisscope);
 			std::thread* thd = new std::thread([threadFunc]
 			{
 				lang::stacktrace = new std::vector<langFunction>();
@@ -128,7 +130,7 @@ namespace lang
 		}
 		langObject thread_join(std::vector<langObject> arg)
 		{
-			langFunction threadFunc = new Function((langFunction)arg[0], ((langFunction)arg[0])->thisscope);
+			langFunction threadFunc = Function::CopyFunction((langFunction)arg[0], ((langFunction)arg[0])->thisscope);
 			bool thread_end = false;
 			std::thread* thd = new std::thread([threadFunc, &thread_end]
 			{
@@ -428,6 +430,94 @@ namespace lang
 				}
 			}
 			return ary;
+		}
+		extern "C"
+		{
+			typedef int(__cdecl  *dynamicfunc)(void);
+		}
+		langObject dynamiccall(std::vector<langObject> arg)
+		{
+			HMODULE hDll;
+			std::string str = arg[0]->toString();
+			std::string funcstr = arg[1]->toString();
+			hDll = LoadLibraryA(str.c_str());
+			if (hDll == NULL) {
+				throw_langRuntimeException("fail LoadLibraryA(\"%s\")", str.c_str());
+			}
+			dynamicfunc test = (dynamicfunc)GetProcAddress(hDll, funcstr.c_str());
+			if (test == NULL) {
+				throw_langRuntimeException("fail GetProcAddress(\"%s\")", funcstr.c_str());
+			}
+			int j;
+			double dj;
+			char cj;
+			wchar_t wj;
+			const char* sj;
+			int result;
+			if (arg.size() == 3 && arg[2]->type->TypeEnum == _Int)
+			{
+				j = Int::toInt(arg[2]);
+				__asm
+				{
+					mov eax, j;
+				}
+				test();
+				__asm
+				{
+					mov result, eax;
+				}
+				return newInt(result);
+			}
+			for (int i = arg.size() - 1; i >= 2; i--)
+				switch (arg[i]->type->TypeEnum)
+				{
+					case _Int:
+						j = Int::toInt(arg[i]);//Int::toInt(arg[i]);
+						__asm
+						{
+							push j;
+						}
+						break;
+					case _Double:
+						dj = Double::toDouble(arg[i]);//Int::toInt(arg[i]);
+						__asm
+						{
+							push dj;
+						}
+						break;
+					case _Char:
+						cj = Char::toChar(arg[i]);//Int::toInt(arg[i]);
+						__asm
+						{
+							push cj;
+						}
+						break;
+					case _WChar:
+						wj = WChar::toWChar(arg[i]);//Int::toInt(arg[i]);
+						__asm
+						{
+							push wj;
+						}
+						break;
+					case _String:
+						sj = ((langString)arg[i])->getString()->c_str();
+						__asm
+						{
+							push sj;
+						}
+						break;
+			}
+			result = test();
+			/*__asm
+			{
+				mov result, eax;
+			}*/
+			for (int i = arg.size() - 1; i >= 2; i--)
+			__asm
+			{
+				pop j;
+			}
+			return newInt(result);
 		}
 	}
 }

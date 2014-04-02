@@ -67,7 +67,7 @@ namespace lang
 #define newString(a) new lang::String(a)
 #define newFunction(a,a1,a2,a3) new lang::Function(a,a1,a2,a3)
 #define newClass(a,a1,a2,a3,a4) new lang::Class(a,a1,a2,a3,a4)
-#define newClassObject(a) new lang::ClassObject(a)
+#define newClassObject(a) a->CreateObject(a)
 #define newArray(a) new lang::Array(a);
 #define newChar(a) new lang::Char(a);
 #define newDouble(a) new lang::Double(a);
@@ -89,7 +89,9 @@ namespace lang
 	class CharType;
 	class WCharType;
 	class ArrayType;
+	class NativeFunction;
 	extern ArrayType* ArrayTypeObject;
 	extern ObjectType* ObjectTypeObject;
+	extern Class *ClassArrayBufferClass;
 }
 #endif
