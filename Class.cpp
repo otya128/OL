@@ -91,7 +91,11 @@ namespace lang
 		this->thisscope->refdec();
 		//delete this->type->name;
 	}
-	bool Class::trygetMember(std::string& name, langObject& obj, lang::scope *access)
+	bool Class::trygetMember(std::string &name, langObject& obj, lang::scope *access)
+	{
+		return trygetMember(name.c_str(), obj, access);
+	}
+	bool Class::trygetMember(const char* name, langObject& obj, lang::scope *access)
 	{
 		if (this->thisscope->variable.definedVar(name, access))
 		{
@@ -100,11 +104,16 @@ namespace lang
 		}
 		else
 		{
-			if (this->base)return this->base->trygetMember(name, obj, access);
+			if (this->base)
+				return this->base->trygetMember(name, obj, access);
 			return false;
 		}
 	}
 	langObject Class::getMember(std::string& name, lang::scope *access)
+	{
+		return getMember(name.c_str(), access);
+	}
+	langObject Class::getMember(const char* name, lang::scope *access)
 	{
 		if (this->thisscope->variable.definedVar(name, access))
 		{
@@ -113,10 +122,14 @@ namespace lang
 		else
 		{
 			if (this->base)return this->base->getMember(name, access);
-			throw_langRuntimeException("%s‚Æ‚¢‚¤member‚Í‘¶Ý‚µ‚Ü‚¹‚ñ", name.c_str());
+			throw_langRuntimeException("%s‚Æ‚¢‚¤member‚Í‘¶Ý‚µ‚Ü‚¹‚ñ", name);
 		}
 	}
 	langObject Class::setMember(std::string& name, langObject obj, lang::scope *access)
+	{
+		return setMember(name.c_str(), obj, access);
+	}
+	langObject Class::setMember(const char* name, langObject obj, lang::scope *access)
 	{
 		if (this->thisscope->variable.definedVar(name, access))
 		{
@@ -125,15 +138,15 @@ namespace lang
 		else
 		{
 			if (base)
-			return this->base->setMember(name, obj, access);
-			throw_langRuntimeException("%s‚Æ‚¢‚¤member‚Í‘¶Ý‚µ‚Ü‚¹‚ñ %s",name.c_str(),obj->toString().c_str());
+				return this->base->setMember(name, obj, access);
+			throw_langRuntimeException("%s‚Æ‚¢‚¤member‚Í‘¶Ý‚µ‚Ü‚¹‚ñ %s",name,obj->toString().c_str());
 		}
 	}
 	ClassObject::ClassObject(Class* type) : Class(type), staticClass(type)//type->name,type->index,type->member,type->scope)
 	{
 		if (type->base)
 		{
-			this->base = new ClassObject(type->base);
+			this->base = type->base->CreateObject(type->base);//new ClassObject(type->base);
 		}
 		this->scope = type->scope;
 		thisscope = new lang::scope(this->scope->parsers, this->scope, this);
@@ -216,12 +229,12 @@ namespace lang
 		switch (obj1->type->TypeEnum)
 		{
 			case PreType::_ClassObject:
-				if (((langClass)obj1)->thisscope->variable.definedVar("bracket", ((langClass)obj1)->thisscope))
+				langObject func;
+				if (((langClass)obj1)->trygetMember("bracket", func, ((langClass)obj1)->thisscope))
 				{
-					auto func = (langFunction)((langClass)obj1)->thisscope->variable("bracket", ((langClass)obj1)->thisscope);
 					if (func is _Function)
 					{
-						return func->call(&obj2);
+						return ((langFunction)func)->call(&obj2);
 					}
 				}
 				break;
@@ -233,12 +246,12 @@ namespace lang
 		switch (obj1->type->TypeEnum)
 		{
 			case PreType::_ClassObject:
-				if (((langClass)obj1)->thisscope->variable.definedVar("bracketequal", ((langClass)obj1)->thisscope))
+				langObject func;
+				if (((langClass)obj1)->trygetMember("bracketequal", func, ((langClass)obj1)->thisscope))
 				{
-					auto func = (langFunction)((langClass)obj1)->thisscope->variable("bracketequal", ((langClass)obj1)->thisscope);
 					if (func is _Function)
 					{
-						return func->call(&obj2);
+						return ((langFunction)func)->call(&obj2);
 					}
 				}
 				break;
@@ -247,31 +260,110 @@ namespace lang
 	}
 	langObject ArrayBuffer_Ctor(NativeFunction* func,std::vector<langObject> &arg)
 	{
-		std::cout << "DEBUg";
-		langClassObject _this = func->thisscope->_this;
+		ArrayBufferClassObject* _this = (ArrayBufferClassObject*)func->thisscope->_this;
 		if (arg.size() != 1)
 		{
 			throw langRuntimeException("ˆø”‚Ì”‚ªˆá‚¤");
 		}
-		int size = Int::toInt(arg[0]);
-		_this->setPointer(new char[size]);
-		memset(_this->getPointer(), 0, size);
+		size_t size = Int::toInt(arg[0]);
+		ArrayBufferSetSize(_this,size);
+		ArrayBufferSetPointer(_this,new char[size]);
+		memset(ArrayBufferGetPointer(_this), 0, size);
 		return NULLOBJECT;
 	}
 	langObject ArrayBuffer_Bracket(NativeFunction* func, std::vector<langObject> &arg)
 	{
-		std::cout << "DEBUg";
 		if (arg.size() != 2)
 		{
 			throw langRuntimeException("ˆø”‚Ì”‚ªˆá‚¤");
 		}
-		langClassObject _this = func->thisscope->_this;
+		ArrayBufferClassObject* _this = (ArrayBufferClassObject*)func->thisscope->_this;
+		unsigned char *ptr = (unsigned char*)ArrayBufferGetPointer(_this);
+		int i1 = Int::toInt(arg[0]);
+		unsigned char *obj = &ptr[i1];
+		langObject i2 = arg[1];
+		if (i2->type->TypeEnum == _Type)
+		{
+			ObjectType* type = (ObjectType*)i2;
+			switch (type->TypeClass.TypeEnum)
+			{
+				case lang::_Object:
+					break;
+				case lang::_Int:
+					return newInt(*(int*)obj);
+				case lang::_String:
+					return newString((char*)*((size_t*)obj));
+				case lang::_Char:
+					return new Char(*(char*)obj);
+				case lang::_WChar:
+					return new WChar(*(wchar_t*)obj);
+				case lang::_Double:
+					return newDouble(*(double*)obj);
+				case lang::_Array:
+					break;
+				case lang::_Class:
+					break;
+				case lang::_ClassObject:
+					break;
+				default:
+					throw langRuntimeException("get arraybuffer •s‰Â");
+					break;
+			}
+		}
 		return NULLOBJECT;
 	}
 	langObject ArrayBuffer_BracketSet(NativeFunction* func, std::vector<langObject> &arg)
 	{
-		std::cout << "DEBUg";
-		langClassObject _this = func->thisscope->_this;
+		if (arg.size() != 2)
+		{
+			throw langRuntimeException("ˆø”‚Ì”‚ªˆá‚¤");
+		}
+		ArrayBufferClassObject* _this = (ArrayBufferClassObject*)func->thisscope->_this;
+		unsigned char *ptr = (unsigned char*)ArrayBufferGetPointer(_this);
+		int i1 = Int::toInt(arg[0]);
+		unsigned char *obj = &ptr[i1];
+		langObject i2 = arg[1];
+		switch (i2->type->TypeEnum)
+		{
+			case lang::_Object:
+				throw langRuntimeException("set arraybuffer •s‰Â");
+				break;
+			case lang::_Int:
+				*((int*)obj) = Int::toInt(i2);
+				break;
+			case lang::_String:
+				;
+				{
+					langString str = (langString)i2;
+					*((size_t*)obj) = (size_t)str->getPointer();
+				}
+				break;
+			case lang::_Char:
+				*((char*)obj) = Char::toChar(i2);
+				break;
+			case lang::_WChar:
+				*((wchar_t*)obj) = WChar::toWChar(i2);
+				break;
+			case lang::_Double:
+				*((char*)obj) = Double::toDouble(i2);
+				break;
+			case lang::_Array:
+				break;
+			case lang::_Class:
+				break;
+			case lang::_Function:
+				break;
+			case lang::_ClassObject:
+				break;
+			case lang::_BuiltFunc:
+				break;
+			case lang::_Type:
+				break;
+			case lang::_Property:
+				break;
+			default:
+				break;
+		}
 		return NULLOBJECT;
 	}
 	ArrayBufferClass::ArrayBufferClass(lang::scope *scopec)
@@ -283,7 +375,7 @@ namespace lang
 		this->member = new membertype_;
 		this->member->push_back(membertypeitem(std::string("ctor"), std::pair<langObject, qualifier>(new NativeFunction(ArrayBuffer_Ctor), public_)));
 		this->member->push_back(membertypeitem(std::string("bracket"), std::pair<langObject, qualifier>(new NativeFunction(ArrayBuffer_Bracket), public_)));
-		this->member->push_back(membertypeitem(std::string("bracketset"), std::pair<langObject, qualifier>(new NativeFunction(ArrayBuffer_BracketSet), public_)));
+		this->member->push_back(membertypeitem(std::string("bracketequal"), std::pair<langObject, qualifier>(new NativeFunction(ArrayBuffer_BracketSet), public_)));
 	}
 	ArrayBufferClassObject::ArrayBufferClassObject() : ClassObject(lang::ClassArrayBufferClass)
 	{
@@ -297,4 +389,84 @@ namespace lang
 		return new ArrayBufferClassObject();
 	}
 	Class *ClassArrayBufferClass;
+	//void ArrayBufferClassObject::setPointer(void* ptr)
+	//{
+	//	langClassObject cc = this;
+	//	while (cc)
+	//	{
+	//		if (cc->staticClass == lang::ClassArrayBufferClass)
+	//		{
+	//			((ArrayBufferClassObject*)cc)->ptr = ptr;
+	//			return;
+	//		}
+	//		cc = (langClassObject)cc->base;
+	//	}
+	//	throw langRuntimeException("what");
+	//}
+	//void* ArrayBufferClassObject::getPointer()
+	//{
+	//	langClassObject cc = this;
+	//	while (cc)
+	//	{
+	//		if (cc->staticClass == lang::ClassArrayBufferClass)
+	//		{
+	//			return ((ArrayBufferClassObject*)cc)->ptr;
+	//		}
+	//		cc = (langClassObject)cc->base;
+	//	}
+	//	throw langRuntimeException("what");
+	//}
+	size_t ArrayBufferGetSize(langClassObject this_)
+	{
+		langClassObject cc = this_;
+		while (cc)
+		{
+			if (cc->staticClass == lang::ClassArrayBufferClass)
+			{
+				return ((ArrayBufferClassObject*)cc)->size;
+			}
+			cc = (langClassObject)cc->base;
+		}
+		throw langRuntimeException("what");
+	}
+	size_t ArrayBufferSetSize(langClassObject this_, size_t t)
+	{
+		langClassObject cc = this_;
+		while (cc)
+		{
+			if (cc->staticClass == lang::ClassArrayBufferClass)
+			{
+				return ((ArrayBufferClassObject*)cc)->size = t;
+			}
+			cc = (langClassObject)cc->base;
+		}
+		throw langRuntimeException("what");
+	}
+	void* ArrayBufferGetPointer(langClassObject this_)
+	{
+		langClassObject cc = this_;
+		while (cc)
+		{
+			if (cc->staticClass == lang::ClassArrayBufferClass)
+			{
+				return ((ArrayBufferClassObject*)cc)->getPointer();
+			}
+			cc = (langClassObject)cc->base;
+		}
+		throw langRuntimeException("what");
+	}
+	void ArrayBufferSetPointer(langClassObject this_, void* ptr)
+	{
+		langClassObject cc = this_;
+		while (cc)
+		{
+			if (cc->staticClass == lang::ClassArrayBufferClass)
+			{
+				((ArrayBufferClassObject*)cc)->setPointer(ptr);
+				return;
+			}
+			cc = (langClassObject)cc->base;
+		}
+		throw langRuntimeException("what");
+	}
 }

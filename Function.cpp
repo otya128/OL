@@ -115,7 +115,7 @@ namespace lang
 		this->type = new Type(f->type->TypeEnum, (char*)f->type->name);
 		this->name = f->name;
 		this->argList = new FunctionArg(*f->argList);
-		this->scope = f->scope;
+		this->scope = this_scope;//fix property‚ÅthisŽQÆ•s‰Â‚¾‚Á‚½‚Ì‚Å//f->scope;
 		this->index = f->index;
 		this->thisscope = this_scope;
 		if (this->thisscope != nullptr)this_scope->refinc();

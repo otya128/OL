@@ -629,8 +629,8 @@ void gui(void)
 				}
 				catch (lang::langExitException ex)
 				{
-					if (!prompt)
-						::exit(ex.code);
+					//if (!prompt)
+					//	::exit(ex.code);
 				}
 				catch (lang::langParseException ex)
 				{
@@ -751,8 +751,8 @@ void gui(void)
 				}
 				catch (lang::langExitException ex)
 				{
-					if (!prompt)
-						::exit(ex.code);
+					//if (!prompt)
+					//	::exit(ex.code);
 				}
 				catch (lang::langUserException ex)
 				{

@@ -32,6 +32,10 @@ namespace lang
 
 	langObject Array::getMember(std::string &name)
 	{
+		return getMember(name.c_str());
+	}
+	langObject Array::getMember(const char* name)
+	{
 		if (name == "length")
 		{
 			return newInt(this->ary.size());

@@ -3,6 +3,7 @@
 #include "lang.h"
 #include "Object.h"
 #include "variable.h"
+#include "langException.h"
 namespace lang
 {
 	class scope;
@@ -28,6 +29,9 @@ namespace lang
 		//スコープ
 		lang::scope* thisscope;
 		Class* base;
+		virtual bool trygetMember(const char* name, langObject& obj, lang::scope *access);
+		virtual langObject getMember(const char* name, lang::scope *access);
+		virtual langObject setMember(const char* name, langObject obj, lang::scope *access);
 		virtual bool trygetMember(std::string& name, langObject& obj, lang::scope *access);
 		virtual langObject getMember(std::string& name, lang::scope *access);
 		virtual langObject setMember(std::string& name, langObject obj, lang::scope *access);
@@ -36,9 +40,9 @@ namespace lang
 	class ClassObject : public Class
 	{
 	public:
-		ClassObject(Class* type);
 		Class* staticClass;
 		virtual std::string toString(void);
+		ClassObject(Class* type);
 		~ClassObject(void);
 	};
 	class ArrayBufferClass : public Class
@@ -50,8 +54,13 @@ namespace lang
 	class ArrayBufferClassObject : public ClassObject
 	{
 	public:
+		size_t size;
 		ArrayBufferClassObject(void);
 		~ArrayBufferClassObject(void);
 	};
+	size_t ArrayBufferGetSize(langClassObject this_);
+	size_t ArrayBufferSetSize(langClassObject this_, size_t);
+	void* ArrayBufferGetPointer(langClassObject this_);
+	void ArrayBufferSetPointer(langClassObject this_, void*);
 }
 #endif

@@ -92,6 +92,7 @@ namespace lang
 	class NativeFunction;
 	extern ArrayType* ArrayTypeObject;
 	extern ObjectType* ObjectTypeObject;
+	extern IntType* IntTypeObject;
 	extern Class *ClassArrayBufferClass;
 }
 #endif

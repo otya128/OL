@@ -33,7 +33,7 @@ namespace lang
 	}
 	Object::Object(void)
 	{
-		this->ptr = this;
+		this->ptr = nullptr;//DEBUF
 #if _DEBUG
 		if (gc_view) std::cout << "add" << this << std::endl;//<<std::endl;
 #endif
@@ -82,6 +82,15 @@ namespace lang
 		return object_tostr;
 	}
 	langObject Object::setMember(std::string& name, langObject obj)
+	{
+		//設定できるメンバなんてない
+		return nullptr;
+	}
+	langObject Object::getMember(const char* name)
+	{
+		return object_tostr;
+	}
+	langObject Object::setMember(const char* name, langObject obj)
 	{
 		//設定できるメンバなんてない
 		return nullptr;
@@ -176,12 +185,21 @@ namespace lang
 	{
 		return *((std::string*)(this->ptr));
 	}
+	void* String::getPointer(void)
+	{
+		return (void*)((std::string*)this->ptr)->c_str();
+	}
 	langObject String::getMember(std::string& name)
+	{
+		return getMember(name.c_str());
+	}
+	langObject String::getMember(const char* name)
 	{
 		if (name == "ToString")
 			return object_tostr;
 		else if (name == "Substring")
 			return string_substr;
+		return NULLOBJECT;
 	}
 
 	int Int::toInt(langObject obj)
@@ -309,7 +327,7 @@ namespace lang
 #define LANG_OPERA_DEBUG_SINGLE_CHECK if (!obj1)throw langRuntimeException(__FUNCTION__"式がありません。");
 #endif
 #define OPERA2ARG(name) {auto clas = (langClassObject)obj1;\
-	auto func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
+	auto func = (langFunction)clas->getMember(name, clas->thisscope); \
 	if (func != nullptr && func is _Function)\
 	{\
 	auto vec = new std::vector<langObject>(); \
@@ -329,7 +347,7 @@ namespace lang
 			else\
 			throw langRuntimeException((std::string("関数") + name + "が定義されていません").c_str()); }
 #define OPERA2ARGSINGLE(name) {auto clas = (langClassObject)obj1;\
-	auto func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
+	auto func = (langFunction)clas->getMember(name, clas->thisscope); \
 	if (func != nullptr && func is _Function)\
 	{auto arg = std::vector<langObject>(); \
 	auto ret = func->call(&arg); \
@@ -339,7 +357,7 @@ namespace lang
 			throw langRuntimeException((std::string("関数") + name + "が定義されていません").c_str()); }
 
 #define OPERA2ARG2(name) {auto clas = (langClassObject)obj2;\
-	auto func = (langFunction)clas->thisscope->variable(name, clas->thisscope); \
+	auto func = (langFunction)clas/*->thisscope->variable*/->getMember(name, clas->thisscope); \
 	if (func != nullptr && func is _Function)\
 	{\
 	auto vec = new std::vector<langObject>(); \
@@ -417,7 +435,7 @@ namespace lang
 					return newString((obj1->toString() + obj2->toString()));
 				case PreType::_ClassObject:
 				{auto clas = (langClassObject)obj1;
-				auto func = (langFunction)clas->thisscope->variable("plus", clas->thisscope);
+				auto func = (langFunction)clas->getMember("plus", clas->thisscope);
 				if (func != nullptr && func is _Function)
 				{
 					auto vec = new std::vector<langObject>();
@@ -600,7 +618,7 @@ namespace lang
 					;
 					{
 						auto clas = (langClassObject)obj1;
-						auto func = (langFunction)clas->thisscope->variable("equal", clas->thisscope);
+						auto func = (langFunction)clas->getMember("equal", clas->thisscope);
 						if (func != nullptr && func is _Function)
 						{
 							auto vec = new std::vector<langObject>();
@@ -646,7 +664,7 @@ namespace lang
 					if (obj2 is _ClassObject)
 					{
 						auto clas = (langClassObject)obj2;
-						auto func = (langFunction)clas->thisscope->variable("leftShift", clas->thisscope);
+						auto func = (langFunction)clas->getMember("leftShift", clas->thisscope);
 						if (func != nullptr && func is _Function)
 						{
 							auto vec = new std::vector<langObject>();
@@ -674,7 +692,7 @@ namespace lang
 					if (obj2 is _ClassObject)
 					{
 						auto clas = (langClassObject)obj2;
-						auto func = (langFunction)clas->thisscope->variable("leftShift", clas->thisscope);
+						auto func = (langFunction)clas->getMember("leftShift", clas->thisscope);
 						if (func != nullptr && func is _Function)
 						{
 							auto vec = new std::vector<langObject>();

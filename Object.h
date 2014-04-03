@@ -54,8 +54,10 @@ namespace lang
 	public:
 		Type* type;
 		void* getPointer();
-		void setPointer(void* ptr);
+		virtual void setPointer(void* ptr);
 		virtual std::string toString();
+		virtual langObject getMember(const char* name);
+		virtual langObject setMember(const char* name, langObject obj);
 		virtual langObject getMember(std::string& name);
 		virtual langObject setMember(std::string& name, langObject obj);
 		Object(void* ptr);
@@ -176,7 +178,8 @@ namespace lang
     class String : public Object
     {
     public:
-        virtual langObject getMember(std::string& name);
+		virtual langObject getMember(std::string& name);
+		virtual langObject getMember(const char* name);
         std::string* getString();
         void setString(std::string* i);
 		String(std::string* i);
@@ -184,7 +187,8 @@ namespace lang
 		String(std::string i);
 		String(char* i);
         ~String(void);
-        virtual std::string toString();
+		virtual std::string toString();
+		void* getPointer();
     };
     
     class Char : public Object

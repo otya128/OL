@@ -56,7 +56,7 @@ namespace lang{
 		auto f = this->_variable.find(name);
 		if (f != this->_variable.end())
 		{
-			if (f->second.first is _Property)
+			if (f->second.first && f->second.first is _Property)
 			{
 				return ((Property*)f->second.first)->Get(this,access);
 			}
@@ -124,7 +124,7 @@ namespace lang{
 		}
         if(f != this->_variable.end())
 		{
-			if (f->second.first is _Property)
+			if (f->second.first && f->second.first is _Property)
 			{
 				return ((Property*)f->second.first)->Set(object, this, access);
 			}

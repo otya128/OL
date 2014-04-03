@@ -50,6 +50,7 @@ namespace lang
 {
 	ArrayType* ArrayTypeObject;
 	ObjectType* ObjectTypeObject;
+	IntType* IntTypeObject;
 #define HASHCLASS   1107
 #define HASHTHIS    659
 #define HASHNEW     339
@@ -605,13 +606,16 @@ namespace lang
 			this->runner->variable.add("string", new StringType(), qualifier::const_);
 			ObjectTypeObject = new lang::ObjectType();
 			this->runner->variable.add("object", ObjectTypeObject, qualifier::const_);
-			this->runner->variable.add("int", new IntType(), qualifier::const_);
+			IntTypeObject = new lang::IntType();
+			this->runner->variable.add("int", IntTypeObject, qualifier::const_);
 			this->runner->variable.add("double", new DoubleType(), qualifier::const_);
 			this->runner->variable.add("char", new CharType(), qualifier::const_);
 			this->runner->variable.add("wchar", new WCharType(), qualifier::const_);
 			ArrayTypeObject = new ArrayType();
 			this->runner->variable.add("array", ArrayTypeObject, qualifier::const_);
 			this->runner->variable.add("Array", ArrayTypeObject, qualifier::const_);
+			ClassArrayBufferClass = new ArrayBufferClass(this->runner);
+			this->runner->variable.add("OL::ArrayBuffer", ClassArrayBufferClass, qualifier::const_);
 			lang::gc = new gabekore(this->runner);
 		}
 		lang::stack<BlockStruct> funcStack;

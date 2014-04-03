@@ -433,19 +433,110 @@ namespace lang
 		}
 		extern "C"
 		{
-			typedef int(__cdecl  *dynamicfunc)(void);
+			typedef int(__stdcall  *dynamicfunc)(void);
+		}
+	}
+	int object_distance(langObject m, langObject n);
+	namespace lib
+	{
+		struct rettype
+		{
+			union
+			{
+				int i;
+				int hl[2];
+				long long hlhl;
+				double d;
+				char c;
+				wchar_t w;
+				void* p;
+			};
+		};
+		ArrayBufferClassObject *getArrayBufferClassObject(langClassObject cc)
+		{
+			while (cc)
+			{
+				if (cc->staticClass == lang::ClassArrayBufferClass)
+				{
+					return (ArrayBufferClassObject*)cc;
+				}
+				cc = (langClassObject)cc->base;
+			}
 		}
 		langObject dynamiccall(std::vector<langObject> arg)
 		{
+			size_t _ESP;
+			__asm
+			{
+				mov _ESP, esp;
+			}
 			HMODULE hDll;
 			std::string str = arg[0]->toString();
+			int retsize = 4;
+			ObjectType* type = (ObjectType*)IntTypeObject;
+			lang::ArrayBufferClassObject* arraybuf = false;
+			bool is_va_arg = false;
+			if (arg[1]->type->TypeEnum == _Type)
+			{
+				type = (ObjectType*)arg[1];
+				switch (type->TypeClass.TypeEnum)
+				{
+					case _Int:
+						retsize = sizeof(int);
+						break;
+					case _Double:
+						retsize = sizeof(double);
+						break;
+					case _Char:
+						retsize = sizeof(char);
+						break;
+					case _WChar:
+						retsize = sizeof(wchar_t);
+						break;
+					case _String:
+						retsize = sizeof(char*);
+						break;
+				}
+				arg.erase(arg.begin()++);
+			}
+			else if (arg[1]->type->TypeEnum == _ClassObject)
+			{
+				if (object_distance(arg[1], lang::ClassArrayBufferClass) != INT_MAX)
+				{
+					auto cc = (langClassObject)arg[1];
+					while (cc)
+					{
+						if (cc->staticClass == lang::ClassArrayBufferClass)
+						{
+							retsize = ArrayBufferGetSize(((lang::ArrayBufferClassObject*)cc));
+							arraybuf = ((lang::ArrayBufferClassObject*)arg[1]);
+						}
+						cc = (langClassObject)cc->base;
+					}
+				}
+				else
+					throw langRuntimeException("OL::ArrayBufferを継承したクラスのみ使えます[未実装:ArrayBufferable]");
+				arg.erase(arg.begin()++);
+			}
 			std::string funcstr = arg[1]->toString();
+			{
+				int ret = funcstr.find(':');
+				if (ret != -1)
+				{
+					if (funcstr.substr(ret + 1) == "va_arg")
+					{
+						is_va_arg = true;
+					}
+					funcstr = funcstr.substr(0, ret);
+				}
+			}
 			hDll = LoadLibraryA(str.c_str());
 			if (hDll == NULL) {
 				throw_langRuntimeException("fail LoadLibraryA(\"%s\")", str.c_str());
 			}
-			dynamicfunc test = (dynamicfunc)GetProcAddress(hDll, funcstr.c_str());
-			if (test == NULL) {
+
+			dynamicfunc test_ = (dynamicfunc)GetProcAddress(hDll, funcstr.c_str());
+			if (test_ == NULL) {
 				throw_langRuntimeException("fail GetProcAddress(\"%s\")", funcstr.c_str());
 			}
 			int j;
@@ -453,30 +544,40 @@ namespace lang
 			char cj;
 			wchar_t wj;
 			const char* sj;
-			int result;
-			if (arg.size() == 3 && arg[2]->type->TypeEnum == _Int)
+			int absiz;
+			int *ab;
+			void *resultaddr = nullptr;
+			int stacksiz = 0;
+			if ((retsize >= 5 && retsize <= 7) || retsize >= 9)
 			{
-				j = Int::toInt(arg[2]);
-				__asm
-				{
-					mov eax, j;
-				}
-				test();
-				__asm
-				{
-					mov result, eax;
-				}
-				return newInt(result);
+				resultaddr = new char[retsize];
 			}
+			rettype result;
+			langObject resultobj = NULLOBJECT;
+			/*if (arg.size() == 3 && arg[2]->type->TypeEnum == _Int)
+			{
+			j = Int::toInt(arg[2]);
+			__asm
+			{
+			mov eax, j;
+			}
+			test();
+			__asm
+			{
+			mov result, eax;
+			}
+			return newInt(result);
+			}*/
 			for (int i = arg.size() - 1; i >= 2; i--)
 				switch (arg[i]->type->TypeEnum)
-				{
+			{
 					case _Int:
 						j = Int::toInt(arg[i]);//Int::toInt(arg[i]);
 						__asm
 						{
 							push j;
 						}
+						stacksiz += 4;
 						break;
 					case _Double:
 						dj = Double::toDouble(arg[i]);//Int::toInt(arg[i]);
@@ -484,6 +585,7 @@ namespace lang
 						{
 							push dj;
 						}
+						stacksiz += 4;
 						break;
 					case _Char:
 						cj = Char::toChar(arg[i]);//Int::toInt(arg[i]);
@@ -491,6 +593,7 @@ namespace lang
 						{
 							push cj;
 						}
+						stacksiz += 4;
 						break;
 					case _WChar:
 						wj = WChar::toWChar(arg[i]);//Int::toInt(arg[i]);
@@ -498,6 +601,7 @@ namespace lang
 						{
 							push wj;
 						}
+						stacksiz += 4;
 						break;
 					case _String:
 						sj = ((langString)arg[i])->getString()->c_str();
@@ -505,19 +609,143 @@ namespace lang
 						{
 							push sj;
 						}
+						stacksiz += 4;
+						break;
+					case _ClassObject:
+						if (object_distance(arg[i], lang::ClassArrayBufferClass) != INT_MAX)
+						{
+							absiz = ArrayBufferGetSize(((lang::ArrayBufferClassObject*)arg[i]));
+							absiz += absiz % 4;
+							ab = (((int *)ArrayBufferGetPointer((lang::ArrayBufferClassObject*)arg[i]))) + (absiz / 4);
+							for (j = absiz; j >= 0; j -= 4)
+							{
+								resultaddr = (void*)*ab;
+								__asm
+								{
+									push resultaddr;
+								}
+								ab--;
+								stacksiz += 4;
+							}
+						}
+						else
+							throw langRuntimeException("OL::ArrayBufferを継承したクラスのみ使えます[未実装:ArrayBufferable]");
 						break;
 			}
-			result = test();
+			resultaddr = nullptr;
+			switch (retsize)
+			{
+				case 1:
+					__asm
+					{
+						call test_;
+						mov result.c, al;
+					}
+					resultobj = newChar(result.c);
+					break;
+				case 2:
+					__asm
+					{
+						call test_;
+						mov result.w, ax;
+					}
+					resultobj = new WChar(result.w);
+					break;
+				case 4:
+					__asm
+					{
+						call test_;
+						mov result.i, eax;
+					}
+					resultobj = newInt(result.i);
+					//result.i = test_();
+					break;
+				case 8:
+					__asm
+					{
+						call test_;
+						mov result.hl[0], eax;
+						mov result.hl[1], edx;
+					}
+					break;
+				default:
+					__asm
+					{
+						push resultaddr;
+						call test_;
+					}
+					break;
+			}
+			if (type->TypeClass.TypeEnum == _String)
+			{
+				resultobj = newString((char*)result.i);
+			}
 			/*__asm
 			{
-				mov result, eax;
+			mov result, eax;
 			}*/
-			for (int i = arg.size() - 1; i >= 2; i--)
+			if (is_va_arg)
+			{
+				__asm
+				{
+					add esp, stacksiz;
+				}
+			}
+			if (arraybuf)
+			{
+				auto ret = arraybuf->CreateObject(arraybuf->staticClass);
+				arg.clear();
+				if (resultaddr)
+				{
+					ArrayBufferSetPointer(((ArrayBufferClassObject*)ret),resultaddr);
+				}
+				else
+				{
+					ArrayBufferSetPointer(((ArrayBufferClassObject*)ret),new char[retsize]);
+					auto saet = (langFunction)ret->getMember("bracketequal", ret->thisscope);
+					if (saet is _Function)
+					{
+						arg.clear();
+						arg.push_back(FALSEOBJECT);
+						switch (retsize)
+						{
+							case 8:
+								arg.push_back(newInt(result.hl[0]));
+								saet->call(&arg);
+								arg.clear();
+								arg.push_back(TRUEOBJECT);
+								arg.push_back(newInt(result.hl[1]));
+								break;
+							default:
+								arg.push_back(resultobj);
+								break;
+						}
+						ArrayBufferSetSize(((ArrayBufferClassObject*)ret), retsize);
+						saet->call(&arg);
+					}
+				}
+				resultobj = ret;
+
+			}
+			/*for (int i = arg.size() - 1; i >= 2; i--)
+		__asm
+		{
+		pop j;
+		}*/
+			size_t _ESP2;
 			__asm
 			{
-				pop j;
+				mov _ESP2, esp;
 			}
-			return newInt(result);
+			if (_ESP != _ESP2)
+			{
+				std::cerr << "error 不正なESP 引数か呼び出し規則間違ってるかも 可変長引数なら:va_argを付ける" << std::endl;
+				_asm
+				{
+					mov esp, _ESP;
+				}
+			}
+			return resultobj;
 		}
 	}
 }
