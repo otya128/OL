@@ -1,3 +1,12 @@
+var rettype = new OL::ArrayBuffer(4 * 4)
+print('\n',dynamiccall("D:/Visual Studio 2013/Projects/OLRCLR/Debug/OLRCLR.dll",rettype,"?callbackary@@YG?AUarybuftest@@P6A?AU1@U1@@Z@Z",
+(VarPtr(
+	tonativefunc(
+	((rettype i)=>{i[12] = 13;return i;}),rettype
+	)
+	)
+))[12,int],"\n");
+print(rettype[4,int])
 print(dynamiccall("D:/Visual Studio 2013/Projects/OLRCLR/Debug/OLRCLR.dll","?callbacktostr@@YGPADP6APADH@Z@Z",
 (VarPtr(
 	tonativefunc(

@@ -719,7 +719,14 @@ namespace lang
 						break;
 			}
 			resultaddr = nullptr;
-
+			if (retsize > 8)
+			{
+				auto ret = arraybuf->CreateObject(arraybuf->staticClass);
+				arg.clear();
+				ArrayBufferSetPointer(((ArrayBufferClassObject*)ret), new char[retsize]);
+				ArrayBufferSetSize(((ArrayBufferClassObject*)ret), retsize);
+				resultaddr = ret;
+			}
 			switch (retsize)
 			{
 				case 1:
@@ -804,6 +811,7 @@ namespace lang
 				arg.clear();
 				if (resultaddr)
 				{
+					ArrayBufferSetNonUnique(((ArrayBufferClassObject*)ret), true);
 					ArrayBufferSetPointer(((ArrayBufferClassObject*)ret), resultaddr);
 				}
 				else
@@ -854,12 +862,10 @@ namespace lang
 			}
 			return resultobj;
 		}
-		langObject _sizeof(std::vector<langObject> arg)
+		size_t _sizeof(langObject arg)
 		{
-			auto a = ToNativeFunc(arg);
 			int retsize = 1;
-			if (retsize)std::cout << ((int(*)(int))a)(1);
-			switch (arg[0]->type->TypeEnum)
+			switch (arg->type->TypeEnum)
 			{
 				case _Int:
 					retsize = sizeof(int);
@@ -876,16 +882,20 @@ namespace lang
 				case _String:
 					retsize = sizeof(char*);
 					break;
-				case _Class:
-					if (object_distance(arg[0], lang::ClassArrayBufferClass) != INT_MAX)
+				case _ClassObject:
+					if (object_distance(arg, lang::ClassArrayBufferClass) != INT_MAX)
 					{
-						retsize = ArrayBufferGetSize(((lang::ArrayBufferClassObject*)arg[0]));
+						retsize = ArrayBufferGetSize(((lang::ArrayBufferClassObject*)arg));
 						break;
 					}
 				default:
 					retsize = sizeof(size_t);
 			}
-			return newInt(retsize);
+			return (retsize);
+		}
+		langObject _sizeof(std::vector<langObject> arg)
+		{
+			return newInt(_sizeof(arg[0]));
 		}
 		langObject tonativefunc(std::vector<langObject> arg)
 		{
@@ -927,9 +937,18 @@ namespace lang
 			{
 				throw langRuntimeException("引数の数がToNativeFunc");
 			}
-			if (arg[0] is _Function && (arg[1] is _Type || arg[1] == NULLOBJECT))
+			if (arg[0] is _Function && (arg[1] is _Type || arg[1] == NULLOBJECT || arg[1] is _ClassObject))
 			{
 				int arg_stack = 0x08;// +4 * 3;
+				if (_sizeof(arg[1]) > 8)
+				{
+					//隠しパラメータが来るのでarg_stackを増やしておく
+					//*body = 0x8b; body++;						//mov eax
+					//*body = 0x45; body++;						//[ebp +
+					//*body = (unsigned char)arg_stack; body++;	//       0]
+					//*body = PUSH_EAX; body++;
+					//arg_stack += 4;
+				}
 				langFunction f = (langFunction)arg[0];
 				//*body = 0xA1; body++;//mov eax,[imm]
 				//TODO:32bit ptr
@@ -945,14 +964,25 @@ namespace lang
 							{
 								size_t absiz = ArrayBufferGetSize(((lang::ArrayBufferClassObject*)typeo));
 								absiz += absiz % 4;
+								//逆さにする必要があったので最初から逆で
+								arg_stack += absiz;
 								for (int j = absiz; j > 0; j -= 4)
 								{
 									*body = 0x8b; body++;						//mov eax
 									*body = 0x45; body++;						//[ebp +
 									*body = (unsigned char)arg_stack; body++;	//       0]
 									*body = PUSH_EAX; body++;
-									arg_stack += 4;
+									arg_stack -= 4;
 								}
+								arg_stack += absiz;
+								//for (int j = absiz; j > 0; j -= 4)
+								//{
+								//	*body = 0x8b; body++;						//mov eax
+								//	*body = 0x45; body++;						//[ebp +
+								//	*body = (unsigned char)arg_stack; body++;	//       0]
+								//	*body = PUSH_EAX; body++;
+								//	arg_stack += 4;
+								//}
 							}
 							else
 							{
@@ -993,12 +1023,23 @@ namespace lang
 						}
 						*body = PUSH_EAX; body++;
 						arg_stack += 4;
+						//隠しパラメータ
+						//8byteを超えると
+						if (_sizeof(arg[1]) > 8)
+						{
+							*body = 0x8b; body++;						//mov eax
+							*body = 0x45; body++;						//[ebp +
+							*body = (unsigned char)/*arg_stack*/0x8; body++;	   //       0]
+							*body = PUSH_EAX; body++;
+							arg_stack += 4;
+						}
 					}
 					else
 					{
 						throw langRuntimeException("関数の引数に型が設定されていません。");
 					}
 				}
+				//ArgListの大きさを引数に入れる
 				*body = 0xB8/*0xA1*/; body++;//mov eax,[imm]
 				*body = (unsigned char)f->argList->size(); body++;
 				*body = 0; body++;
@@ -1006,6 +1047,7 @@ namespace lang
 				*body = 0; body++;
 				*body = PUSH_EAX; body++; arg_stack += 4;
 				//*body = PUSH_EAX; body++; arg_stack += 4;
+				//関数を引数に入れる
 				ptr = (size_t)f;
 				*body = 0xB8/*0xA1*/; body++;//mov eax,[imm]
 				for (int i = 0; i < 4; i++)
@@ -1015,6 +1057,7 @@ namespace lang
 					body++;// >>
 				}
 				*body = PUSH_EAX; body++; arg_stack += 4;
+				//戻り値を引数に入れる
 				ptr = (size_t)arg[1];
 				*body = 0xB8/*0xA1*/; body++;//mov eax,[imm]
 				for (int i = 0; i < 4; i++)
@@ -1089,6 +1132,9 @@ namespace lang
 			}
 			int j;
 			int n;
+			void*ptr;
+			void*ptrret = va_arg(args, void*);
+			//(void *)((args += ((16 + sizeof(int)-1) & ~(sizeof(int)-1)) - ((16 + sizeof(int)-1) & ~(sizeof(int)-1))));
 			for (j = 0; j < va_size; j++)
 			{
 				obj = va_arg(args, langObject);
@@ -1112,15 +1158,43 @@ namespace lang
 						case _WChar:
 							arg.push_back(new WChar(va_arg(args, wchar_t)));
 							break;
-						case _Class:
-							n = ArrayBufferGetSize((langClassObject)obj);
-							argarybuf = ((langClassObject)obj)->staticClass->CreateObject(ClassArrayBufferClass);
-							ArrayBufferSetPointer(argarybuf, /***/(void *)((args += ((n + sizeof(int)-1) & ~(sizeof(int)-1)) - ((n + sizeof(int)-1) & ~(sizeof(int)-1)))));
-							ArrayBufferSetSize(argarybuf, n);
-							ArrayBufferSetNonUnique(argarybuf, true);
-							
-								break;
 					}
+				}
+				if (obj is _ClassObject)
+				{
+					n = ArrayBufferGetSize((langClassObject)obj);
+					argarybuf = ((langClassObject)obj)->staticClass->CreateObject(ClassArrayBufferClass);
+					ArrayBufferSetPointer(argarybuf, /***/(void *)args);//((n + sizeof(int)-1) & ~(sizeof(int)-1)) - ((n + sizeof(int)-1) & ~(sizeof(int)-1)))));
+					((args += n));
+					ArrayBufferSetSize(argarybuf, n);
+					ArrayBufferSetNonUnique(argarybuf, true);//freeしない
+					arg.push_back(argarybuf);
+				}
+			}
+			if (ret->type->TypeEnum == _ClassObject)
+			{
+				argarybuf = (langClassObject)f->call(&arg);
+				n = ArrayBufferGetSize(argarybuf);
+				ptr = ArrayBufferGetPointer(argarybuf);
+				if (n > 8)
+				{
+					//va_arg(args, void*);
+					memcpy(/**(int**)args*/ptrret, ptr, n);
+					va_end(args);
+					__asm
+					{
+						jmp end;
+					}
+				}
+				else
+				{
+					memcpy(&i, ptr, n);
+					if (n > 4)
+					{
+						__asm{mov eax, i.hl[0]
+							mov edx, i.hl[1]}__asm{jmp end}
+					}
+					__asm{mov eax, i.i }__asm{jmp end}
 				}
 			}
 			if (ret->type->TypeEnum == _Type)
@@ -1163,41 +1237,6 @@ namespace lang
 					case _String:
 						i.p = f->call(&arg)->getPointer();
 						__asm{mov eax, i.i }__asm{jmp end}
-						/*
-					case _ClassObject:
-					auto ret = arraybuf->CreateObject(arraybuf->staticClass);
-					arg.clear();
-					if (resultaddr)
-					{
-					ArrayBufferSetPointer(((ArrayBufferClassObject*)ret), resultaddr);
-					}
-					else
-					{
-					ArrayBufferSetPointer(((ArrayBufferClassObject*)ret), new char[retsize]);
-					auto saet = (langFunction)ret->getMember("bracketequal", ret->thisscope);
-					if (saet is _Function)
-					{
-					arg.clear();
-					arg.push_back(FALSEOBJECT);
-					switch (retsize)
-					{
-					case 8:
-					arg.push_back(newInt(result.hl[0]));
-					saet->call(&arg);
-					arg.clear();
-					arg.push_back(TRUEOBJECT);
-					arg.push_back(newInt(result.hl[1]));
-					break;
-					default:
-					arg.push_back(resultobj);
-					break;
-					}
-					ArrayBufferSetSize(((ArrayBufferClassObject*)ret), retsize);
-					saet->call(&arg);
-					}
-					}
-					resultobj = ret;
-					break;*/
 				}
 			}
 			va_end(args);
