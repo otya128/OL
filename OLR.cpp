@@ -1032,6 +1032,7 @@ namespace lang
 							*body = (unsigned char)/*arg_stack*/0x8; body++;	   //       0]
 							*body = PUSH_EAX; body++;
 							arg_stack += 4;
+							// & 0x40000000U
 						}
 					}
 					else
@@ -1044,7 +1045,7 @@ namespace lang
 				*body = (unsigned char)f->argList->size(); body++;
 				*body = 0; body++;
 				*body = 0; body++;
-				*body = 0; body++;
+				*body = _sizeof(arg[1]) > 8 ? 0x40 : 0; body++;
 				*body = PUSH_EAX; body++; arg_stack += 4;
 				//*body = PUSH_EAX; body++; arg_stack += 4;
 				//ŠÖ”‚ğˆø”‚É“ü‚ê‚é
@@ -1133,7 +1134,12 @@ namespace lang
 			int j;
 			int n;
 			void*ptr;
-			void*ptrret = va_arg(args, void*);
+			void*ptrret = 0;
+			if (va_size & 0x40000000U)
+			{
+				va_size &= 0xBFFFFFFFL;
+				ptrret = va_arg(args, void*);
+			}
 			//(void *)((args += ((16 + sizeof(int)-1) & ~(sizeof(int)-1)) - ((16 + sizeof(int)-1) & ~(sizeof(int)-1))));
 			for (j = 0; j < va_size; j++)
 			{
