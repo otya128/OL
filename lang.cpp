@@ -136,7 +136,8 @@ namespace lang
 	{
 
 	}
-	bool running, prompt = false;
+	int running;
+	bool prompt = false;
 	namespace lib{ void init(); }
 	Type* ObjectTypeClass = new Type(PreType::_Object);
 	langObject NULLOBJECT = nullptr;//ewObject(nullptr);
@@ -724,7 +725,7 @@ void gui(void)
 #endif
 					//#endif
 					// lang::NULLOBJECT = new lang::Object();
-					running = true;
+					running += 1;
 					pars->runner->refinc();
 					auto result = pars->Run();//pars->runner->run();
 					if (result && result != NULLOBJECT) std::cout << result->toString();// << std::endl;
@@ -790,7 +791,12 @@ void gui(void)
 					if (lang::gc_view)std::cerr << "異常終了 変数や定数を削除" << std::endl;
 				}
 #endif
-				running = false;
+				running -= 1;
+#if _WIN32
+				while (running)Sleep(100);
+#else
+				while (running);
+#endif
 				if (endpause_)std::getchar();
 				clock_t start, end;
 				start = clock();

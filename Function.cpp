@@ -334,6 +334,14 @@ namespace lang
 	Function::Function()
 	{
 	}
+	OverloadFunction::OverloadFunction(OverloadFunction* f, lang::scope* s) : Function(f,s)
+	{
+		this->functions = f->functions;
+		for (int i = 0; i < f->functions.size(); i++)
+		{
+			f->functions[i] = CopyFunction(f->functions[i], s);
+		}
+	}
 	OverloadFunction::OverloadFunction(langFunction f1, langFunction f2) : Function()
 	{
 		this->Ftype = functype::overload;
@@ -501,6 +509,10 @@ namespace lang
 	{
 		if (f->isnative())
 			return new NativeFunction((NativeFunction*)f, this_scope);
+		if (f->islambda())
+			return new Lambda((Lambda*)f, this_scope);
+		if (f->isoverload())
+			return new OverloadFunction((OverloadFunction*)f, this_scope);
 		return new Function(f, this_scope);
 	}
 	langFunction Function::CopyFunction(NativeFunction* f, lang::scope* this_scope)

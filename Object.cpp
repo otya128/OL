@@ -33,7 +33,7 @@ namespace lang
 	}
 	Object::Object(void)
 	{
-		this->ptr = nullptr;//DEBUF
+		this->ptr = this;
 #if _DEBUG
 		if (gc_view) std::cout << "add" << this << std::endl;//<<std::endl;
 #endif

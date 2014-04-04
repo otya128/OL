@@ -528,17 +528,19 @@ namespace lang
     }
     LRESULT OLWindowProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
     {
-        OLWindow* win = static_cast<OLWindow*>(OLWindow::windowmap[hWnd]);
+		OLWindow* win;
         switch( msg )
         {
         case WM_COMMAND:
-            std::cout<< OLWindow::windowmap[(HWND)lp]<<win;
+            //std::cout<< OLWindow::windowmap[(HWND)lp]<<win;
             break;
         case WM_LBUTTONUP:
-            win->OnClick(eventargs<OLWindow*>(win));
+			win = static_cast<OLWindow*>(OLWindow::windowmap[hWnd]);
+			if (win)win->OnClick(eventargs<OLWindow*>(win));
             break;
         case WM_SIZING:
-            win->OnSizeChange(eventargs<OLWindow*>(win));
+			win = static_cast<OLWindow*>(OLWindow::windowmap[hWnd]);
+			if (win)win->OnSizeChange(eventargs<OLWindow*>(win));
             break;
         case WM_DESTROY:  // ウィンドウを破棄するとき
             PostQuitMessage( 0 );

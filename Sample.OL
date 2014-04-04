@@ -1,3 +1,106 @@
+print(dynamiccall("D:/Visual Studio 2013/Projects/OLRCLR/Debug/OLRCLR.dll","?callbacktostr@@YGPADP6APADH@Z@Z",
+(VarPtr(
+	tonativefunc(
+	((int i)=>{return ""+i;}),string
+	)
+	)
+)));
+exit(0);
+class CArray : OL::ArrayBuffer
+{
+	CArray(array ary)
+	{
+		base.ctor(512);
+		int size = 0;
+		foreach(var i in ary)
+		{
+			this[size] = i;
+			size += sizeof(i);
+		}
+		this[size] = 0;
+		//this[0] = " Hello,NET!";
+		//this[4] = 0;
+	}
+}
+class MSG : OL::ArrayBuffer
+{
+	MSG()
+	{
+		base.ctor(40);
+	}
+	var        hwnd
+	{
+		get
+		{
+			return this[0,int]
+		}
+		set
+		{
+			this[0]=value
+		}
+	}
+    UINT        message
+	{
+		get
+		{
+			return this[4,int]
+		}
+	}
+    WPARAM      wParam
+	{
+		get
+		{
+			return this[8,int]
+		}
+	}
+    LPARAM      lParam
+	{
+		get
+		{
+			return this[16,int]
+		}
+	}
+    DWORD       time
+	{
+		get
+		{
+			return this[24,int]
+		}
+	}
+    POINT       ptX
+	{
+		get
+		{
+			return this[32,int]
+		}
+	}
+	POINT       ptY
+	{
+		get
+		{
+			return this[40,int]
+		}
+	}
+}
+var hinst = dynamiccall("KERNEL32.DLL","GetModuleHandleA",0);
+var hwnd = dynamiccall("user32.DLL","CreateWindowExA",0,"OLWindow","OLWindow",/*-2147483648*/13565952,0,0,100,100,0,0,hinst,0)
+dynamiccall("user32.DLL","ShowWindow",hwnd,5);
+dynamiccall("user32.DLL","UpdateWindow",hwnd);
+	while( true )
+	{
+		var msg = new MSG();
+		BOOL ret = dynamiccall("user32.DLL","GetMessageA", VarPtr(msg), 0, 0, 0 );
+		if( ret == 0 || ret == -1 )
+		{
+			break;
+		}
+		else
+		{
+			dynamiccall("user32.DLL","TranslateMessage", VarPtr(msg) );
+			dynamiccall("user32.DLL","DispatchMessageA", VarPtr(msg) );
+		}
+	}
+dynamiccall("D:/Visual Studio 2013/Projects/OLRCLR/Debug/OLRCLR.dll","?callnet@@YGXPAD0PAPAD@Z","System.Console","WriteLine",VarPtr(new CArray(["{0}, {1}","Hello", ".NET"])));
 class CInt : OL::ArrayBuffer
 {
 	public var Get

@@ -10,7 +10,7 @@
 namespace lang
 {
 #ifdef CPP11
-    typedef std::recursive_mutex GCmutex;
+    typedef std::/*recursive_*/mutex GCmutex;
 #endif
     class scope;
 	//‚±‚ÌƒNƒ‰ƒX‚Í

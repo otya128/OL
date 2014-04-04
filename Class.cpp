@@ -379,10 +379,11 @@ namespace lang
 	}
 	ArrayBufferClassObject::ArrayBufferClassObject() : ClassObject(lang::ClassArrayBufferClass)
 	{
+		nonunique = false;
 	}
 	ArrayBufferClassObject::~ArrayBufferClassObject()
 	{
-		if (this->ptr != this) delete this->ptr;
+		if (this->ptr != this && !nonunique) delete this->ptr;
 	}
 	langClassObject ArrayBufferClass::CreateObject(Class* type)
 	{
@@ -464,6 +465,19 @@ namespace lang
 			{
 				((ArrayBufferClassObject*)cc)->setPointer(ptr);
 				return;
+			}
+			cc = (langClassObject)cc->base;
+		}
+		throw langRuntimeException("what");
+	}
+	bool ArrayBufferSetNonUnique(langClassObject this_, bool unique)
+	{
+		langClassObject cc = this_;
+		while (cc)
+		{
+			if (cc->staticClass == lang::ClassArrayBufferClass)
+			{
+				return ((ArrayBufferClassObject*)cc)->nonunique = true;
 			}
 			cc = (langClassObject)cc->base;
 		}

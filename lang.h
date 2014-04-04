@@ -4,7 +4,7 @@
 //#pragma once
 //#define OL_GTK
 //#define CPP11 1
-#define OL_GTK 1
+//#define OL_GTK 1
 int main(int, char**);
 #define ENDFOREACH }
 #ifdef CPP11
@@ -19,7 +19,7 @@ namespace lang
 	extern bool ahogc, parserresult, leakcheck, pause, prompt;
 	extern bool gc_view;
 	extern int error_level;
-	extern bool running;
+	extern int running;
 #ifdef _MSC_VER
 #define v___  
 #define __v(x)  static_assert(x == 'ω', "KANI ERROR");
@@ -68,9 +68,9 @@ namespace lang
 #define newFunction(a,a1,a2,a3) new lang::Function(a,a1,a2,a3)
 #define newClass(a,a1,a2,a3,a4) new lang::Class(a,a1,a2,a3,a4)
 #define newClassObject(a) a->CreateObject(a)
-#define newArray(a) new lang::Array(a);
-#define newChar(a) new lang::Char(a);
-#define newDouble(a) new lang::Double(a);
+#define newArray(a) new lang::Array(a)
+#define newChar(a) new lang::Char(a)
+#define newDouble(a) new lang::Double(a)
 #endif
 #ifndef GCENABLE
 	typedef std::shared_ptr<Object> langObject;

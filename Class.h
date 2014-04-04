@@ -55,6 +55,7 @@ namespace lang
 	{
 	public:
 		size_t size;
+		bool nonunique;
 		ArrayBufferClassObject(void);
 		~ArrayBufferClassObject(void);
 	};
@@ -62,5 +63,6 @@ namespace lang
 	size_t ArrayBufferSetSize(langClassObject this_, size_t);
 	void* ArrayBufferGetPointer(langClassObject this_);
 	void ArrayBufferSetPointer(langClassObject this_, void*);
+	bool ArrayBufferSetNonUnique(langClassObject this_, bool);
 }
 #endif

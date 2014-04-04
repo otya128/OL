@@ -111,6 +111,7 @@ namespace lang
 	public:
 		std::vector<langFunction> functions;
 		OverloadFunction(langFunction, langFunction);
+		OverloadFunction(OverloadFunction*, lang::scope*);
 		virtual langObject call(std::vector<langObject>* argList);
 		virtual langObject ctorcall(std::vector<langObject>* argList);
 	};
