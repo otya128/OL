@@ -531,21 +531,370 @@ namespace lang
 				cc = (langClassObject)cc->base;
 			}
 		}
-		enum callruleenum
-		{
-			stdcall_,
-			cdecl_,
-			pascal_,
-			fastcall_,
-		};
-		langObject dynamiccall(std::vector<langObject> arg)
+		langObject getnativefunction(std::vector<langObject> arg)
 		{
 			callruleenum callrule = stdcall_;
+			HMODULE hDll;
+			std::string str = arg[0]->toString();
+			int retsize = 4;
+			ObjectType* type = (ObjectType*)IntTypeObject;
+			lang::ArrayBufferClassObject* arraybuf = false;
+			bool is_va_arg = false;
+			if (arg[1]->type->TypeEnum == _Type)
+			{
+				type = (ObjectType*)arg[1];
+				switch (type->TypeClass.TypeEnum)
+				{
+					case _Int:
+						retsize = sizeof(int);
+						break;
+					case _Double:
+						retsize = sizeof(double);
+						break;
+					case _Char:
+						retsize = sizeof(char);
+						break;
+					case _WChar:
+						retsize = sizeof(wchar_t);
+						break;
+					case _String:
+						retsize = sizeof(char*);
+						break;
+				}
+				arg.erase(arg.begin()++);
+			}
+			else if (arg[1]->type->TypeEnum == _ClassObject)
+			{
+				if (object_distance(arg[1], lang::ClassArrayBufferClass) != INT_MAX)
+				{
+					auto cc = (langClassObject)arg[1];
+					while (cc)
+					{
+						if (cc->staticClass == lang::ClassArrayBufferClass)
+						{
+							retsize = ArrayBufferGetSize(((lang::ArrayBufferClassObject*)cc));
+							arraybuf = ((lang::ArrayBufferClassObject*)arg[1]);
+						}
+						cc = (langClassObject)cc->base;
+					}
+				}
+				else
+					throw langRuntimeException("OL::ArrayBufferを継承したクラスのみ使えます[未実装:ArrayBufferable]");
+				arg.erase(arg.begin()++);
+			}
+			std::string funcstr = arg[1]->toString();
+			{
+				int ret = funcstr.find(':');
+				if (ret != -1)
+				{
+					if (funcstr.substr(ret + 1) == "va_arg")
+					{
+						is_va_arg = true;
+					}
+					if (funcstr.substr(ret + 1) == "cdecl")
+					{
+						callrule = cdecl_;
+					}
+					funcstr = funcstr.substr(0, ret);
+				}
+			}
+			hDll = LoadLibraryA(str.c_str());
+			if (hDll == NULL) {
+				throw_langRuntimeException("fail LoadLibraryA(\"%s\")", str.c_str());
+			}
+
+			dynamicfunc test_ = (dynamicfunc)GetProcAddress(hDll, funcstr.c_str());
+			if (test_ == NULL) {
+				throw_langRuntimeException("fail GetProcAddress(\"%s\")", funcstr.c_str());
+			}
+			PNativeFunction *ntv = 0;
+			ntv = arraybuf ? new PNativeFunction(test_, arraybuf, callrule, is_va_arg) : new PNativeFunction(test_, type, callrule, is_va_arg);
+		}		size_t _sizeof(langObject arg)
+		{
+			int retsize = 1;
+			switch (arg->type->TypeEnum)
+			{
+				case _Int:
+					retsize = sizeof(int);
+					break;
+				case _Double:
+					retsize = sizeof(double);
+					break;
+				case _Char:
+					retsize = sizeof(char);
+					break;
+				case _WChar:
+					retsize = sizeof(wchar_t);
+					break;
+				case _String:
+					retsize = sizeof(char*);
+					break;
+				case _ClassObject:
+					if (object_distance(arg, lang::ClassArrayBufferClass) != INT_MAX)
+					{
+						retsize = ArrayBufferGetSize(((lang::ArrayBufferClassObject*)arg));
+						break;
+					}
+				default:
+					retsize = sizeof(size_t);
+			}
+			return (retsize);
+		}
+		langObject _sizeof(std::vector<langObject> arg)
+		{
+			return newInt(_sizeof(arg[0]));
+		}
+		langObject PNativeFuncCall(std::vector<langObject> arg)
+		{
 			size_t _ESP;
 			__asm
 			{
 				mov _ESP, esp;
 			}
+			PNativeFunction* parg = (PNativeFunction*)arg[0];
+			arg.erase(arg.begin());
+			int j;
+			volatile double dj;
+			char cj;
+			wchar_t wj;
+			const char* sj;
+			int absiz;
+			int *ab;
+			void *resultaddr = nullptr;
+			int stacksiz = 0;
+			size_t retsize = _sizeof(parg->rettype);
+			if ((retsize >= 5 && retsize <= 7) || retsize >= 9)
+			{
+				resultaddr = new char[retsize];
+			}
+			callruleenum callrule = parg->rule;
+			bool is_va_arg = parg->isvar_arg();
+			rettype result;
+			langObject resultobj = NULLOBJECT;
+			ObjectType* type = (ObjectType*)parg->rettype;
+			lang::ArrayBufferClassObject* arraybuf;
+			for (int i = arg.size() - 1; i >= 2; i--)
+				switch (arg[i]->type->TypeEnum)
+			{
+					case _Int:
+						j = Int::toInt(arg[i]);//Int::toInt(arg[i]);
+						__asm
+						{
+							push j;
+						}
+						stacksiz += 4;
+						break;
+					case _Double:
+						dj = Double::toDouble(arg[i]);//Int::toInt(arg[i]);
+						__asm
+						{
+							sub         esp, 8;
+							movsd       xmm0, mmword ptr[dj];
+							movsd       mmword ptr[esp], xmm0;
+							; push dj;
+							; push dj;
+							; movss       xmm0, dj; XMM00 = 1.0
+								; movss       dword ptr[esp], xmm0; *esp = XMM00
+						}
+						stacksiz += 8;
+						break;
+					case _Char:
+						cj = Char::toChar(arg[i]);//Int::toInt(arg[i]);
+						__asm
+						{
+							push cj;
+						}
+						stacksiz += 4;
+						break;
+					case _WChar:
+						wj = WChar::toWChar(arg[i]);//Int::toInt(arg[i]);
+						__asm
+						{
+							push wj;
+						}
+						stacksiz += 2;
+						break;
+					case _String:
+						sj = ((langString)arg[i])->getString()->c_str();
+						__asm
+						{
+							push sj;
+						}
+						stacksiz += 4;
+						break;
+					case _ClassObject:
+						if (object_distance(arg[i], lang::ClassArrayBufferClass) != INT_MAX)
+						{
+							absiz = ArrayBufferGetSize(((lang::ArrayBufferClassObject*)arg[i]));
+							absiz += absiz % 4;
+							ab = (((int *)ArrayBufferGetPointer((lang::ArrayBufferClassObject*)arg[i]))) + (absiz / 4) - 1;
+							for (j = absiz; j > 0; j -= 4)
+							{
+								resultaddr = (void*)*ab;
+								__asm
+								{
+									push resultaddr;
+								}
+								ab--;
+								stacksiz += 4;
+							}
+						}
+						else
+							throw langRuntimeException("OL::ArrayBufferを継承したクラスのみ使えます[未実装:ArrayBufferable]");
+						break;
+			}
+			resultaddr = nullptr;
+			if (retsize > 8)
+			{
+				auto ret = arraybuf->CreateObject(arraybuf->staticClass);
+				arg.clear();
+				ArrayBufferSetPointer(((ArrayBufferClassObject*)ret), new char[retsize]);
+				ArrayBufferSetSize(((ArrayBufferClassObject*)ret), retsize);
+				resultaddr = ret;
+			}
+			switch (retsize)
+			{
+				case 1:
+					__asm
+					{
+						call test_;
+						mov result.c, al;
+					}
+					resultobj = newChar(result.c);
+					break;
+				case 2:
+					__asm
+					{
+						call test_;
+						mov result.w, ax;
+					}
+					resultobj = new WChar(result.w);
+					break;
+				case 4:
+					__asm
+					{
+						call test_;
+						mov result.i, eax;
+					}
+					resultobj = newInt(result.i);
+					//result.i = test_();
+					break;
+				case 8:
+					__asm
+					{
+						call test_;
+						mov result.hl[0], eax;
+						mov result.hl[1], edx;
+					}
+					break;
+				default:
+					__asm
+					{
+						push resultaddr;
+						call test_;
+					}
+					break;
+			}
+			if (type->TypeClass.TypeEnum == _String)
+			{
+				resultobj = newString((char*)result.i);
+			}
+			if (type->TypeClass.TypeEnum == _Int)
+			{
+				resultobj = newInt(result.i);
+			}
+			if (type->TypeClass.TypeEnum == _Double)
+			{
+				__asm
+				{
+					fstp qword ptr[result.d];
+				}
+				resultobj = newDouble(result.d);
+			}
+			if (type->TypeClass.TypeEnum == _Char)
+			{
+				resultobj = newChar(result.c);
+			}
+			if (type->TypeClass.TypeEnum == _WChar)
+			{
+				resultobj = new WChar(result.w);
+			}
+			/*__asm
+			{
+			mov result, eax;
+			}*/
+			if (is_va_arg || callrule == cdecl_)
+			{
+				__asm
+				{
+					add esp, stacksiz;
+				}
+			}
+			if (arraybuf)
+			{
+				auto ret = arraybuf->CreateObject(arraybuf->staticClass);
+				arg.clear();
+				if (resultaddr)
+				{
+					ArrayBufferSetNonUnique(((ArrayBufferClassObject*)ret), true);
+					ArrayBufferSetPointer(((ArrayBufferClassObject*)ret), resultaddr);
+				}
+				else
+				{
+					ArrayBufferSetPointer(((ArrayBufferClassObject*)ret), new char[retsize]);
+					auto saet = (langFunction)ret->getMember("bracketequal", ret->thisscope);
+					if (saet is _Function)
+					{
+						arg.clear();
+						arg.push_back(FALSEOBJECT);
+						switch (retsize)
+						{
+							case 8:
+								arg.push_back(newInt(result.hl[0]));
+								saet->call(&arg);
+								arg.clear();
+								arg.push_back(TRUEOBJECT);
+								arg.push_back(newInt(result.hl[1]));
+								break;
+							default:
+								arg.push_back(resultobj);
+								break;
+						}
+						ArrayBufferSetSize(((ArrayBufferClassObject*)ret), retsize);
+						saet->call(&arg);
+					}
+				}
+				resultobj = ret;
+
+			}
+			/*for (int i = arg.size() - 1; i >= 2; i--)
+			__asm
+			{
+			pop j;
+			}*/
+			size_t _ESP2;
+			__asm
+			{
+				mov _ESP2, esp;
+			}
+			if (_ESP != _ESP2)
+			{
+				std::cerr << "error 不正なESP 引数か呼び出し規則間違ってるかも 可変長引数なら:va_argを付ける" << std::endl;
+				_asm
+				{
+					mov esp, _ESP;
+				}
+			}
+			return resultobj;
+		}
+		langObject dynamiccall(std::vector<langObject> arg)
+		{
+			size_t _ESP;
+			__asm
+			{
+				mov _ESP, esp;
+			}
+			callruleenum callrule = stdcall_;
 			HMODULE hDll;
 			std::string str = arg[0]->toString();
 			int retsize = 4;
@@ -862,41 +1211,7 @@ namespace lang
 			}
 			return resultobj;
 		}
-		size_t _sizeof(langObject arg)
-		{
-			int retsize = 1;
-			switch (arg->type->TypeEnum)
-			{
-				case _Int:
-					retsize = sizeof(int);
-					break;
-				case _Double:
-					retsize = sizeof(double);
-					break;
-				case _Char:
-					retsize = sizeof(char);
-					break;
-				case _WChar:
-					retsize = sizeof(wchar_t);
-					break;
-				case _String:
-					retsize = sizeof(char*);
-					break;
-				case _ClassObject:
-					if (object_distance(arg, lang::ClassArrayBufferClass) != INT_MAX)
-					{
-						retsize = ArrayBufferGetSize(((lang::ArrayBufferClassObject*)arg));
-						break;
-					}
-				default:
-					retsize = sizeof(size_t);
-			}
-			return (retsize);
-		}
-		langObject _sizeof(std::vector<langObject> arg)
-		{
-			return newInt(_sizeof(arg[0]));
-		}
+
 		langObject tonativefunc(std::vector<langObject> arg)
 		{
 			nativefunc a = ToNativeFunc(arg);
@@ -925,7 +1240,7 @@ namespace lang
 		const unsigned char PUSH_EAX = 0x50;
 		const unsigned char PUSH_ECX = 0x51;
 		void lap(langObject ret, langFunction f, int, ...);
-		nativefunc ToNativeFunc(std::vector<langObject> arg)
+		nativefunc __stdcall ToNativeFunc(std::vector<langObject> arg)
 		{
 			struct exception_mendo{ bool success; unsigned char* function; exception_mendo(){ success = false; function = new unsigned char[512]; memcpy(function, basefunc1, sizeof(basefunc1)); }~exception_mendo(){ if (!success)delete function; } }
 			func;
@@ -933,6 +1248,7 @@ namespace lang
 			unsigned char* function = func.function;//new unsigned char[512];]
 			//argは8から始まるらしひmov     eax, [ebp+arg_4]
 			unsigned char* body = function + sizeof(basefunc1);
+			size_t stdcallretstacksize = 0;
 			if (arg.size() != 2)
 			{
 				throw langRuntimeException("引数の数がToNativeFunc");
@@ -953,6 +1269,7 @@ namespace lang
 				//*body = 0xA1; body++;//mov eax,[imm]
 				//TODO:32bit ptr
 				for (int i = f->argList->size() - 1; i >= 0; i--)
+				//for (int i = 0; i < f->argList->size(); i++)
 				{
 					std::string &type = f->argList->at(i).first;
 					langObject typeo = f->scope->variable(type, f->scope);
@@ -974,7 +1291,7 @@ namespace lang
 									*body = PUSH_EAX; body++;
 									arg_stack -= 4;
 								}
-								arg_stack += absiz;
+								arg_stack += absiz; stdcallretstacksize += absiz;
 								//for (int j = absiz; j > 0; j -= 4)
 								//{
 								//	*body = 0x8b; body++;						//mov eax
@@ -997,7 +1314,7 @@ namespace lang
 								*body = 0x45; body++;						//[ebp +
 								*body = (unsigned char)arg_stack; body++;	//       0]
 								*body = PUSH_EAX; body++;
-								arg_stack += 4;
+								arg_stack += 4; stdcallretstacksize += 4;
 							}
 							//*body = 
 							//引数をpush
@@ -1005,7 +1322,7 @@ namespace lang
 							*body = 0x45; body++;						//[ebp +
 							*body = (unsigned char)arg_stack; body++;	//       0]
 							*body = PUSH_EAX; body++;
-							arg_stack += 4;
+							arg_stack += 4; stdcallretstacksize += 4;
 						}
 
 						//(1,int,2,int)=>cdecl
@@ -1022,7 +1339,8 @@ namespace lang
 							body++;// >>
 						}
 						*body = PUSH_EAX; body++;
-						arg_stack += 4;
+						//WAHT??arg_stack += 4;
+						stdcallretstacksize += 4;
 						//隠しパラメータ
 						//8byteを超えると
 						if (_sizeof(arg[1]) > 8)
@@ -1031,7 +1349,7 @@ namespace lang
 							*body = 0x45; body++;						//[ebp +
 							*body = (unsigned char)/*arg_stack*/0x8; body++;	   //       0]
 							*body = PUSH_EAX; body++;
-							arg_stack += 4;
+							arg_stack += 4; stdcallretstacksize += 4;
 							// & 0x40000000U
 						}
 					}
@@ -1046,7 +1364,8 @@ namespace lang
 				*body = 0; body++;
 				*body = 0; body++;
 				*body = _sizeof(arg[1]) > 8 ? 0x40 : 0; body++;
-				*body = PUSH_EAX; body++; arg_stack += 4;
+				*body = PUSH_EAX; body++;// arg_stack += 4; 
+				stdcallretstacksize += 4;
 				//*body = PUSH_EAX; body++; arg_stack += 4;
 				//関数を引数に入れる
 				ptr = (size_t)f;
@@ -1057,7 +1376,8 @@ namespace lang
 					ptr = ptr >> 8;
 					body++;// >>
 				}
-				*body = PUSH_EAX; body++; arg_stack += 4;
+				*body = PUSH_EAX; body++;// arg_stack += 4; 
+				stdcallretstacksize += 4;
 				//戻り値を引数に入れる
 				ptr = (size_t)arg[1];
 				*body = 0xB8/*0xA1*/; body++;//mov eax,[imm]
@@ -1067,7 +1387,8 @@ namespace lang
 					ptr = ptr >> 8;
 					body++;// >>
 				}
-				*body = PUSH_EAX; body++; arg_stack += 4;
+				*body = PUSH_EAX; body++; //arg_stack += 4; 
+				stdcallretstacksize += 4;
 				//call
 #ifdef ZETTAI
 				*body = 0x9A; body++;
@@ -1108,9 +1429,19 @@ namespace lang
 				//body += 5;
 				*body = 0x83; body++;//add
 				*body = 0xC4; body++;//esp
-				*body = (unsigned char)arg_stack - 0x08; body++;
+				*body = (unsigned char)/*arg_stack - 0x08*/stdcallretstacksize; body++;
 				func.success = true;
 				memcpy(body, basefunc2, sizeof(basefunc2));
+				body += sizeof(basefunc2);
+				body--;
+				*body = 0xC2; body++;
+				ptr = arg_stack - 0x08;//stdcallretstacksize;
+				for (int i = 0; i < 2; i++)
+				{
+					*body = (unsigned char)(ptr & 0xFF);
+					ptr = ptr >> 8;
+					body++;// >>
+				}
 				return (void(*)(void))function;
 			}
 			else
@@ -1177,6 +1508,7 @@ namespace lang
 					arg.push_back(argarybuf);
 				}
 			}
+			std::reverse(arg.begin(), arg.end());
 			if (ret->type->TypeEnum == _ClassObject)
 			{
 				argarybuf = (langClassObject)f->call(&arg);

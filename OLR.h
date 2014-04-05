@@ -57,8 +57,9 @@ namespace lang
 		langObject time(std::vector<langObject> arg);
 		langObject getstack(std::vector<langObject> arg);
 		langObject _sizeof(std::vector<langObject> arg);
+		langObject PNativeFuncCall(std::vector<langObject> arg);
 		typedef void(*nativefunc)(void);
-		nativefunc ToNativeFunc(std::vector<langObject> arg);
+		nativefunc __stdcall ToNativeFunc(std::vector<langObject> arg);
 		void init();
 	}
 }

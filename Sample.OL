@@ -1,4 +1,13 @@
-var rettype = new OL::ArrayBuffer(4 * 4)
+/*dynamiccall("D:/Visual Studio 2013/Projects/DLL/Debug/DLL.dll","?wndprocf@@YGXP6GHHHHH@Z@Z",VarPtr(
+			tonativefunc(
+				((int i,int i2,int i3,int i4)=>
+				{//てててていいかかまななななららららららきききききみかかみかかみかかみかかみかかみかかみかか
+					print(i,'\t',i2,'\t',i3,'\t',i4,'\n');
+					return 1;
+				}
+				),int)));
+exit(0);*/
+/*var rettype = new OL::ArrayBuffer(4 * 4)
 print('\n',dynamiccall("D:/Visual Studio 2013/Projects/OLRCLR/Debug/OLRCLR.dll",rettype,"?callbackary@@YG?AUarybuftest@@P6A?AU1@U1@@Z@Z",
 (VarPtr(
 	tonativefunc(
@@ -14,7 +23,7 @@ print(dynamiccall("D:/Visual Studio 2013/Projects/OLRCLR/Debug/OLRCLR.dll","?cal
 	)
 	)
 )));
-exit(0);
+exit(0);*/
 class CArray : OL::ArrayBuffer
 {
 	CArray(array ary)
@@ -30,6 +39,39 @@ class CArray : OL::ArrayBuffer
 		//this[0] = " Hello,NET!";
 		//this[4] = 0;
 	}
+}
+class WNDCLASSEXA : OL::ArrayBuffer
+{
+	WNDCLASSEXA()
+	{
+		base.ctor(48);
+	}
+    UINT        cbSize
+	{get{return this[0,int]}set{this[0]=value}}
+    /* Win 3.x */
+    UINT        style
+	{get{return this[4,int]}set{this[4]=value}}
+    WNDPROC     lpfnWndProc
+	{get{return this[8,int]}set{this[8]=value}}
+    int         cbClsExtra
+	{get{return this[12,int]}set{this[12]=value}}
+    int         cbWndExtra
+	{get{return this[16,int]}set{this[16]=value}}
+    HINSTANCE   hInstance
+	{get{return this[20,int]}set{this[20]=value}}
+    HICON       hIcon
+	{get{return this[24,int]}set{this[24]=value}}
+    HCURSOR     hCursor
+	{get{return this[28,int]}set{this[28]=value}}
+    HBRUSH      hbrBackground
+	{get{return this[32,int]}set{this[32]=value}}
+    LPCSTR      lpszMenuName
+	{get{return this[36,int]}set{this[36]=value}}
+    LPCSTR      lpszClassName
+	{get{return this[40,int]}set{this[40]=value}}
+    /* Win 4.0 */
+    HICON       hIconSm
+	{get{return this[44,int]}set{this[44]=value}}
 }
 class MSG : OL::ArrayBuffer
 {
@@ -92,7 +134,33 @@ class MSG : OL::ArrayBuffer
 	}
 }
 var hinst = dynamiccall("KERNEL32.DLL","GetModuleHandleA",0);
-var hwnd = dynamiccall("user32.DLL","CreateWindowExA",0,"OLWindow","OLWindow",/*-2147483648*/13565952,0,0,100,100,0,0,hinst,0)
+var wc = new WNDCLASSEXA();
+        wc.cbSize = 48;               // 構造体サイズ
+        wc.style = 1 | 2;   // スタイルdynamiccall("user32","DefWindowProcA",i,i2,i3,i4);
+        wc.lpfnWndProc = VarPtr(
+			tonativefunc(
+				((int i,int i2,int i3,int i4)=>
+				{//てててていいかかまななななららららららきききききみかかみかかみかかみかかみかかみかかみかか
+					//print(i,'\t',i2,'\t',i3,'\t',i4,'\n');
+					print(hwnd,dynamiccall("user32","DefWindowProcA",i,i2,i3,i4),"\n");
+					//print(dynamiccall("KERNEL32","GetLastError"))
+					return 1;
+				}
+				),int));
+		print(wc.lpfnWndProc,"\n")
+        wc.cbClsExtra = 0;                    // 拡張情報１
+        wc.cbWndExtra = 0;                    // 拡張情報２
+        wc.hInstance = hinst;                 // インスタンスハンドル
+        wc.hIcon = 0;
+        wc.hIconSm = 0;                // 子アイコン
+        wc.hCursor = 0;
+        wc.hbrBackground = 0; //NULL;//GetSysColorBrush(COLOR_WINDOWFRAME);//(HBRUSH)GetStockObject(_BRUSH); // ウィンドウ背景
+        wc.lpszMenuName = 0;                     // メニュー名
+        wc.lpszClassName = "tesaaaat";// ウィンドウクラス名
+
+        // ウィンドウクラスを登録する
+        print(dynamiccall( "user32","RegisterClassExA",VarPtr(wc )),"\n")
+		var hwnd = dynamiccall("user32.DLL","CreateWindowExA",0,"tesaaaat","title",/*-2147483648*/13565952,0,0,100,100,0,0,hinst,0)
 dynamiccall("user32.DLL","ShowWindow",hwnd,5);
 dynamiccall("user32.DLL","UpdateWindow",hwnd);
 	while( true )

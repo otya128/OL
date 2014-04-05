@@ -4,6 +4,7 @@
 #include <sstream>
 #include "langException.h"
 #include "Class.h"
+#include "OLR.h"
 #define INT_MAX       2147483647    /* maximum (signed) int value */
 namespace lang
 {
@@ -507,6 +508,8 @@ namespace lang
 	}
 	langFunction Function::CopyFunction(Function* f, lang::scope* this_scope)
 	{
+		if (f->ispnative())
+			return new PNativeFunction(*((PNativeFunction*)f));
 		if (f->isnative())
 			return new NativeFunction((NativeFunction*)f, this_scope);
 		if (f->islambda())
@@ -518,5 +521,33 @@ namespace lang
 	langFunction Function::CopyFunction(NativeFunction* f, lang::scope* this_scope)
 	{
 		return new NativeFunction(f, this_scope);
+	}
+	PNativeFunction::PNativeFunction(void* func, langObject ret, callruleenum c, bool is_va_arg)
+	{
+		this->Func = func;
+		this->rettype = ret;
+		this->rule = c;
+		this->Ftype = functype::p_native_func;
+		if (is_va_arg)*((int*)&this->Ftype) |= (int)functype::var_arg;
+		this->working = false;
+#ifdef CPP11
+		this->thread = nullptr;
+#endif
+		this->type = new Type(PreType::_Function);
+		this->argList = nullptr;
+		this->thisscope = nullptr;
+		this->scope = nullptr;//std::make_shared<lang::scope>(*scope);
+		if (this->scope != nullptr)scope->refinc();
+		this->index = -1;
+	}
+	langObject PNativeFunction::call(std::vector<langObject>* argList)
+	{
+		argList->push_back(this);
+		return lang::lib::PNativeFuncCall(*argList);
+	}
+	langObject PNativeFunction::ctorcall(std::vector<langObject>* argList)
+	{
+		argList->push_back(this);
+		return lang::lib::PNativeFuncCall(*argList);
 	}
 }

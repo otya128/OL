@@ -17,6 +17,7 @@ namespace lang
 		var_arg = 2,
 		overload = 4,
 		native_func = 8,
+		p_native_func = 16,
 	};
 	extern
 #ifdef _MSC_VER
@@ -71,6 +72,10 @@ namespace lang
 		inline bool isnative()
 		{
 			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::native_func));
+		}
+		inline bool ispnative()
+		{
+			return (static_cast<unsigned char>(this->Ftype) & static_cast<unsigned char>(functype::p_native_func));
 		}
 	};
 	//Ów¯Îw«
@@ -136,6 +141,23 @@ namespace lang
 		NativeFunc Func;
 		NativeFunction(NativeFunc func);
 		NativeFunction(NativeFunction *func, lang:: scope* this_scope);
+		virtual langObject call(std::vector<langObject>* argList);
+		virtual langObject ctorcall(std::vector<langObject>* argList);
+	};
+	enum callruleenum
+	{
+		stdcall_,
+		cdecl_,
+		pascal_,
+		fastcall_,
+	};
+	class PNativeFunction : public Function
+	{
+	public:
+		void* Func;
+		langObject rettype;
+		callruleenum rule;
+		PNativeFunction(void* func, langObject ret, callruleenum, bool);
 		virtual langObject call(std::vector<langObject>* argList);
 		virtual langObject ctorcall(std::vector<langObject>* argList);
 	};
