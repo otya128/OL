@@ -75,7 +75,7 @@ namespace lang
 		}
 		throw langRuntimeException(ss.str().c_str());
 	}
-	Function::Function(std::string name, std::vector<std::pair<std::string, std::string>>& argList, lang::scope* scope, int index)
+	Function::Function(std::string name, FunctionArg& argList, lang::scope* scope, int index)
 	{
 		this->Ftype = functype::normal;
 		this->working = false;
@@ -164,7 +164,7 @@ namespace lang
 		}
 		for (int i = 0; i < this->argList->size(); i++)
 		{
-			sc->variable.add((*this->argList)[i].second, (*argList)[i]);
+			sc->variable.add(*(*this->argList)[i].second, (*argList)[i]);
 		}
 		langObject buf;
 		buf = sc->run();
@@ -213,7 +213,7 @@ namespace lang
 			FunctionArgThrow(this, argList);
 		for (int i = 0; i < this->argList->size(); i++)
 		{
-			sc->variable.add((*this->argList)[i].second, (*argList)[i]);
+			sc->variable.add(*(*this->argList)[i].second, (*argList)[i]);
 		}
 		langObject buf;
 		buf = sc->eval(NULLOBJECT, sc->startIndex);//run();
@@ -230,7 +230,7 @@ namespace lang
 		sc->startIndex = this->index + 1;//+1‚µ‚ñ‚ ‚¢‚Æreturn‚ª–³‚¢ŠÖ”‚Åreturn‚³‚ê‚È‚­‚È‚é
 		if (this->argList->size() != argList->size())
 			FunctionArgThrow(this, argList);
-		for (int i = 0; i < this->argList->size(); i++) sc->variable.add((*this->argList)[i].second, (*argList)[i]);
+		for (int i = 0; i < this->argList->size(); i++) sc->variable.add(*(*this->argList)[i].second, (*argList)[i]);
 		auto buf = sc->run();
 		sc->del();
 		lang::stacktrace->pop_back();
@@ -244,7 +244,7 @@ namespace lang
 		std::string name = str.str();
 		int funcRead = 2;
 		FunctionArg* argList = new FunctionArg();
-		std::string type = "";
+		std::string *type;
 		langFunction func = /*std::make_shared<Function>*/new Function(name, nullptr, this, index + 1);
 		for (int i = index + 1; i < this->parsers.size(); i++)
 		{
@@ -271,14 +271,14 @@ namespace lang
 				case 4://name
 					if (token->pEnum == parserEnum::identifier)
 					{
-						argList->push_back(FunctionArgUnWrap(emptystr, *token->name));
+						argList->push_back(FunctionArgUnWrap(&emptystr, token->name));
 						funcRead++;
 					}
 					else
 					if (token->pEnum == parserEnum::comma || token->pEnum == parserEnum::rightparent)
 					{
 						funcRead--;
-						argList->push_back(FunctionArgUnWrap(type, *((this->parsers[i - 1])->name)));
+						argList->push_back(FunctionArgUnWrap(type, ((this->parsers[i - 1])->name)));
 						if (token->pEnum == parserEnum::rightparent)funcRead = 6;
 					}
 					else
@@ -373,7 +373,7 @@ namespace lang
 				kyoricount = 0;
 				for (int j = 0; j < argList->size(); j++)
 				{
-					langObject typo = this->functions[i]->scope->variable((this->functions[i]->argList->at(j).first), this->functions[i]->scope);
+					langObject typo = this->functions[i]->scope->variable(*(this->functions[i]->argList->at(j).first), this->functions[i]->scope);
 					if (typo == NULLOBJECT) typo = ObjectTypeObject;
 					int dis = object_distance(argList->at(j), typo);
 					if (dis == INT_MAX)
@@ -542,12 +542,10 @@ namespace lang
 	}
 	langObject PNativeFunction::call(std::vector<langObject>* argList)
 	{
-		argList->push_back(this);
-		return lang::lib::PNativeFuncCall(*argList);
+		return lang::lib::PNativeFuncCall(this, *argList);
 	}
 	langObject PNativeFunction::ctorcall(std::vector<langObject>* argList)
 	{
-		argList->push_back(this);
-		return lang::lib::PNativeFuncCall(*argList);
+		return lang::lib::PNativeFuncCall(this,*argList);
 	}
 }

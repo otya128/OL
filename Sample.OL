@@ -1,15 +1,61 @@
-/*dynamiccall("D:/Visual Studio 2013/Projects/DLL/Debug/DLL.dll","?wndprocf@@YGXP6GHHHHH@Z@Z",VarPtr(
+using WIN32;
+var wc = new WNDCLASSEXA();
+wc.cbSize = 48; 
+wc.style = 1 | 2;
+wc.lpfnWndProc = tonativefunc(((HWND hWnd, WIN32::UINT msg, WIN32::WPARAM wp, WIN32::LPARAM lp)=>
+				{
+					return DefWindowProc(hWnd,msg,wp,lp);
+				}),
+				WIN32::LRESULT);
+wc.cbClsExtra = 0;
+wc.cbWndExtra = 0;
+wc.hInstance = hInst;
+wc.hIcon = 0;
+wc.hIconSm = 0;
+wc.hCursor = 0;
+wc.hbrBackground = GetSysColorBrush(COLOR_BTNFACE);//0;
+wc.lpszMenuName = 0;
+wc.lpszClassName = "tesaaaat";
+RegisterClassEx(VarPtr(wc))
+var hwnd = CreateWindowExA(0,"tesaaaat","title",13565952,0,0,100,100,0,0,hInst,0)
+WIN32::ShowWindow(hwnd,5);
+WIN32::UpdateWindow(hwnd);
+var msg = new MSG();
+while( true )
+{
+	BOOL ret = GetMessage(VarPtr(msg), 0, 0, 0 );
+	if( ret == 0 || ret == -1 )
+	{
+		break;
+	}
+	else
+	{
+		TranslateMessage(VarPtr(msg) );
+		DispatchMessage(VarPtr(msg))
+	}
+}
+exit(0);
+/*var wndprocf = getnativefunction("D:/Visual Studio 2013/Projects/DLL/Debug/DLL.dll","?wndprocf@@YGXP6GHHHHH@Z@Z");
+wndprocf((
 			tonativefunc(
 				((int i,int i2,int i3,int i4)=>
 				{//ÇƒÇƒÇƒÇƒÇ¢Ç¢Ç©Ç©Ç‹Ç»Ç»Ç»Ç»ÇÁÇÁÇÁÇÁÇÁÇÁÇ´Ç´Ç´Ç´Ç´Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©
 					print(i,'\t',i2,'\t',i3,'\t',i4,'\n');
 					return 1;
 				}
-				),int)));
-exit(0);*/
+				),int)));*/
+/*dynamiccall("D:/Visual Studio 2013/Projects/DLL/Debug/DLL.dll","?wndprocf@@YGXP6GHHHHH@Z@Z",(
+			tonativefunc(
+				((int i,int i2,int i3,int i4)=>
+				{//ÇƒÇƒÇƒÇƒÇ¢Ç¢Ç©Ç©Ç‹Ç»Ç»Ç»Ç»ÇÁÇÁÇÁÇÁÇÁÇÁÇ´Ç´Ç´Ç´Ç´Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©
+					print(i,'\t',i2,'\t',i3,'\t',i4,'\n');
+					return 1;
+				}
+				),int)));*/
+//exit(0);
 /*var rettype = new OL::ArrayBuffer(4 * 4)
 print('\n',dynamiccall("D:/Visual Studio 2013/Projects/OLRCLR/Debug/OLRCLR.dll",rettype,"?callbackary@@YG?AUarybuftest@@P6A?AU1@U1@@Z@Z",
-(VarPtr(
+((
 	tonativefunc(
 	((rettype i)=>{i[12] = 13;return i;}),rettype
 	)
@@ -17,7 +63,7 @@ print('\n',dynamiccall("D:/Visual Studio 2013/Projects/OLRCLR/Debug/OLRCLR.dll",
 ))[12,int],"\n");
 print(rettype[4,int])
 print(dynamiccall("D:/Visual Studio 2013/Projects/OLRCLR/Debug/OLRCLR.dll","?callbacktostr@@YGPADP6APADH@Z@Z",
-(VarPtr(
+((
 	tonativefunc(
 	((int i)=>{return ""+i;}),string
 	)
@@ -134,19 +180,24 @@ class MSG : OL::ArrayBuffer
 	}
 }
 var hinst = dynamiccall("KERNEL32.DLL","GetModuleHandleA",0);
+var DefWindowProc = getnativefunction("user32","DefWindowProcA");
+var GetMessage = getnativefunction("user32","GetMessageA");
+var TranslateMessage = getnativefunction("user32","TranslateMessage");
+var DispatchMessage = getnativefunction("user32","DispatchMessageA");
+var LRESULT = int;
+var HWND = int;
+var UINT = int;
+var WPARAM = int;
+var LPARAM = int;
 var wc = new WNDCLASSEXA();
         wc.cbSize = 48;               // ç\ë¢ëÃÉTÉCÉY
         wc.style = 1 | 2;   // ÉXÉ^ÉCÉãdynamiccall("user32","DefWindowProcA",i,i2,i3,i4);
-        wc.lpfnWndProc = VarPtr(
-			tonativefunc(
-				((int i,int i2,int i3,int i4)=>
-				{//ÇƒÇƒÇƒÇƒÇ¢Ç¢Ç©Ç©Ç‹Ç»Ç»Ç»Ç»ÇÁÇÁÇÁÇÁÇÁÇÁÇ´Ç´Ç´Ç´Ç´Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©Ç›Ç©Ç©
-					//print(i,'\t',i2,'\t',i3,'\t',i4,'\n');
-					print(hwnd,dynamiccall("user32","DefWindowProcA",i,i2,i3,i4),"\n");
-					//print(dynamiccall("KERNEL32","GetLastError"))
-					return 1;
+        wc.lpfnWndProc = tonativefunc(
+				((HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)=>
+				{
+					return DefWindowProc(hWnd,msg,wp,lp);
 				}
-				),int));
+				),LRESULT);
 		print(wc.lpfnWndProc,"\n")
         wc.cbClsExtra = 0;                    // ägí£èÓïÒÇP
         wc.cbWndExtra = 0;                    // ägí£èÓïÒÇQ
@@ -163,18 +214,18 @@ var wc = new WNDCLASSEXA();
 		var hwnd = dynamiccall("user32.DLL","CreateWindowExA",0,"tesaaaat","title",/*-2147483648*/13565952,0,0,100,100,0,0,hinst,0)
 dynamiccall("user32.DLL","ShowWindow",hwnd,5);
 dynamiccall("user32.DLL","UpdateWindow",hwnd);
+		var msg = new MSG();
 	while( true )
 	{
-		var msg = new MSG();
-		BOOL ret = dynamiccall("user32.DLL","GetMessageA", VarPtr(msg), 0, 0, 0 );
+		BOOL ret = GetMessage(VarPtr(msg), 0, 0, 0 );//dynamiccall("user32.DLL","GetMessageA", VarPtr(msg), 0, 0, 0 );
 		if( ret == 0 || ret == -1 )
 		{
 			break;
 		}
 		else
 		{
-			dynamiccall("user32.DLL","TranslateMessage", VarPtr(msg) );
-			dynamiccall("user32.DLL","DispatchMessageA", VarPtr(msg) );
+			TranslateMessage(VarPtr(msg) );
+			DispatchMessage(VarPtr(msg))
 		}
 	}
 dynamiccall("D:/Visual Studio 2013/Projects/OLRCLR/Debug/OLRCLR.dll","?callnet@@YGXPAD0PAPAD@Z","System.Console","WriteLine",VarPtr(new CArray(["{0}, {1}","Hello", ".NET"])));

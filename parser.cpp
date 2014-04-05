@@ -412,7 +412,7 @@ namespace lang
 			if (token->pEnum == identifier)
 			if (!lambda_i)
 			{
-				arg.push_back(FunctionArgUnWrap(emptystr, *token->name));
+				arg.push_back(FunctionArgUnWrap(&emptystr, token->name));
 				lambda_i++;
 			}
 			else
@@ -422,7 +422,7 @@ namespace lang
 					WARNINGS(0, "syntax error[lambda]%s", getlinestring(this->program, token->sourcestartindex).c_str())
 				}
 				lambda_i++;
-				arg.back().first = *token->name;
+				arg.back().first = token->name;
 			}
 			if (token->pEnum == comma)
 			{
@@ -524,6 +524,7 @@ namespace lang
 		langLambda l = new Lambda(ss.str(), arg, this->runner, index + 1, endindex/*-1/* + 1*/, isexp);
 		this->parsers[argindex]->ptr = l;
 	}
+	std::string value("value");
 	Property* parser::propertyparse(int &i, int endstacksize, lang::stack<BlockStruct> &funcStack, std::string &namesp)
 	{
 		qualifier typequalifier = qualifier::public_;
@@ -534,7 +535,7 @@ namespace lang
 		langFunction set = nullptr;
 		FunctionArg getterarg;
 		FunctionArg setterarg;
-		setterarg.push_back(FunctionArgUnWrap(emptystr, "value"));
+		setterarg.push_back(FunctionArgUnWrap(&emptystr, &value));
 		for (; i < this->parsers.size(); i++)
 		{
 			parseObj *token = this->parsers[i];
@@ -937,20 +938,20 @@ namespace lang
 					if (token->pEnum == parserEnum::comma)
 					{
 						if (argList == nullptr)argList = new FunctionArg();
-						argList->push_back(FunctionArgUnWrap(emptystr, *prevtoken->name));
+						argList->push_back(FunctionArgUnWrap(&emptystr, prevtoken->name));
 						funcRead--;
 					}
 					else if (token->pEnum == parserEnum::rightparent)
 					{
 						if (argList == nullptr)argList = new FunctionArg();
-						argList->push_back(FunctionArgUnWrap(emptystr, *prevtoken->name));
+						argList->push_back(FunctionArgUnWrap(&emptystr, prevtoken->name));
 						funcRead += 2;
 					}
 					else
 					if (token->pEnum == parserEnum::identifier)
 					{
 						if (argList == nullptr)argList = new FunctionArg();
-						argList->push_back(FunctionArgUnWrap(*prevtoken->name, *token->name));
+						argList->push_back(FunctionArgUnWrap(prevtoken->name, token->name));
 						funcRead++;
 					}
 					else PARSE_ERROR(i, "syntax error[function]") //funcRead = 0;

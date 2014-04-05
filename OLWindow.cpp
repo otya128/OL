@@ -574,7 +574,7 @@ namespace lang
         wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE); //NULL;//GetSysColorBrush(COLOR_WINDOWFRAME);//(HBRUSH)GetStockObject(_BRUSH); // ウィンドウ背景
         wc.lpszMenuName = NULL;                     // メニュー名
         wc.lpszClassName = OLWindow::classname;// ウィンドウクラス名
-		wc.hIcon = 0; wc.hbrBackground = 0; wc.hCursor = 0; wc.hIconSm = 0;
+		//wc.hIcon = 0; wc.hbrBackground = 0; wc.hCursor = 0; wc.hIconSm = 0;
         // ウィンドウクラスを登録する
         if( RegisterClassEx( &wc ) == 0 ){ throw GetLastError();}//return ; }
 #ifdef CPP11

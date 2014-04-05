@@ -26,7 +26,8 @@ namespace lang
 		__thread
 #endif
 		std::vector<langFunction>* stacktrace;
-	typedef std::pair<std::string, std::string> FunctionArgUnWrap;
+	//typedef std::pair<std::string&, std::string&> FunctionArgUnWrap;
+	typedef std::pair<const std::string*, const std::string*> FunctionArgUnWrap;
 	typedef std::vector<FunctionArgUnWrap> FunctionArg;
 	const std::string emptystr;
 	class Function : public Object

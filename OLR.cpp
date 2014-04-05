@@ -78,6 +78,7 @@ namespace lang
 			Add("dynamiccall", dynamiccall);
 			Add("tonativefunc", tonativefunc);
 			Add("sizeof", _sizeof);
+			Add("getnativefunction", getnativefunction);
 		}
 #ifdef CPP11
 		std::mutex printm;
@@ -609,7 +610,9 @@ namespace lang
 			}
 			PNativeFunction *ntv = 0;
 			ntv = arraybuf ? new PNativeFunction(test_, arraybuf, callrule, is_va_arg) : new PNativeFunction(test_, type, callrule, is_va_arg);
-		}		size_t _sizeof(langObject arg)
+			return ntv;
+		}
+		size_t _sizeof(langObject arg)
 		{
 			int retsize = 1;
 			switch (arg->type->TypeEnum)
@@ -644,15 +647,13 @@ namespace lang
 		{
 			return newInt(_sizeof(arg[0]));
 		}
-		langObject PNativeFuncCall(std::vector<langObject> arg)
+		langObject PNativeFuncCall(PNativeFunction* parg, std::vector<langObject> arg)
 		{
 			size_t _ESP;
 			__asm
 			{
 				mov _ESP, esp;
 			}
-			PNativeFunction* parg = (PNativeFunction*)arg[0];
-			arg.erase(arg.begin());
 			int j;
 			volatile double dj;
 			char cj;
@@ -672,8 +673,11 @@ namespace lang
 			rettype result;
 			langObject resultobj = NULLOBJECT;
 			ObjectType* type = (ObjectType*)parg->rettype;
-			lang::ArrayBufferClassObject* arraybuf;
-			for (int i = arg.size() - 1; i >= 2; i--)
+			lang::ArrayBufferClassObject* arraybuf = 0;
+			if (type is _ClassObject)
+				arraybuf = (lang::ArrayBufferClassObject*)parg->rettype;
+			nativefunc test_ = (nativefunc)parg->Func;
+			for (int i = arg.size() - 1; i >= 0; i--)
 				switch (arg[i]->type->TypeEnum)
 			{
 					case _Int:
@@ -819,10 +823,6 @@ namespace lang
 			{
 				resultobj = new WChar(result.w);
 			}
-			/*__asm
-			{
-			mov result, eax;
-			}*/
 			if (is_va_arg || callrule == cdecl_)
 			{
 				__asm
@@ -867,11 +867,6 @@ namespace lang
 				resultobj = ret;
 
 			}
-			/*for (int i = arg.size() - 1; i >= 2; i--)
-			__asm
-			{
-			pop j;
-			}*/
 			size_t _ESP2;
 			__asm
 			{
@@ -887,6 +882,9 @@ namespace lang
 			}
 			return resultobj;
 		}
+		//langObject PNativeFuncCall(std::vector<langObject> arg)
+		//{
+		//}
 		langObject dynamiccall(std::vector<langObject> arg)
 		{
 			size_t _ESP;
@@ -1214,11 +1212,11 @@ namespace lang
 
 		langObject tonativefunc(std::vector<langObject> arg)
 		{
-			nativefunc a = ToNativeFunc(arg);
+			nativefunc a = ToNativeFunc(arg);/*
 			ArrayBufferClassObject* ret = new ArrayBufferClassObject();
 			ArrayBufferSetPointer(ret, a);
-			ArrayBufferSetSize(ret, 4);
-			return ret;
+			ArrayBufferSetSize(ret, 4);*/
+			return newInt((int)a);
 		}
 		const char basefunc1[] =
 		{
@@ -1269,9 +1267,9 @@ namespace lang
 				//*body = 0xA1; body++;//mov eax,[imm]
 				//TODO:32bit ptr
 				for (int i = f->argList->size() - 1; i >= 0; i--)
-				//for (int i = 0; i < f->argList->size(); i++)
+					//for (int i = 0; i < f->argList->size(); i++)
 				{
-					std::string &type = f->argList->at(i).first;
+					const std::string &type = *f->argList->at(i).first;
 					langObject typeo = f->scope->variable(type, f->scope);
 					if (typeo is _Type || typeo is _ClassObject)
 					{
